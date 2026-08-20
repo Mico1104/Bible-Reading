@@ -5,6 +5,7 @@ import { SignupPage } from "./features/auth/SignupPage";
 import { ProgressPage } from "./features/progress/ProgressPage";
 import { NotePage } from "./features/notes/NotePage";
 import { Layout } from "./components/Layout";
+import { NotFoundPage } from "./components/NotFoundPage";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,7 @@ export const router = createBrowserRouter([
       { path: "/signup", element: <SignupPage /> },
       { path: "/progress", element: <ProgressPage /> },
       { path: "/notes", element: <NotePage /> },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);
