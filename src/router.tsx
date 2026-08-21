@@ -6,16 +6,23 @@ import { ProgressPage } from "./features/progress/ProgressPage";
 import { NotePage } from "./features/notes/NotePage";
 import { Layout } from "./components/Layout";
 import { NotFoundPage } from "./components/NotFoundPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: "/", element: <DashboardPage /> },
-      { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignupPage /> },
-      { path: "/progress", element: <ProgressPage /> },
-      { path: "/notes", element: <NotePage /> },
+      { path: "/login", element: <LoginPage /> },
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: "/", element: <DashboardPage /> },
+          { path: "/progress", element: <ProgressPage /> },
+          { path: "/notes", element: <NotePage /> },
+        ],
+      },
+
       { path: "*", element: <NotFoundPage /> },
     ],
   },
