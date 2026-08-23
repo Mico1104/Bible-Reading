@@ -55,10 +55,16 @@ export const DashboardPage = () => {
           />
         )}
 
-        <button>{markComplete.isPending ? "Saving..." : "Mark as read"}</button>
+        <button
+          onClick={() => markComplete.mutate(planDay.id)}
+          disabled={markComplete.isPending}
+          className="mt-6 w-full rounded-md bg-gray-900 px-4 py-2 text-white disabled:opacity-50"
+        >
+          {markComplete.isPending ? "Saving..." : "Mark as read"}
+        </button>
 
         {markComplete.isSuccess && (
-          <p className="mt-3 text-sm text-green-700">Marked Complete</p>
+          <p className="mt-3 text-sm text-green-700">Marked Complete!</p>
         )}
       </div>
     </div>
