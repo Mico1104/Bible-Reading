@@ -1,9 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
+
+type BibleVerse = {
+    verse: number;
+    text: string;
+}
+
 type BibleApiResponse = {
   reference: string;
   text: string;
   translation_name: string;
+  verses: BibleVerse[];
 };
 
 const fetchVerse = async (reference: string): Promise<BibleApiResponse> => {
