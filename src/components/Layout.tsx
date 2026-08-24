@@ -36,7 +36,7 @@ export const Layout = () => {
                 {menuOpen ? <X size={21} /> : <Menu size={21} />}
               </button>
               <div
-                className={`${menuOpen ? "flex" : "hidden"} absolute left-4 right-4 top-[70px] z-10 flex-col gap-1 rounded-xl border border-[#e9e0db] bg-white p-3 shadow-lg md:static md:flex md:flex-row md:items-center md:gap-7 md:border-0 md:p-0 md:shadow-none`}
+                className={`${menuOpen ? "flex" : "hidden"} absolute left-4 right-4 top-17.5 z-10 flex-col gap-1 rounded-xl border border-[#e9e0db] bg-white p-3 shadow-lg md:static md:flex md:flex-row md:items-center md:gap-7 md:border-0 md:p-0 md:shadow-none`}
               >
                 <Link
                   onClick={() => setMenuOpen(false)}
