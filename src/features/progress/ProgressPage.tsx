@@ -1,7 +1,8 @@
-import { calculateStreak, useProgress } from "./useProgress";
+import { calculateStreak, useProgress, getCalendarDays } from "./useProgress";
 
 export const ProgressPage = () => {
   const { data: progress, isLoading, error } = useProgress();
+  const calenderDays = getCalendarDays(progress);
 
   if (isLoading) {
     return <p className="p-6 text-gray-500">Loading...</p>;
@@ -52,6 +53,24 @@ export const ProgressPage = () => {
           ))}
         </ul>
       </div>
+
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+          This month
+        </h2>
+
+        <div className="mt-3 grid grid-cols-7 gap-1">
+          {calenderDays.map(({ date, isCompleted }) => (
+            <div
+              key={date.toISOString()}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs ${isCompleted ? "bg-green-600 text-white" : "bg-gray-100 text-gray-500"}`}
+            >
+              {date.getDate()}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
+  
 };

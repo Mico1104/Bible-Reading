@@ -1,7 +1,14 @@
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { differenceInCalendarDays, isSameDay, subDays } from "date-fns";
+import {
+  differenceInCalendarDays,
+  eachDayOfInterval,
+  isSameDay,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 
 export const useProgress = () => {
   const userId = useAuthStore((state) => state.user?.id);
@@ -50,4 +57,19 @@ export const calculateStreak = (
   }
 
   return streak;
+};
+
+export const getCalendarDays = (
+  progress: { completed_at: string }[] | undefined,
+) => {
+  const today = new Date();
+  const start = startOfMonth(today);
+  const end = endOfMonth(today);
+
+  const completedDates = (progress ?? []).map((p) => new Date(p.completed_at));
+
+  return eachDayOfInterval({ start, end }).map((date) => ({
+    date,
+    isCompleted: completedDates.some((d) => isSameDay(d, date)),
+  }));
 };
