@@ -13,7 +13,7 @@ const noteSchema = z.object({
 type NoteFormValue = z.infer<typeof noteSchema>;
 
 export const NotePage = () => {
-  const { data: notes, isLoading } = useNotes();
+  const { data: notes, isLoading, error } = useNotes();
   const createNote = useCreateNote();
   const deleteNote = useDeleteNotes();
 
@@ -29,6 +29,14 @@ export const NotePage = () => {
 
     reset();
   };
+
+  if (error) {
+    return (
+      <p className="p-6 text-red-600">
+        Something went wrong loading your notes
+      </p>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md p-6">
@@ -70,6 +78,10 @@ export const NotePage = () => {
           {isSubmitting ? "Saving..." : "Add note"}
         </button>
       </form>
+
+      {notes?.length === 0 && (
+        <p className="text-sm text-gray-500">No notes yet - add one above</p>
+      )}
 
       <div className="mt-8 space-y-3">
         {isLoading && <p className="text-gray-500">Loading...</p>}
