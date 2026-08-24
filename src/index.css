@@ -1,1 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap");
 @import "tailwindcss";
+
+:root {
+  --background: #f7f4f1;
+  --surface: #ffffff;
+  --primary: #75493c;
+  --secondary: #7e6862;
+  --text: #0f151f;
+  --muted: #9b8d88;
+  font-family: "DM Sans", sans-serif;
+  color: var(--text);
+  background: var(--background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--background);
+}
+button,
+input,
+textarea {
+  font: inherit;
+}
+.font-display {
+  font-family: "Playfair Display", serif;
+}
+.page-shell {
+  min-height: calc(100vh - 78px);
+}
+.content-width {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+.skeleton-line {
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #eee9e5 25%, #f7f4f1 50%, #eee9e5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: rise-in 0.45s ease-out both;
+}
+
+.verse-line {
+  display: inline;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+@media (min-width: 640px) {
+  .content-width {
+    width: min(100% - 4rem, 72rem);
+  }
+}

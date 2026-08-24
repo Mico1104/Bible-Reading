@@ -1,5 +1,7 @@
 import { useAuthStore } from "@/stores/authStore";
 import { Navigate, Link } from "react-router-dom";
+import { ArrowRight, BookOpen, Check, Flame } from "lucide-react";
+import { motion } from "motion/react";
 
 export const LandingPage = () => {
   const user = useAuthStore((state) => state.user);
@@ -8,30 +10,87 @@ export const LandingPage = () => {
     return <Navigate to="/dashboard" replace />;
   }
   return (
-    <div className="mx-auto max-w-2xl px-6 py-20 text-center">
-      <h1 className="tex-4xl font-semibold">
-        Two Chapters, One Verse. A Deeper Walk With God.
-      </h1>
-      <p className="mt-4 text-lg text-gray-600">
-        Spend time in God's Word each day - read two chapters, treasure one
-        verse in your heart, and grow closer to Him. Build a faithful habit,keep
-        your reading streak, and let Scripture shape your daily walk.
-      </p>
-      <div className="mt-8 flex justify-center gap-4">
-        <Link
-          to="/signup"
-          className="rounded-md bg-gray-900 px-6 py-3 text-white"
+    <motion.div
+      className="page-shell overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="content-width grid items-center gap-12 py-10 sm:py-16 lg:grid-cols-[1fr_0.9fr] lg:gap-20 lg:py-24">
+        <motion.div
+          initial={{ opacity: 0, x: -18 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Get started
-        </Link>
-        
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#eadbd5] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#75493c]">
+            <BookOpen size={14} /> A quiet daily practice
+          </div>
+          <h1 className="font-display max-w-xl text-4xl leading-[1.08] text-[#0f151f] sm:text-6xl">
+            Two chapters. One verse. A deeper walk with God.
+          </h1>
+          <p className="mt-6 max-w-lg text-base leading-7 text-[#7e6862] sm:text-lg">
+            Make room for Scripture every day. Read with intention, remember
+            what speaks to you, and build a faithful rhythm that lasts.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/signup"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#75493c] px-6 py-3 font-semibold text-white transition hover:bg-[#603a31]"
+            >
+              Begin your reading <ArrowRight size={18} />
+            </Link>
+          </div>
+          <p className="mt-5 text-sm text-[#9b8d88]">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-[#75493c] underline underline-offset-4"
+            >
+              Log in
+            </Link>
+          </p>
+        </motion.div>
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.18 }}
+        >
+          <img
+            src="/landingImage.jpg"
+            alt="Open Bible in warm morning light"
+            className="aspect-4/5 w-full rounded-4xl object-cover shadow-2xl shadow-[#75493c]/15 sm:aspect-5/4 lg:aspect-4/5"
+          />
+          <div className="absolute -bottom-5 -left-3 flex items-center gap-3 rounded-xl bg-white p-4 shadow-xl sm:-left-6">
+            <span className="rounded-full bg-[#eadbd5] p-2 text-[#75493c]">
+              <Flame size={18} />
+            </span>
+            <div>
+              <p className="text-xs text-[#9b8d88]">Your next habit</p>
+              <p className="font-semibold text-[#0f151f]">
+                One faithful day at a time
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
-      <p className="mt-6 text-sm text-gray-500">
-        Already have an account?{" "}
-        <Link to="/login" className="text-gray-900 underline">
-          Log in
-        </Link>
-      </p>
-    </div>
+      <div className="content-width grid gap-4 border-t border-[#e9e0db] py-8 sm:grid-cols-3">
+        {[
+          "Two chapters each day",
+          "Keep your reading streak",
+          "Save the verses that stay",
+        ].map((item) => (
+          <div
+            key={item}
+            className="flex items-center gap-3 text-sm font-medium text-[#7e6862]"
+          >
+            <span className="rounded-full bg-[#dce8df] p-1 text-[#4c765d]">
+              <Check size={14} />
+            </span>
+            {item}
+          </div>
+        ))}
+      </div>
+    </motion.div>
   );
 };
