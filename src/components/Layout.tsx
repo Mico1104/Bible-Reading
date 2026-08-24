@@ -15,7 +15,7 @@ export const Layout = () => {
         <nav className="mx-auto flex max-w-2xl items-center gap-6">
           {user ? (
             <>
-              <Link to="/" className="font-semibold">
+              <Link to={user ? "/dashboard" : "/"} className="font-semibold">
                 Daily Bile Reading
               </Link>
               <Link to="/progress" className="text-gray-600">
@@ -30,9 +30,6 @@ export const Layout = () => {
             </>
           ) : (
             <>
-              <Link to="/login" className="text-gray-600">
-                Login
-              </Link>
               <Link to="/signup" className="text-gray-600">
                 Sign up
               </Link>

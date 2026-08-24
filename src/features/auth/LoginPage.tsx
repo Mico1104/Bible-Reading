@@ -12,14 +12,13 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginPage = () => {
- const navigate = useNavigate();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
-
 
   const onSubmit = async (values: LoginFormValues) => {
     let email = values.identifier;
@@ -28,8 +27,6 @@ export const LoginPage = () => {
       const { data, error } = await supabase.rpc("get_email_for_username", {
         lookup_username: values.identifier,
       });
-
-      
 
       if (error || !data) {
         setError("identifier", {
@@ -40,19 +37,16 @@ export const LoginPage = () => {
       email = data;
     }
 
-    
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password: values.password,
     });
 
-    
-
     if (signInError) {
       setError("password", { message: "Incorrect email/username or password" });
       return;
     }
-    navigate("/");
+    navigate("/dashboard");
   };
   return (
     <div className="mx-auto max-w-sm p-6">
