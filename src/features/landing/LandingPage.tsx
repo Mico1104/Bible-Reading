@@ -23,14 +23,15 @@ export const LandingPage = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#eadbd5] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#75493c]">
-            <BookOpen size={14} /> A quiet daily practice
+            <BookOpen size={14} /> A plan that fits your life
           </div>
           <h1 className="font-display max-w-xl text-4xl leading-[1.08] text-[#0f151f] sm:text-6xl">
-            Two chapters. One verse. A deeper walk with God.
+            One to five chapters. One faithful rhythm.
           </h1>
           <p className="mt-6 max-w-lg text-base leading-7 text-[#7e6862] sm:text-lg">
-            Make room for Scripture every day. Read with intention, remember
-            what speaks to you, and build a faithful rhythm that lasts.
+            Choose how much you read each day and whether you begin in the Old
+            Testament or New Testament. Read with intention, remember what
+            speaks to you, and build a faithful rhythm that lasts.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
@@ -76,7 +77,8 @@ export const LandingPage = () => {
       </div>
       <div className="content-width grid gap-4 border-t border-[#e9e0db] py-8 sm:grid-cols-3">
         {[
-          "Two chapters each day",
+          "Choose 1–5 chapters each day",
+          "Start in the Old or New Testament",
           "Keep your reading streak",
           "Save the verses that stay",
         ].map((item) => (

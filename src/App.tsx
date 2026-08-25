@@ -18,7 +18,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-gray-50 py-12">
         <RouterProvider router={router} />
-        <Toaster position="top-center" richCo/>
+        <Toaster position="top-center" richColors/>
       </div>
     </QueryClientProvider>
   );
