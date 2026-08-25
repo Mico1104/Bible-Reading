@@ -2,7 +2,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/lib/supabase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const loginSchema = z.object({
   identifier: z.string().min(1, "Enter your username or email"),
@@ -90,6 +90,15 @@ export const LoginPage = () => {
           {isSubmitting ? "Logging in..." : "Log in"}
         </button>
       </form>
+      <p className="mt-5 text-sm text-[#9b8d88]">
+        Don't have an account?{" "}
+        <Link
+          to="/signup"
+          className="font-semibold text-[#75493c] underline underline-offset-4"
+        >
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 };

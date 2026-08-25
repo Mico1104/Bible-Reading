@@ -4,8 +4,9 @@ import { useMarkComplete } from "./useMarkComplete";
 import { useState } from "react";
 import { useVerse } from "./useVerse";
 import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
-import { AlertCircle, BookMarked, Sparkles } from "lucide-react";
+import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useCreatePlan } from "./useCreatePlan";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
@@ -36,35 +37,12 @@ export const DashboardPage = () => {
   }
 
   if (error || !data) {
-    return (
-      <motion.div
-        className="content-width page-shell py-8 sm:py-12"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="max-w-xl rounded-2xl border border-[#e9e0db] bg-white p-6 shadow-sm sm:p-8">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eadbd5] text-[#75493c]">
-            <AlertCircle size={21} />
-          </div>
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-[#9b8d88]">
-            A quiet pause
-          </p>
-          <h1 className="font-display mt-2 text-3xl sm:text-4xl">
-            Welcome, {profile?.name ?? profile?.username}
-          </h1>
-          <p className="mt-4 leading-7 text-[#7e6862]">
-            {error
-              ? "We couldn't load your reading plan right now. Please refresh and try again."
-              : "We couldn&apos;t find an active reading plan for today. Please check back soon."}
-          </p>
-        </div>
-      </motion.div>
-    );
+    return <OnboardingPrompt />;
   }
 
- const { chapters, daysNumber } = data;
- const [chapter1, chapter2] = chapters;
- const memoryVerseReference = `${chapter1.reference}:1`;
+  const { chapters, daysNumber } = data;
+  const [chapter1, chapter2] = chapters;
+  const memoryVerseReference = `${chapter1.reference}:1`;
   return (
     <motion.div
       className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
@@ -219,5 +197,35 @@ const VerseBlock = ({
         ))}
       </p>
     </motion.article>
+  );
+};
+
+const OnboardingPrompt = () => {
+  const createPlan = useCreatePlan();
+
+  return (
+    <div className="mx-auto max-w-md p-6 text-center">
+      <h1 className="font-display text-3xl">Where would you like to start?</h1>
+      <p className="mt-3 text-[#7e6862]">
+        Choose whether to begin in the Old Testament or the New Testament —
+        you'll read straight through, looping back around once you finish.
+      </p>
+      <div className="mt-6 flex flex-col gap-3">
+        <button
+          onClick={() => createPlan.mutate("OT")}
+          disabled={createPlan.isPending}
+          className="rounded-lg bg-[#75393c] px-4 py-3 font-semibold text-white disabled:opacity-50"
+        >
+          Start in the Old Testament
+        </button>
+        <button
+          onClick={() => createPlan.mutate("NT")}
+          disabled={createPlan.isPending}
+          className="rounded-lg border border-[#75493c] px-4 py-3 font-semibold text-[#75493c] disabled:opacity-50"
+        >
+          Start in the New Testament
+        </button>
+      </div>
+    </div>
   );
 };

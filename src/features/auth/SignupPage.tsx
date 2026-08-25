@@ -2,6 +2,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
+import { Link } from "react-router-dom";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -112,6 +113,15 @@ export const SignupPage = () => {
           {isSubmitting ? "Creating account..." : "Sign up"}
         </button>
       </form>
+      <p className="mt-5 text-sm text-[#9b8d88]">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="font-semibold text-[#75493c] underline underline-offset-4"
+        >
+          Log in
+        </Link>
+      </p>
     </div>
   );
 };
