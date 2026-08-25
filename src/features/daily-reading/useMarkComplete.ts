@@ -7,10 +7,10 @@ export const useMarkComplete = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (planDayId: string) => {
+    mutationFn: async (dayNumber: number) => {
       const { error } = await supabase.from("reading_progress").insert({
         user_id: userId,
-        plan_day_id: planDayId,
+        day_number: dayNumber,
       });
 
       if (error) throw error;
@@ -18,6 +18,7 @@ export const useMarkComplete = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
+      queryClient.invalidateQueries({queryKey: ["progress"]})
     },
   });
 };

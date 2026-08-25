@@ -13,6 +13,8 @@ export const DashboardPage = () => {
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
 
+  console.log(data);
+
   if (isLoading) {
     return (
       <motion.div
@@ -60,7 +62,9 @@ export const DashboardPage = () => {
     );
   }
 
-  const { planDay } = data;
+ const { chapters, daysNumber } = data;
+ const [chapter1, chapter2] = chapters;
+ const memoryVerseReference = `${chapter1.reference}:1`;
   return (
     <motion.div
       className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
@@ -82,13 +86,13 @@ export const DashboardPage = () => {
       >
         <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#75493c]">
           <BookOpen size={16} />
-          Day {planDay.day_number}
+          Day {daysNumber}
         </p>
         <h2 className="font-display mt-3 text-2xl sm:text-3xl">
-          {planDay.chapter_1_reference} & {planDay.chapter_2_reference}
+          {chapter1.reference} & {chapter2.reference}
         </h2>
 
-        <MemoryVerse reference={planDay.memory_verse_reference} />
+        <MemoryVerse reference={memoryVerseReference} />
 
         <button
           onClick={() => setShowFullPassage((prev) => !prev)}
@@ -105,14 +109,14 @@ export const DashboardPage = () => {
         <AnimatePresence initial={false}>
           {showFullPassage && (
             <FullPassage
-              chapter1={planDay.chapter_1_reference}
-              chapter2={planDay.chapter_2_reference}
+              chapter1={chapter1.reference}
+              chapter2={chapter2.reference}
             />
           )}
         </AnimatePresence>
 
         <button
-          onClick={() => markComplete.mutate(planDay.id)}
+          onClick={() => markComplete.mutate(daysNumber)}
           disabled={markComplete.isPending}
           className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#75493c] px-4 py-3 font-semibold text-white transition hover:bg-[#603a31] disabled:opacity-50"
         >

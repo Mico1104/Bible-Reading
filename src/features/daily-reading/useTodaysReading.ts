@@ -3,38 +3,72 @@ import { useAuthStore } from "@/stores/authStore";
 import { differenceInCalendarDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 
+const TOTAL_CHAPTERS = 1189;
+
 export const useTodayReading = () => {
   const userId = useAuthStore((state) => state.user?.id);
-  console.log("Current User Id:", userId);
 
   return useQuery({
     queryKey: ["todays-reading", userId],
     queryFn: async () => {
-      //1. Find this user's active plan enrollment
+      //1. GET THE USER'S PLAN ENROLLMENT (START DATE)
       const { data: userPlan, error: userPlanError } = await supabase
         .from("user_plans")
         .select("*")
         .eq("user_id", userId)
+        .eq("status", "active")
         .single();
-
+      console.log("userPlan:", userPlan);
       if (userPlanError) throw userPlanError;
 
-      //2. Work out which dat number "today" correspond to
-      const dayNumber =
-        differenceInCalendarDays(new Date(), new Date(userPlan.start_date)) + 1;
-        console.log("Computer dayNumber:", dayNumber, "start_date", userPlan.start_date); 
+      // 2. GET THEIR TESTAMENT PREFERENCE
 
-      //3. Fetch that specific day's scripture reference
-      const { data: planDay, error: planDayError } = await supabase
-        .from("plan_days")
-        .select("*")
-        .eq("plan_id", userPlan.plan_id)
-        .eq("day_number", dayNumber)
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("testament_preference")
+        .eq("id", userId)
         .single();
 
-      if (planDayError) throw planDayError;
+      if (profileError) throw profileError;
 
-      return { userPlan, planDay };
+      //3. FIND THE CHAPTER POSITION WHERE THEIR SEQUENCE BEGINS
+
+      const startReference =
+        profile.testament_preference === "NT" ? "Matthew 1" : "Genesis 1";
+
+      const { data: startChapter, error: startError } = await supabase
+        .from("bible_chapters")
+        .select("global_position")
+        .eq("reference", startReference)
+        .single();
+      console.log("startChapter", startChapter);
+      if (startError) throw startError;
+
+      //4. WORK OUT HOW MANY CHAPTER_PAIRS HAVE ELAPSED SINCE START_DATE
+      const daysSinceStart = differenceInCalendarDays(
+        new Date(),
+        new Date(userPlan.start_date),
+      );
+
+      const chaptersPerDay = 2;
+      const offset = daysSinceStart * chaptersPerDay;
+
+      //5. Compute the two chapter positions, wrapping with modulo
+      const position1 =
+        ((startChapter.global_position - 1 + offset) % TOTAL_CHAPTERS) + 1;
+
+      const position2 = (position1 % TOTAL_CHAPTERS) + 1;
+
+      //6. Fetch those two chapters
+      const { data: chapters, error: chaptersError } = await supabase
+        .from("bible_chapters")
+        .select("*")
+        .in("global_position", [position1, position2])
+        .order("global_position");
+
+      if (chaptersError) throw chaptersError;
+
+      return { chapters, daysNumber: daysSinceStart + 1 };
     },
 
     enabled: !!userId,
