@@ -18,14 +18,14 @@ export const useTodayReading = () => {
         .eq("user_id", userId)
         .eq("status", "active")
         .single();
-      console.log("userPlan:", userPlan);
+
       if (userPlanError) throw userPlanError;
 
       // 2. GET THEIR TESTAMENT PREFERENCE
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("testament_preference")
+        .select("testament_preference, chapters_per_day")
         .eq("id", userId)
         .single();
 
@@ -50,20 +50,24 @@ export const useTodayReading = () => {
         new Date(userPlan.start_date),
       );
 
-      const chaptersPerDay = 2;
+      const chaptersPerDay = profile.chapters_per_day;
       const offset = daysSinceStart * chaptersPerDay;
 
       //5. Compute the two chapter positions, wrapping with modulo
-      const position1 =
-        ((startChapter.global_position - 1 + offset) % TOTAL_CHAPTERS) + 1;
+      const positions = Array.from(
+        { length: chaptersPerDay },
+        (_, i) =>
+          ((startChapter.global_position - 1 + offset + i) % TOTAL_CHAPTERS) +
+          1,
+      );
 
-      const position2 = (position1 % TOTAL_CHAPTERS) + 1;
+    
 
       //6. Fetch those two chapters
       const { data: chapters, error: chaptersError } = await supabase
         .from("bible_chapters")
         .select("*")
-        .in("global_position", [position1, position2])
+        .in("global_position", positions)
         .order("global_position");
 
       if (chaptersError) throw chaptersError;

@@ -2,7 +2,7 @@ import { useProfile } from "../auth/useProfile";
 import { useTodayReading } from "./useTodaysReading";
 import { useMarkComplete } from "./useMarkComplete";
 import { useState } from "react";
-import { useVerse } from "./useVerse";
+import { useVerse, useVerses } from "./useVerse";
 import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -42,8 +42,7 @@ export const DashboardPage = () => {
   }
 
   const { chapters, daysNumber } = data;
-  const [chapter1, chapter2] = chapters;
-  const memoryChapter = chapters[daysNumber % 2];
+  const memoryChapter = chapters[daysNumber % chapters.length];
   return (
     <motion.div
       className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
@@ -68,10 +67,13 @@ export const DashboardPage = () => {
           Day {daysNumber}
         </p>
         <h2 className="font-display mt-3 text-2xl sm:text-3xl">
-          {chapter1.reference} & {chapter2.reference}
+          {chapters.map((c) => c.reference).join("&")}
         </h2>
 
-        <MemoryVerse chapterReference={memoryChapter.reference} seed={daysNumber} />
+        <MemoryVerse
+          chapterReference={memoryChapter.reference}
+          seed={daysNumber}
+        />
 
         <button
           onClick={() => setShowFullPassage((prev) => !prev)}
@@ -86,12 +88,7 @@ export const DashboardPage = () => {
         </button>
 
         <AnimatePresence initial={false}>
-          {showFullPassage && (
-            <FullPassage
-              chapter1={chapter1.reference}
-              chapter2={chapter2.reference}
-            />
-          )}
+          {showFullPassage && <FullPassage chapters={chapters} />}
         </AnimatePresence>
 
         <button
@@ -148,17 +145,11 @@ const MemoryVerse = ({
   );
 };
 
-const FullPassage = ({
-  chapter1,
-  chapter2,
-}: {
-  chapter1: string;
-  chapter2: string;
-}) => {
-  const { data: ch1, isLoading: loading1 } = useVerse(chapter1);
-  const { data: ch2, isLoading: loading2 } = useVerse(chapter2);
+const FullPassage = ({ chapters }: { chapters: { reference: string }[] }) => {
+  const references = chapters.map((c) => c.reference);
+  const { data: results, isLoading } = useVerses(references);
 
-  if (loading1 || loading2) {
+  if (isLoading || !results) {
     return (
       <motion.div
         className="mt-6 border-t border-[#e9e0db] pt-5"
@@ -182,8 +173,13 @@ const FullPassage = ({
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
     >
-      <VerseBlock title={ch1?.reference} verses={ch1?.verses} />
-      <VerseBlock title={ch2?.reference} verses={ch2?.verses} />
+      {results.map((chapter) => (
+        <VerseBlock
+          key={chapter.reference}
+          title={chapter.reference}
+          verses={chapter.verses}
+        />
+      ))}
     </motion.div>
   );
 };
@@ -220,24 +216,37 @@ const VerseBlock = ({
 
 const OnboardingPrompt = () => {
   const createPlan = useCreatePlan();
+  const [chaptersPerDay, setChaptersPerDay] = useState(2);
 
   return (
     <div className="mx-auto max-w-md p-6 text-center">
-      <h1 className="font-display text-3xl">Where would you like to start?</h1>
-      <p className="mt-3 text-[#7e6862]">
-        Choose whether to begin in the Old Testament or the New Testament —
-        you'll read straight through, looping back around once you finish.
-      </p>
+      <h1 className="font-display text-3xl">Set up your bible reading</h1>
+
+      <div className="mt-6">
+        <label className="text-sm text-[#7e6862]">Chapters per day</label>
+        <select
+          value={chaptersPerDay}
+          onChange={(e) => setChaptersPerDay(Number(e.target.value))}
+          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2"
+        >
+          {[1, 2, 3, 4, 5].map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="mt-6 flex flex-col gap-3">
         <button
-          onClick={() => createPlan.mutate("OT")}
+          onClick={() => createPlan.mutate({ testament: "OT", chaptersPerDay })}
           disabled={createPlan.isPending}
           className="rounded-lg bg-[#75393c] px-4 py-3 font-semibold text-white disabled:opacity-50"
         >
           Start in the Old Testament
         </button>
         <button
-          onClick={() => createPlan.mutate("NT")}
+          onClick={() => createPlan.mutate({ testament: "NT", chaptersPerDay })}
           disabled={createPlan.isPending}
           className="rounded-lg border border-[#75493c] px-4 py-3 font-semibold text-[#75493c] disabled:opacity-50"
         >

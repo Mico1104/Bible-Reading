@@ -7,11 +7,20 @@ export const useCreatePlan = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (testamentPreference: "OT" | "NT") => {
+    mutationFn: async ({
+      testament,
+      chaptersPerDay,
+    }: {
+      testament: "OT" | "NT";
+      chaptersPerDay: number;
+    }) => {
       //Save their choice on the profile
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ testament_preference: testamentPreference })
+        .update({
+          testament_preference: testament,
+          chapters_per_day: chaptersPerDay,
+        })
         .eq("id", userId);
 
       if (profileError) throw profileError;
@@ -23,9 +32,20 @@ export const useCreatePlan = () => {
         start_date: new Date().toISOString().slice(0, 10),
       });
       if (planError) throw planError;
+
+      const { data: existing } = await supabase
+        .from("user_plans")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (existing) {
+        throw new Error("You already have an active reading plan.");
+      }
     },
     onSuccess: () => {
-        queryClient.invalidateQueries({queryKey: ["todays-reading"]})
-    }
+      queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
+    },
   });
 };
