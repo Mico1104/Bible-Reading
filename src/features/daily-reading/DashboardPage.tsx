@@ -7,6 +7,7 @@ import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCreatePlan } from "./useCreatePlan";
+import { seededRandomIndex } from "@/lib/random";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
@@ -42,7 +43,7 @@ export const DashboardPage = () => {
 
   const { chapters, daysNumber } = data;
   const [chapter1, chapter2] = chapters;
-  const memoryVerseReference = `${chapter1.reference}:1`;
+  const memoryChapter = chapters[daysNumber % 2];
   return (
     <motion.div
       className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
@@ -70,7 +71,7 @@ export const DashboardPage = () => {
           {chapter1.reference} & {chapter2.reference}
         </h2>
 
-        <MemoryVerse reference={memoryVerseReference} />
+        <MemoryVerse chapterReference={memoryChapter.reference} seed={daysNumber} />
 
         <button
           onClick={() => setShowFullPassage((prev) => !prev)}
@@ -110,8 +111,25 @@ export const DashboardPage = () => {
   );
 };
 
-const MemoryVerse = ({ reference }: { reference: string }) => {
-  const { data: verse, isLoading } = useVerse(reference);
+const MemoryVerse = ({
+  chapterReference,
+  seed,
+}: {
+  chapterReference: string;
+  seed: number;
+}) => {
+  const { data: chapter, isLoading } = useVerse(chapterReference);
+
+  if (isLoading || !chapter) {
+    return (
+      <div className="mt-6 rounded-xl border border-[#eadbd5] bg-[#f7f4f1] p-5">
+        <p className="text-sm text-gray-400">Loading…</p>
+      </div>
+    );
+  }
+
+  const index = seededRandomIndex(seed, chapter.verses.length);
+  const verse = chapter.verses[index];
 
   return (
     <div className="mt-6 rounded-xl border border-[#eadbd5] bg-[#f7f4f1] p-5">
@@ -123,7 +141,7 @@ const MemoryVerse = ({ reference }: { reference: string }) => {
         <p className="mt-1 text-sm text-gray-400">Loading...</p>
       ) : (
         <p className="mt-2 font-display text-lg leading-7 text-[#0f151f]">
-          {verse?.text.trim()} - {verse?.reference}
+          {verse.text.trim()} - {chapterReference}:{verse.verse}
         </p>
       )}
     </div>
