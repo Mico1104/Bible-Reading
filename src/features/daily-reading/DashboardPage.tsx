@@ -15,7 +15,7 @@ export const DashboardPage = () => {
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
 
-  console.log(data);
+
 
   if (isLoading) {
     return (

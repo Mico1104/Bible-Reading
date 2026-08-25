@@ -2,7 +2,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -19,6 +20,7 @@ export const SignupPage = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignFormValues>({ resolver: zodResolver(signUpSchema) });
+  const navigate = useNavigate();
 
   const onSubmit = async (values: SignFormValues) => {
     const { error } = await supabase.auth.signUp({
@@ -36,7 +38,8 @@ export const SignupPage = () => {
       console.error(error.message);
       return;
     }
-    console.log("Signed up successfully");
+    toast.success("Account created! Welcome aboard.");
+    navigate("/login");
   };
   return (
     <div className="mx-auto max-w-sm p-6">

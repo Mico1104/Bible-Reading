@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/lib/supabase";
 import { useNavigate, Link } from "react-router-dom";
+import { toast} from "sonner"
 
 const loginSchema = z.object({
   identifier: z.string().min(1, "Enter your username or email"),
@@ -44,8 +45,11 @@ export const LoginPage = () => {
 
     if (signInError) {
       setError("password", { message: "Incorrect email/username or password" });
+toast.error("Incorrect email/username or password")
       return;
     }
+
+toast.success("Welcome back!");
     navigate("/dashboard");
   };
   return (
