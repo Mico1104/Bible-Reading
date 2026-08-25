@@ -9,7 +9,10 @@ export const SetupModal = ({ onClose }: { onClose?: () => void }) => {
   const save = () => onClose?.();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4 py-6 sm:py-8" role="presentation">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4 py-6 sm:py-8"
+      role="presentation"
+    >
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -22,7 +25,12 @@ export const SetupModal = ({ onClose }: { onClose?: () => void }) => {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.35, type: "spring", stiffness: 200, damping: 20 }}
+        transition={{
+          duration: 0.35,
+          type: "spring",
+          stiffness: 200,
+          damping: 20,
+        }}
         className="relative z-10 my-auto max-h-[calc(100vh-3rem)] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:max-h-[calc(100vh-4rem)] sm:p-10"
         role="dialog"
         aria-modal="true"
@@ -33,7 +41,9 @@ export const SetupModal = ({ onClose }: { onClose?: () => void }) => {
           <div className="rounded-full bg-[#eadbd5] p-2">
             <Zap className="text-[#75493c]" size={20} />
           </div>
-          <h2 id="setup-title" className="text-xl font-semibold text-[#0f151f]">Choose your rhythm</h2>
+          <h2 id="setup-title" className="text-xl font-semibold text-[#0f151f]">
+            Choose your rhythm
+          </h2>
         </div>
         <p className="text-sm text-[#7e6862] leading-6">
           Pick a daily pace and a starting Testament that feels right for you.
@@ -70,8 +80,16 @@ export const SetupModal = ({ onClose }: { onClose?: () => void }) => {
             </label>
             <div className="space-y-2">
               {[
-                { key: "old", label: "Old Testament", desc: "Begin with Genesis" },
-                { key: "new", label: "New Testament", desc: "Begin with Matthew" },
+                {
+                  key: "old",
+                  label: "Old Testament",
+                  desc: "Begin with Genesis",
+                },
+                {
+                  key: "new",
+                  label: "New Testament",
+                  desc: "Begin with Matthew",
+                },
               ].map((opt) => (
                 <motion.button
                   key={opt.key}
@@ -100,7 +118,8 @@ export const SetupModal = ({ onClose }: { onClose?: () => void }) => {
           <div className="bg-[#f7f4f1] rounded-xl p-4 flex items-start gap-2">
             <span className="text-lg">💡</span>
             <p className="text-xs text-[#7e6862]">
-              You'll read {chapters} chapter{chapters > 1 ? "s" : ""} per day, starting in the {start === "old" ? "Old" : "New"} Testament.
+              You'll read {chapters} chapter{chapters > 1 ? "s" : ""} per day,
+              starting in the {start === "old" ? "Old" : "New"} Testament.
             </p>
           </div>
 

@@ -40,6 +40,8 @@ export const useCreatePlan = () => {
         .eq("status", "active")
         .maybeSingle();
 
+        
+
       if (existing) {
         throw new Error("You already have an active reading plan.");
       }
