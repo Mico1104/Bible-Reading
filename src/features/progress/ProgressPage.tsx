@@ -1,13 +1,35 @@
-import { calculateStreak, useProgress, getCalendarDays } from "./useProgress";
+import {
+  calculateStreak,
+  useProgress,
+  getCalendarDays,
+  useStreakData,
+} from "./useProgress";
 import { useLeaderBoard } from "./useLeaderBoard";
 import { CalendarDays, Flame, Trophy } from "lucide-react";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import { motion } from "motion/react";
+import { subMonths, addMonths, format } from "date-fns";
+import { useState } from "react";
 
 export const ProgressPage = () => {
   const { data: progress, isLoading, error } = useProgress();
-  const calendarDays = getCalendarDays(progress);
+  const { data: streakData } = useStreakData();
+  const [viewedMonth, setViewedMonth] = useState(new Date());
+
+  const streak = calculateStreak(streakData);
+  const calendarDays = getCalendarDays(viewedMonth, streakData);
   const { data: leaderboard } = useLeaderBoard();
+
+  const goToPreviousMonth = () => setViewedMonth((prev) => subMonths(prev, 1));
+  const goToNextMonth = () => setViewedMonth((prev) => addMonths(prev, 1));
+
+  const handleDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: { offset: { x: number } },
+  ) => {
+    if (info.offset.x < -80) goToNextMonth();
+    if (info.offset.x > 80) goToPreviousMonth();
+  };
 
   if (isLoading) {
     return (
@@ -29,7 +51,6 @@ export const ProgressPage = () => {
     );
   }
 
-  const streak = calculateStreak(progress);
   const totalCompleted = progress?.length ?? 0;
 
   if (error) {
@@ -45,7 +66,7 @@ export const ProgressPage = () => {
             Your progress is taking a pause
           </h1>
           <p className="mt-3 leading-7 text-[#7e6862]">
-            We couldn&apos;t load your history. Please refresh and try again.
+            We couldn't load your history. Please refresh and try again.
           </p>
         </div>
       </motion.div>
@@ -106,20 +127,32 @@ export const ProgressPage = () => {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-[#9b8d88]">
-          This month
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            {format(viewedMonth, "MMMM yyyy")}
+          </h2>
+        </div>
 
-        <div className="mt-3 grid grid-cols-7 gap-1">
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={handleDragEnd}
+          className="mt-3 grid grid-cols-7 gap-1"
+        >
           {calendarDays.map(({ date, isCompleted }) => (
             <div
               key={date.toISOString()}
-              className={`flex aspect-square w-full items-center justify-center rounded-full text-xs ${isCompleted ? "bg-[#75493c] text-white" : "bg-[#eee9e5] text-[#9b8d88]"}`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs ${
+                isCompleted
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-500"
+              }`}
             >
               {date.getDate()}
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <div className="mt-8">

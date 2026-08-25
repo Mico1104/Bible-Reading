@@ -18,7 +18,27 @@ export const useProgress = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reading_progress")
-        .select("*, plan_days(day_number)")
+        .select("*")
+        .eq("user_id", userId)
+        .order("completed_at", { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useStreakData = () => {
+  const userId = useAuthStore((state) => state.user?.id);
+
+  return useQuery({
+    queryKey: ["streak-data", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reading_progress")
+        .select("completed_at")
         .eq("user_id", userId)
         .order("completed_at", { ascending: false });
 
@@ -60,13 +80,14 @@ export const calculateStreak = (
 };
 
 export const getCalendarDays = (
-  progress: { completed_at: string }[] | undefined,
+  monthDate: Date,
+  completedDays: { completed_at: string }[] | undefined,
 ) => {
-  const today = new Date();
-  const start = startOfMonth(today);
-  const end = endOfMonth(today);
 
-  const completedDates = (progress ?? []).map((p) => new Date(p.completed_at));
+  const start = startOfMonth(monthDate);
+  const end = endOfMonth(monthDate);
+  
+  const completedDates = (completedDays ?? []).map((p) => new Date(p.completed_at));
 
   return eachDayOfInterval({ start, end }).map((date) => ({
     date,
