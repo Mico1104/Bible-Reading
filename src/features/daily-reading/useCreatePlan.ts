@@ -31,7 +31,7 @@ export const useCreatePlan = () => {
         status: "active",
         start_date: new Date().toISOString().slice(0, 10),
       });
-      if (planError) throw planError;
+      if (planError && planError.code !== "23505") throw planError;
 
       const { data: existing } = await supabase
         .from("user_plans")
