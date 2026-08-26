@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 
 export const useDeleteNotes = () => {
@@ -11,7 +12,8 @@ export const useDeleteNotes = () => {
 if(error) throw error;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['notes']})
+            queryClient.invalidateQueries({queryKey: ['notes']});
+            toast.success("Note deleted")
         }
     })
 }

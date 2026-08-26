@@ -19,12 +19,8 @@ export const useMarkComplete = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
-      toast.success("Marked as read - well done!")
+      queryClient.invalidateQueries({ queryKey: ["progress"] });
+      toast.success("Marked as read - well done!");
     },
-
-    onError: (err) => {
-      toast.error(err.message || "Couldn't save that. Try again")
-    }
-
   });
 };

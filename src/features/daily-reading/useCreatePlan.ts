@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/authStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const useCreatePlan = () => {
   const userId = useAuthStore((state) => state.user?.id);
@@ -32,22 +33,10 @@ export const useCreatePlan = () => {
         start_date: new Date().toISOString().slice(0, 10),
       });
       if (planError && planError.code !== "23505") throw planError;
-
-      const { data: existing } = await supabase
-        .from("user_plans")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .maybeSingle();
-
-        
-
-      if (existing) {
-        throw new Error("You already have an active reading plan.");
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
+      toast.success("Your reading plan is ready!");
     },
   });
 };
