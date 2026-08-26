@@ -40,7 +40,6 @@ export const SignupPage = () => {
 
     toast.success("Account created!");
     setSignupComplete(true);
-    navigate("/login");
   };
 
   if (signupComplete) {
