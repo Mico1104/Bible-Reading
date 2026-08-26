@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const signUpSchema = z.object({
@@ -22,7 +22,6 @@ export const SignupPage = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignFormValues>({ resolver: zodResolver(signUpSchema) });
-  const navigate = useNavigate();
 
   const onSubmit = async (values: SignFormValues) => {
     const { error } = await supabase.auth.signUp({
