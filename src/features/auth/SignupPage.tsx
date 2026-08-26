@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ const signUpSchema = z.object({
 type SignFormValues = z.infer<typeof signUpSchema>;
 
 export const SignupPage = () => {
+  const [signupComplete, setSignupComplete] = useState(false);
   const {
     register,
     handleSubmit,
@@ -34,13 +36,24 @@ export const SignupPage = () => {
       },
     });
 
-    if (error) {
-      console.error(error.message);
-      return;
-    }
-    toast.success("Account created! Welcome aboard.");
+    if (error) return;
+
+    toast.success("Account created!");
+    setSignupComplete(true);
     navigate("/login");
   };
+
+  if (signupComplete) {
+    return (
+      <div className="mx-auto max-w-sm p-6 text-center">
+        <h1 className="text-2xl font-semibold">Check your email</h1>
+        <p className="mt-3 text-gray-600">
+          We sent a confirmation link to your inbox. Click it to activate your
+          account, then come back and log in.{" "}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="mx-auto max-w-sm p-6">
       <h1 className="text-2xl font-semibold">Create your account</h1>

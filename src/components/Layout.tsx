@@ -19,7 +19,7 @@ export const Layout = () => {
           {user ? (
             <>
               <Link
-                to="/dashboard"
+                to={user ? "/dashboard" : "/"}
                 className="flex items-center gap-2 font-semibold text-[#75493c]"
               >
                 <BookOpen size={20} strokeWidth={2.5} />
