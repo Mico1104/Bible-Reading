@@ -16,8 +16,6 @@ export const DashboardPage = () => {
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
 
-
-
   if (isLoading) {
     return (
       <motion.div
@@ -25,13 +23,13 @@ export const DashboardPage = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="animate-pulse-soft max-w-3xl rounded-2xl border border-[#e9e0db] bg-white p-5 shadow-sm sm:p-8">
+        <div className="animate-pulse-soft max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8">
           <div className="skeleton-line h-4 w-24" />
           <div className="skeleton-line mt-5 h-10 max-w-md" />
           <div className="skeleton-line mt-8 h-28" />
           <div className="skeleton-line mt-6 h-12" />
         </div>
-        <p className="mx-auto mt-5 text-center text-sm text-[#9b8d88]">
+        <p className="mx-auto mt-5 text-center text-sm text-(--muted)">
           Preparing today&apos;s reading...
         </p>
       </motion.div>
@@ -42,9 +40,8 @@ export const DashboardPage = () => {
     return (
       <div>
         <Modal isOpen={true}>
-          <OnboardingContent/>
+          <OnboardingContent />
         </Modal>
-
       </div>
     );
   }
@@ -58,23 +55,23 @@ export const DashboardPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.45 }}
     >
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b8d88]">
+      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
         Welcome back
       </p>
-      <h1 className="font-display mt-2 text-4xl">
+      <h1 className="font-display mt-2 text-4xl text-(--text)">
         Welcome, {profile?.name ?? profile?.username}
       </h1>
       <motion.div
-        className="mt-8 max-w-3xl rounded-2xl border border-[#e9e0db] bg-white p-5 shadow-sm sm:p-8"
+        className="mt-8 max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12, duration: 0.45 }}
       >
-        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#75493c]">
+        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--primary)">
           <BookOpen size={16} />
           Day {daysNumber}
         </p>
-        <h2 className="font-display mt-3 text-2xl sm:text-3xl">
+        <h2 className="font-display mt-3 text-2xl text-(--text) sm:text-3xl">
           {chapters.map((c) => c.reference).join("&")}
         </h2>
 
@@ -85,7 +82,7 @@ export const DashboardPage = () => {
 
         <button
           onClick={() => setShowFullPassage((prev) => !prev)}
-          className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#75493c]"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-(--primary)"
         >
           {showFullPassage ? (
             <ChevronUp size={16} />
@@ -102,14 +99,14 @@ export const DashboardPage = () => {
         <button
           onClick={() => markComplete.mutate(daysNumber)}
           disabled={markComplete.isPending}
-          className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#75493c] px-4 py-3 font-semibold text-white transition hover:bg-[#603a31] disabled:opacity-50"
+          className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--primary) px-4 py-3 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
         >
           <Check size={17} />
           {markComplete.isPending ? "Saving..." : "Mark as read"}
         </button>
 
         {markComplete.isSuccess && (
-          <p className="mt-3 text-sm text-green-700">Marked Complete!</p>
+          <p className="mt-3 text-sm text-[var(--success)]">Marked Complete!</p>
         )}
       </motion.div>
     </motion.div>
@@ -127,8 +124,8 @@ const MemoryVerse = ({
 
   if (isLoading || !chapter) {
     return (
-      <div className="mt-6 rounded-xl border border-[#eadbd5] bg-[#f7f4f1] p-5">
-        <p className="text-sm text-gray-400">Loading…</p>
+      <div className="mt-6 rounded-xl border border-(--border) bg-[var(--card-verse)] p-5">
+        <p className="text-sm text-(--muted)">Loading…</p>
       </div>
     );
   }
@@ -137,15 +134,15 @@ const MemoryVerse = ({
   const verse = chapter.verses[index];
 
   return (
-    <div className="mt-6 rounded-xl border border-[#eadbd5] bg-[#f7f4f1] p-5">
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#75493c]">
+    <div className="mt-6 rounded-xl border border-(--border) bg-[var(--card-verse)] p-5">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-(--primary)">
         <Sparkles size={14} />
         Memory verse
       </p>
       {isLoading ? (
-        <p className="mt-1 text-sm text-gray-400">Loading...</p>
+        <p className="mt-1 text-sm text-(--muted)">Loading...</p>
       ) : (
-        <p className="mt-2 font-display text-lg leading-7 text-[#0f151f]">
+        <p className="mt-2 font-display text-lg leading-7 text-(--text)">
           {verse.text.trim()} - {chapterReference}:{verse.verse}
         </p>
       )}
@@ -160,14 +157,14 @@ const FullPassage = ({ chapters }: { chapters: { reference: string }[] }) => {
   if (isLoading || !results) {
     return (
       <motion.div
-        className="mt-6 border-t border-[#e9e0db] pt-5"
+        className="mt-6 border-t border-(--border) pt-5"
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: "auto" }}
         exit={{ opacity: 0, height: 0 }}
       >
         <div className="skeleton-line h-5 w-40" />
         <div className="skeleton-line mt-3 h-20" />
-        <p className="mt-4 text-sm text-[#9b8d88]">
+        <p className="mt-4 text-sm text-(--muted)">
           Opening the full passage...
         </p>
       </motion.div>
@@ -176,7 +173,7 @@ const FullPassage = ({ chapters }: { chapters: { reference: string }[] }) => {
 
   return (
     <motion.div
-      className="mt-6 space-y-5 border-t border-[#e9e0db] pt-5 text-sm leading-relaxed text-[#7e6862]"
+      className="mt-6 space-y-5 border-t border-(--border) pt-5 text-sm leading-relaxed text-(--muted-strong)"
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
@@ -201,17 +198,20 @@ const VerseBlock = ({
 }) => {
   return (
     <motion.article
-      className="relative overflow-hidden rounded-xl bg-[#f7f4f1] p-5 sm:p-6"
+      className="relative overflow-hidden rounded-xl bg-[var(--card-verse)] p-5 sm:p-6"
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <BookMarked className="absolute right-4 top-4 text-[#eadbd5]" size={28} />
-      <p className="relative font-display text-xl text-[#75493c]">{title}</p>
-      <p className="relative mt-3 text-[15px] leading-8">
+      <BookMarked
+        className="absolute right-4 top-4 text-[var(--surface-muted)]"
+        size={28}
+      />
+      <p className="relative font-display text-xl text-(--primary)">{title}</p>
+      <p className="relative mt-3 text-[15px] leading-8 text-[var(--text-soft)]">
         {verses?.map((v) => (
           <span key={v.verse} className="verse-line">
-            <sup className="mr-1 text-xs font-semibold text-[#75493c]">
+            <sup className="mr-1 text-xs font-semibold text-(--primary)">
               {v.verse}
             </sup>
             {v.text.trim()}{" "}
@@ -221,4 +221,3 @@ const VerseBlock = ({
     </motion.article>
   );
 };
-

@@ -11,13 +11,13 @@ export const Modal = ({ isOpen, children }: ModalProps) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-(--overlay) p-4 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="w-full max-w-md rounded-2xl border border-[#e9e0db] bg-white  p-6 shadow-xl sm:p-8"
+            className="w-full max-w-lg rounded-3xl border border-(--border) bg-(--surface) p-5 text-(--text) shadow-[0_18px_50px_var(--shadow)] sm:p-8"
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}

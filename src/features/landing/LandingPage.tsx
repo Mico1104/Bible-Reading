@@ -22,13 +22,13 @@ export const LandingPage = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#eadbd5] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#75493c]">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[var(--surface-muted)] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-(--primary)">
             <BookOpen size={14} /> A plan that fits your life
           </div>
-          <h1 className="font-display max-w-xl text-4xl leading-[1.08] text-[#0f151f] sm:text-6xl">
+          <h1 className="font-display max-w-xl text-4xl leading-[1.08] text-(--text) sm:text-6xl">
             One to five chapters. One faithful rhythm.
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-7 text-[#7e6862] sm:text-lg">
+          <p className="mt-6 max-w-lg text-base leading-7 text-(--muted-strong) sm:text-lg">
             Choose how much you read each day and whether you begin in the Old
             Testament or New Testament. Read with intention, remember what
             speaks to you, and build a faithful rhythm that lasts.
@@ -36,16 +36,16 @@ export const LandingPage = () => {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               to="/signup"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#75493c] px-6 py-3 font-semibold text-white transition hover:bg-[#603a31]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white transition hover:bg-(--primary-strong)"
             >
               Begin your reading <ArrowRight size={18} />
             </Link>
           </div>
-          <p className="mt-5 text-sm text-[#9b8d88]">
+          <p className="mt-5 text-sm text-(--muted)">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-semibold text-[#75493c] underline underline-offset-4"
+              className="font-semibold text-(--primary) underline underline-offset-4"
             >
               Log in
             </Link>
@@ -60,22 +60,22 @@ export const LandingPage = () => {
           <img
             src="/landingImage.jpg"
             alt="Open Bible in warm morning light"
-            className="aspect-4/5 w-full rounded-4xl object-cover shadow-2xl shadow-[#75493c]/15 sm:aspect-5/4 lg:aspect-4/5"
+            className="aspect-4/5 w-full rounded-[2rem] object-cover shadow-[0_20px_45px_rgba(117,73,60,0.18)] sm:aspect-5/4 lg:aspect-4/5"
           />
-          <div className="absolute -bottom-5 -left-3 flex items-center gap-3 rounded-xl bg-white p-4 shadow-xl sm:-left-6">
-            <span className="rounded-full bg-[#eadbd5] p-2 text-[#75493c]">
+          <div className="absolute -bottom-5 -left-3 flex items-center gap-3 rounded-xl bg-(--surface) p-4 shadow-xl sm:-left-6">
+            <span className="rounded-full bg-[var(--surface-muted)] p-2 text-(--primary)">
               <Flame size={18} />
             </span>
             <div>
-              <p className="text-xs text-[#9b8d88]">Your next habit</p>
-              <p className="font-semibold text-[#0f151f]">
+              <p className="text-xs text-(--muted)">Your next habit</p>
+              <p className="font-semibold text-(--text)">
                 One faithful day at a time
               </p>
             </div>
           </div>
         </motion.div>
       </div>
-      <div className="content-width grid gap-4 border-t border-[#e9e0db] py-8 sm:grid-cols-3">
+      <div className="content-width grid gap-4 border-t border-(--border) py-8 sm:grid-cols-3">
         {[
           "Choose 1–5 chapters each day",
           "Start in the Old or New Testament",
@@ -84,7 +84,7 @@ export const LandingPage = () => {
         ].map((item) => (
           <div
             key={item}
-            className="flex items-center gap-3 text-sm font-medium text-[#7e6862]"
+            className="flex items-center gap-3 text-sm font-medium text-(--muted-strong)"
           >
             <span className="rounded-full bg-[#dce8df] p-1 text-[#4c765d]">
               <Check size={14} />
