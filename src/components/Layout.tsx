@@ -1,12 +1,14 @@
 import { useAuthStore } from "@/stores/authStore";
 import { Link, Outlet } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, LogOut, Menu, X } from "lucide-react";
+import { BookOpen, LogOut, Menu, Settings, X } from "lucide-react";
 import { useState } from "react";
+import { SettingsModal } from "./SettingsModal";
 
 export const Layout = () => {
   const user = useAuthStore((state) => state.user);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleSignout = async () => {
     await supabase.auth.signOut();
@@ -58,6 +60,14 @@ export const Layout = () => {
                 >
                   <LogOut size={16} /> Sign out
                 </button>
+
+                <button>
+                  <Settings size={18} />
+                </button>
+                <SettingsModal
+                  isOpen={settingsOpen}
+                  onClose={() => setSettingsOpen(false)}
+                />
               </div>
             </>
           ) : (

@@ -1,13 +1,14 @@
 import { useProfile } from "../auth/useProfile";
 import { useTodayReading } from "./useTodaysReading";
 import { useMarkComplete } from "./useMarkComplete";
+import { Modal } from "@/components/Modal";
 import { useState } from "react";
 import { useVerse, useVerses } from "./useVerse";
 import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCreatePlan } from "./useCreatePlan";
 import { seededRandomIndex } from "@/lib/random";
+import { OnboardingContent } from "./OnboardingContent";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
@@ -38,7 +39,14 @@ export const DashboardPage = () => {
   }
 
   if (error || !data) {
-    return <OnboardingPrompt />;
+    return (
+      <div>
+        <Modal isOpen={true}>
+          <OnboardingContent/>
+        </Modal>
+
+      </div>
+    );
   }
 
   const { chapters, daysNumber } = data;
@@ -214,45 +222,3 @@ const VerseBlock = ({
   );
 };
 
-const OnboardingPrompt = () => {
-  const createPlan = useCreatePlan();
-  const [chaptersPerDay, setChaptersPerDay] = useState(2);
-
-  return (
-    <div className="mx-auto max-w-md p-6 text-center">
-      <h1 className="font-display text-3xl">Set up your bible reading</h1>
-
-      <div className="mt-6">
-        <label className="text-sm text-[#7e6862]">Chapters per day</label>
-        <select
-          value={chaptersPerDay}
-          onChange={(e) => setChaptersPerDay(Number(e.target.value))}
-          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2"
-        >
-          {[1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mt-6 flex flex-col gap-3">
-        <button
-          onClick={() => createPlan.mutate({ testament: "OT", chaptersPerDay })}
-          disabled={createPlan.isPending}
-          className="rounded-lg bg-[#75393c] px-4 py-3 font-semibold text-white disabled:opacity-50"
-        >
-          Start in the Old Testament
-        </button>
-        <button
-          onClick={() => createPlan.mutate({ testament: "NT", chaptersPerDay })}
-          disabled={createPlan.isPending}
-          className="rounded-lg border border-[#75493c] px-4 py-3 font-semibold text-[#75493c] disabled:opacity-50"
-        >
-          Start in the New Testament
-        </button>
-      </div>
-    </div>
-  );
-};

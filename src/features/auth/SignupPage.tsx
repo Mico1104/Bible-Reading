@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { ConfirmationPrompt } from "@/components/ConfirmationPrompt";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -42,16 +43,9 @@ export const SignupPage = () => {
   };
 
   if (signupComplete) {
-    return (
-      <div className="mx-auto max-w-sm p-6 text-center">
-        <h1 className="text-2xl font-semibold">Check your email</h1>
-        <p className="mt-3 text-gray-600">
-          We sent a confirmation link to your inbox. Click it to activate your
-          account, then come back and log in.{" "}
-        </p>
-      </div>
-    );
+    return <ConfirmationPrompt />
   }
+  
   return (
     <div className="mx-auto max-w-sm p-6">
       <h1 className="text-2xl font-semibold">Create your account</h1>
