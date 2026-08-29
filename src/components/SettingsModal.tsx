@@ -51,7 +51,7 @@ export const SettingsModal = ({
           onClick={handleSave}
           className="flex-1 rounded-lg bg-[#75493c] px-4 py-2.5 font-semibold text-white disabled:opacity-50"
         >
-          {updateSettings.isPending ? 'Saving...' : }
+          {updateSettings.isPending ? "Saving..." : "Save"}
         </button>
       </div>
     </Modal>

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ConfirmationPrompt } from "@/components/ConfirmationPrompt";
+import { Modal } from "@/components/Modal";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -43,9 +44,15 @@ export const SignupPage = () => {
   };
 
   if (signupComplete) {
-    return <ConfirmationPrompt />
+    return (
+      <div className="min-h-[70vh]">
+        <Modal isOpen={true}>
+          <ConfirmationPrompt />
+        </Modal>
+      </div>
+    );
   }
-  
+
   return (
     <div className="mx-auto max-w-sm p-6">
       <h1 className="text-2xl font-semibold">Create your account</h1>

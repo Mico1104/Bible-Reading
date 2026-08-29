@@ -1,14 +1,17 @@
 import { useAuthStore } from "@/stores/authStore";
 import { Link, Outlet } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, LogOut, Menu, Settings, X } from "lucide-react";
+import { BookOpen, LogOut, Menu, Settings, X, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { SettingsModal } from "./SettingsModal";
+import { useThemeStore } from "@/stores/themeStore";
 
 export const Layout = () => {
   const user = useAuthStore((state) => state.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const isDark = useThemeStore((state) => state.isDark);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   const handleSignout = async () => {
     await supabase.auth.signOut();
@@ -68,6 +71,13 @@ export const Layout = () => {
                   isOpen={settingsOpen}
                   onClose={() => setSettingsOpen(false)}
                 />
+
+                <button
+                  onClick={toggleTheme}
+                  className="text-gray-600 dark:text-gray-300"
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
               </div>
             </>
           ) : (
