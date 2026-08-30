@@ -15,7 +15,7 @@ export const OnboardingContent = () => {
       className="space-y-6"
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-[var(--surface-strong)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
+        <div className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
           <Sparkles size={12} />
           New plan
         </div>
@@ -31,7 +31,7 @@ export const OnboardingContent = () => {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-(--border) bg-[var(--surface-strong)] p-4 sm:p-5">
+      <div className="rounded-2xl border border-(--border) bg-(--surface-strong) p-4 sm:p-5">
         <label className="block text-sm font-medium text-(--muted-strong)">
           Chapters per day
         </label>
@@ -53,7 +53,7 @@ export const OnboardingContent = () => {
       </div>
 
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--muted)">
           Begin with
         </p>
 
@@ -64,10 +64,10 @@ export const OnboardingContent = () => {
               createPlan.mutate({ testament: "OT", chaptersPerDay })
             }
             disabled={createPlan.isPending}
-            className="group flex items-center justify-between gap-3 rounded-2xl border border-(--border) bg-(--surface) px-4 py-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:bg-(--surface-strong) disabled:cursor-not-allowed disabled:opacity-60"
+            className="group flex items-center justify-between gap-3 rounded-2xl border border-(--border) bg-(--surface) px-4 py-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border(--primary) hover:bg-(--surface-strong) disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span>
-              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-(--muted)">
                 Start here
               </span>
               <span className="mt-1 block font-display text-xl text-(--text)">
@@ -86,10 +86,10 @@ export const OnboardingContent = () => {
               createPlan.mutate({ testament: "NT", chaptersPerDay })
             }
             disabled={createPlan.isPending}
-            className="group flex items-center justify-between gap-3 rounded-2xl border border-(--border) bg-(--surface) px-4 py-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:bg-(--surface-strong) disabled:cursor-not-allowed disabled:opacity-60"
+            className="group flex items-center justify-between gap-3 rounded-2xl border border-(--border) bg-(--surface) px-4 py-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border(--primary) hover:bg-(--surface-strong) disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span>
-              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-(--muted)">
                 Start here
               </span>
               <span className="mt-1 block font-display text-xl text-(--text)">

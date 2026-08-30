@@ -106,7 +106,7 @@ export const DashboardPage = () => {
         </button>
 
         {markComplete.isSuccess && (
-          <p className="mt-3 text-sm text-[var(--success)]">Marked Complete!</p>
+          <p className="mt-3 text-sm text-(--success)">Marked Complete!</p>
         )}
       </motion.div>
     </motion.div>
@@ -124,7 +124,7 @@ const MemoryVerse = ({
 
   if (isLoading || !chapter) {
     return (
-      <div className="mt-6 rounded-xl border border-(--border) bg-[var(--card-verse)] p-5">
+      <div className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5">
         <p className="text-sm text-(--muted)">Loading…</p>
       </div>
     );
@@ -134,7 +134,7 @@ const MemoryVerse = ({
   const verse = chapter.verses[index];
 
   return (
-    <div className="mt-6 rounded-xl border border-(--border) bg-[var(--card-verse)] p-5">
+    <div className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5">
       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-(--primary)">
         <Sparkles size={14} />
         Memory verse
@@ -198,17 +198,17 @@ const VerseBlock = ({
 }) => {
   return (
     <motion.article
-      className="relative overflow-hidden rounded-xl bg-[var(--card-verse)] p-5 sm:p-6"
+      className="relative overflow-hidden rounded-xl bg-(--card-verse) p-5 sm:p-6"
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
     >
       <BookMarked
-        className="absolute right-4 top-4 text-[var(--surface-muted)]"
+        className="absolute right-4 top-4 text-(--surface-muted)"
         size={28}
       />
       <p className="relative font-display text-xl text-(--primary)">{title}</p>
-      <p className="relative mt-3 text-[15px] leading-8 text-[var(--text-soft)]">
+      <p className="relative mt-3 text-[15px] leading-8 text-(--text-soft)">
         {verses?.map((v) => (
           <span key={v.verse} className="verse-line">
             <sup className="mr-1 text-xs font-semibold text-(--primary)">

@@ -60,7 +60,7 @@ export const LandingPage = () => {
           <img
             src="/landingImage.jpg"
             alt="Open Bible in warm morning light"
-            className="aspect-4/5 w-full rounded-[2rem] object-cover shadow-[0_20px_45px_rgba(117,73,60,0.18)] sm:aspect-5/4 lg:aspect-4/5"
+            className="aspect-4/5 w-full rounded-4xl object-cover shadow-[0_20px_45px_rgba(117,73,60,0.18)] sm:aspect-5/4 lg:aspect-4/5"
           />
           <div className="absolute -bottom-5 -left-3 flex items-center gap-3 rounded-xl bg-(--surface) p-4 shadow-xl sm:-left-6">
             <span className="rounded-full bg-[var(--surface-muted)] p-2 text-(--primary)">
