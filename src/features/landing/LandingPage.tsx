@@ -22,7 +22,7 @@ export const LandingPage = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[var(--surface-muted)] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-(--primary)">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-(--surface-muted) px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-(--primary)">
             <BookOpen size={14} /> A plan that fits your life
           </div>
           <h1 className="font-display max-w-xl text-4xl leading-[1.08] text-(--text) sm:text-6xl">
@@ -36,7 +36,7 @@ export const LandingPage = () => {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               to="/signup"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white transition hover:bg-(--primary-strong)"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-(--primary) px-6 py-3 font-semibold text-white transition hover:bg-(--primary-strong)"
             >
               Begin your reading <ArrowRight size={18} />
             </Link>
@@ -63,7 +63,7 @@ export const LandingPage = () => {
             className="aspect-4/5 w-full rounded-4xl object-cover shadow-[0_20px_45px_rgba(117,73,60,0.18)] sm:aspect-5/4 lg:aspect-4/5"
           />
           <div className="absolute -bottom-5 -left-3 flex items-center gap-3 rounded-xl bg-(--surface) p-4 shadow-xl sm:-left-6">
-            <span className="rounded-full bg-[var(--surface-muted)] p-2 text-(--primary)">
+            <span className="rounded-full bg-(--surface-muted) p-2 text-(--primary)">
               <Flame size={18} />
             </span>
             <div>
