@@ -95,6 +95,27 @@ export const Layout = () => {
                     {isDark ? "Light mode" : "Dark mode"}
                   </button>
                 </div>
+
+                {/* Desktop-only Settings and Theme buttons */}
+                <div className="hidden md:flex md:items-center md:gap-1 md:border-l md:border-(--border) md:pl-2">
+                  <button
+                    type="button"
+                    aria-label="Open reading settings"
+                    onClick={() => setSettingsOpen(true)}
+                    className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
+                  >
+                    <Settings size={18} />
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-label="Toggle theme"
+                    onClick={toggleTheme}
+                    className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
+                  >
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
+                </div>
               </div>
             </>
           ) : (
@@ -123,7 +144,7 @@ export const Layout = () => {
       {user && (
         <button
           onClick={() => setFeedbackOpen(true)}
-          className="fixed bottom-6 right-6 z-40 rounded-full bg-[#75493c] p-3 text-white shadow-lg"
+          className="fixed bottom-6 right-6 z-40 rounded-full bg-(--primary) p-3 text-white shadow-lg transition hover:bg-(--primary-strong)"
         >
           <MessageCircle size={20} />
         </button>

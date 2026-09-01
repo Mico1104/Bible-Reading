@@ -137,11 +137,11 @@ export const DashboardPage = () => {
           ? `You've read through the Bible ${completePasses} time${completePasses > 1 ? "s" : ""}, and you're ${completePercentage}% through your current pass.`
           : `You're ${completePercentage}% through the Bible`}
       </p>
-      <div className="mt-6 rounded-xl border border-[#eadbd5] bg-[#f7f4f1] p-5 dark:border-gray-700 dark:bg-gray-800">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#75493c]">
+      <div className="mt-6 rounded-xl border border-(--border) bg-(--surface) p-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
           Reflect
         </p>
-        <p className="mt-2 text-[var(--text)]">{todaysPrompt}</p>
+        <p className="mt-2 text-(--muted-strong)">{todaysPrompt}</p>
       </div>
     </motion.div>
   );

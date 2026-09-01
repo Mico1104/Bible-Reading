@@ -10,13 +10,13 @@ export const ReadingCard = ({
   scriptureReference,
 }: ReadingCardProps) => {
   return (
-    <div className="mx-auto max-w-md rounded-lg border border-gray-200 p-6 shadow-sm">
-      <p className="text-sm uppercase tracking-wide text-gray-500">
+    <div className="mx-auto max-w-md rounded-lg border border-(--border) bg-(--surface) p-6 shadow-sm">
+      <p className="text-sm uppercase tracking-wide text-(--muted)">
         Day {dayNumber}
       </p>
-      <h1 className="mt-2 text-2xl font-semibold">{scriptureReference}</h1>
+      <h1 className="mt-2 text-2xl font-semibold text-(--text)">{scriptureReference}</h1>
       <StatusBadge isComplete={true} />
-      <button className="mt-6 rounded-md bg-gray-900 px-4 py-2 text-white">
+      <button className="mt-6 rounded-md bg-(--primary) px-4 py-2 text-white transition hover:bg-(--primary-strong)">
         Mark as read
       </button>
     </div>
