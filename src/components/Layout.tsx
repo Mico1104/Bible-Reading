@@ -5,6 +5,8 @@ import { BookOpen, LogOut, Menu, Settings, X, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { SettingsModal } from "./SettingsModal";
 import { useThemeStore } from "@/stores/themeStore";
+import { MessageCircle } from "lucide-react";
+import { FeedbackModal } from "./FeedbackModal";
 
 export const Layout = () => {
   const user = useAuthStore((state) => state.user);
@@ -12,6 +14,7 @@ export const Layout = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const isDark = useThemeStore((state) => state.isDark);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const handleSignout = async () => {
     await supabase.auth.signOut();
@@ -113,7 +116,17 @@ export const Layout = () => {
 
       <main>
         <Outlet />
+        
       </main>
+      {user && (
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          className="fixed bottom-6 right-6 z-40 rounded-full bg-[#75493c] p-3 text-white shadow-lg"
+        >
+          <MessageCircle size={20}/>
+        </button>
+      )}
+      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)}/>
     </div>
   );
 };
