@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/authStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { isMilestoneStreak } from "../progress/insights";
 
 export const useMarkComplete = () => {
   const userId = useAuthStore((state) => state.user?.id);
@@ -15,12 +16,26 @@ export const useMarkComplete = () => {
       });
 
       if (error) throw error;
+
+      const { data: stats } = await supabase
+        .from("users_stats")
+        .select("current_streak")
+        .eq("user_id", userId)
+        .single();
+
+      return stats?.current_streak ?? null;
     },
 
-    onSuccess: () => {
+    onSuccess: (newStreak) => {
       queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
       queryClient.invalidateQueries({ queryKey: ["progress"] });
-      toast.success("Marked as read - well done!");
+      queryClient.invalidateQueries({ queryKey: ["streak-data"] });
+
+      if (newStreak && isMilestoneStreak(newStreak)) {
+        toast.success("🔥 ${newStreak}-day streak! Keep going.");
+      } else {
+        toast.success("Marked as read - well done!");
+      }
     },
   });
 };

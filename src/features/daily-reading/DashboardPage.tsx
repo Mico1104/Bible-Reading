@@ -9,6 +9,12 @@ import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { seededRandomIndex } from "@/lib/random";
 import { OnboardingContent } from "./OnboardingContent";
+import {
+  getCompletionPercentage,
+  getCompletedPasses,
+} from "@/features/progress/insights";
+
+import { REFLECTION_PROMPTS } from "./reflectionPrompts";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
@@ -49,6 +55,19 @@ export const DashboardPage = () => {
 
   const { chapters, daysNumber } = data;
   const memoryChapter = chapters[daysNumber % chapters.length];
+  const completePercentage = getCompletionPercentage(
+    daysNumber,
+    chapters.length,
+  );
+  const completePasses = getCompletedPasses(daysNumber, chapters.length);
+
+
+
+  const promptIndex = seededRandomIndex(
+    daysNumber + 100,
+    REFLECTION_PROMPTS.length,
+  );
+  const todaysPrompt = REFLECTION_PROMPTS[promptIndex];
   return (
     <motion.div
       className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
@@ -95,7 +114,9 @@ export const DashboardPage = () => {
         </button>
 
         <AnimatePresence initial={false}>
-          {showFullPassage && <FullPassage chapters={chapters} translation={translation} />}
+          {showFullPassage && (
+            <FullPassage chapters={chapters} translation={translation} />
+          )}
         </AnimatePresence>
 
         <button
@@ -111,6 +132,17 @@ export const DashboardPage = () => {
           <p className="mt-3 text-sm text-(--success)">Marked Complete!</p>
         )}
       </motion.div>
+      <p className="mt-2 text-sm text-(--muted)">
+        {completePasses > 0
+          ? `You've read through the Bible ${completePasses} time${completePasses > 1 ? "s" : ""}, and you're ${completePercentage}% through your current pass.`
+          : `You're ${completePercentage}% through the Bible`}
+      </p>
+      <div className="mt-6 rounded-xl border border-[#eadbd5] bg-[#f7f4f1] p-5 dark:border-gray-700 dark:bg-gray-800">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#75493c]">
+          Reflect
+        </p>
+        <p className="mt-2 text-[var(--text)]">{todaysPrompt}</p>
+      </div>
     </motion.div>
   );
 };
@@ -122,7 +154,7 @@ const MemoryVerse = ({
 }: {
   chapterReference: string;
   seed: number;
-  translation: string
+  translation: string;
 }) => {
   const { data: chapter, isLoading } = useVerse(chapterReference, translation);
 
@@ -154,7 +186,13 @@ const MemoryVerse = ({
   );
 };
 
-const FullPassage = ({ chapters, translation }: { chapters: { reference: string }[], translation: string }) => {
+const FullPassage = ({
+  chapters,
+  translation,
+}: {
+  chapters: { reference: string }[];
+  translation: string;
+}) => {
   const references = chapters.map((c) => c.reference);
   const { data: results, isLoading } = useVerses(references, translation);
 
