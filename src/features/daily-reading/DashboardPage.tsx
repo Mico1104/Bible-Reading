@@ -61,8 +61,6 @@ export const DashboardPage = () => {
   );
   const completePasses = getCompletedPasses(daysNumber, chapters.length);
 
-
-
   const promptIndex = seededRandomIndex(
     daysNumber + 100,
     REFLECTION_PROMPTS.length,

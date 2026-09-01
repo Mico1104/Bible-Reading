@@ -14,7 +14,9 @@ export const ReadingCard = ({
       <p className="text-sm uppercase tracking-wide text-(--muted)">
         Day {dayNumber}
       </p>
-      <h1 className="mt-2 text-2xl font-semibold text-(--text)">{scriptureReference}</h1>
+      <h1 className="mt-2 text-2xl font-semibold text-(--text)">
+        {scriptureReference}
+      </h1>
       <StatusBadge isComplete={true} />
       <button className="mt-6 rounded-md bg-(--primary) px-4 py-2 text-white transition hover:bg-(--primary-strong)">
         Mark as read

@@ -96,7 +96,7 @@ export const Layout = () => {
                   </button>
                 </div>
 
-                {/* Desktop-only Settings and Theme buttons */}
+                {/* Desktop-only Settings, Theme and SignOut buttons */}
                 <div className="hidden md:flex md:items-center md:gap-1 md:border-l md:border-(--border) md:pl-2">
                   <button
                     type="button"
@@ -114,6 +114,15 @@ export const Layout = () => {
                     className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
                   >
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSignout}
+                    className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-red-600"
+                    aria-label="Sign out"
+                  >
+                    <LogOut size={18} />
                   </button>
                 </div>
               </div>
