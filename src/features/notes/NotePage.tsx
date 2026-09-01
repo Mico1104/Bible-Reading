@@ -4,7 +4,13 @@ import { useCreateNote } from "./useCreateNote";
 import { useDeleteNotes } from "./useDeleteNote";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, Bookmark, LoaderCircle } from "lucide-react";
+import {
+  AlertCircle,
+  Bookmark,
+  LoaderCircle,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useUpdateNote } from "./useUpdateNote";
@@ -61,10 +67,10 @@ export const NotePage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
     >
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b8d88]">
+      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
         Your reflections
       </p>
-      <h1 className="font-display mt-2 text-4xl">Notes</h1>
+      <h1 className="font-display mt-2 text-4xl text-(--text)">Notes</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-3">
         <div>
@@ -72,7 +78,7 @@ export const NotePage = () => {
             type="text"
             {...register("reference")}
             placeholder="Reference (e.g Matthew 1:21)"
-            className="w-full rounded-lg border border-[#e9e0db] bg-white px-3 py-3 outline-none focus:border-[#75493c]"
+            className="w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
           />
           {errors.reference && (
             <p className="mt-1 text-sm text-red-600">
@@ -85,7 +91,7 @@ export const NotePage = () => {
             placeholder="Write your note..."
             rows={3}
             {...register("content")}
-            className="w-full rounded-lg border border-[#e9e0db] bg-white px-3 py-3 outline-none focus:border-[#75493c]"
+            className="w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
           />
           {errors.content && (
             <p className="mt-1 text-sm text-red-600">
@@ -97,7 +103,7 @@ export const NotePage = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#75493c] px-4 py-3 font-semibold text-white disabled:opacity-50"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--primary) px-4 py-3 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
         >
           <Bookmark size={17} />
           {isSubmitting ? "Saving..." : "Add note"}
@@ -105,13 +111,15 @@ export const NotePage = () => {
       </form>
 
       {notes?.length === 0 && (
-        <p className="text-sm text-gray-500">No notes yet - add one above</p>
+        <p className="mt-8 text-sm text-(--muted)">
+          No notes yet - add one above
+        </p>
       )}
 
       <div className="mt-8 space-y-3">
         {isLoading && (
-          <p className="flex items-center gap-2 text-sm text-[#9b8d88]">
-            <LoaderCircle className="animate-spin text-[#75493c]" size={16} />{" "}
+          <p className="flex items-center gap-2 text-sm text-(--muted)">
+            <LoaderCircle className="animate-spin text-(--primary)" size={16} />{" "}
             Loading your notes...
           </p>
         )}
@@ -150,29 +158,29 @@ const NoteItem = ({
 
   if (isEditing) {
     return (
-      <div className="rounded-md border border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-xl border border-(--border) bg-(--surface-strong) p-4 sm:p-5">
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+          className="w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--text) outline-none focus:border-(--primary)"
         />
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={3}
-          className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+          className="mt-3 w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--text) outline-none focus:border-(--primary)"
         />
         <div className="mt-3 flex gap-2">
           <button
             onClick={handleCancel}
-            className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600 dark:text-gray-300"
+            className="flex-1 rounded-lg border border-(--border) px-3 py-2 text-sm font-medium text-(--muted-strong) transition hover:bg-(--surface)"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={updateNote.isPending}
-            className="flex-1 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+            className="flex-1 rounded-lg bg-(--primary) px-3 py-2 text-sm font-medium text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
           >
             {updateNote.isPending ? "Saving..." : "Save"}
           </button>
@@ -182,29 +190,35 @@ const NoteItem = ({
   }
 
   return (
-    <div className="rounded-md border border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
-      <div className="flex items-start justify-between">
-        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-          {note.reference}
-        </p>
-        <div className="flex gap-3 text-xs">
+    <div className="rounded-xl border border-(--border) bg-(--surface-strong) p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-(--text) break-words">
+            {note.reference}
+          </p>
+          <p className="mt-2 text-sm text-(--muted-strong) break-words">
+            {note.content}
+          </p>
+        </div>
+        <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={() => setIsEditing(true)}
-            className="text-gray-600 dark:text-gray-400"
+            className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface) hover:text-(--primary)"
+            aria-label="Edit note"
+            title="Edit"
           >
-            Edit
+            <Edit size={16} />
           </button>
           <button
             onClick={() => deleteNote.mutate(note.id)}
-            className="text-red-600"
+            className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface) hover:text-red-600"
+            aria-label="Delete note"
+            title="Delete"
           >
-            Delete
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
-      <p className="mt-2 text-sm text-gray-800 dark:text-gray-300">
-        {note.content}
-      </p>
     </div>
   );
 };

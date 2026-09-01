@@ -5,7 +5,13 @@ import {
   useStreakData,
 } from "./useProgress";
 import { useLeaderBoard } from "./useLeaderBoard";
-import { CalendarDays, Flame, Trophy } from "lucide-react";
+import {
+  CalendarDays,
+  Flame,
+  Trophy,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { subMonths, addMonths, format } from "date-fns";
@@ -81,44 +87,46 @@ export const ProgressPage = () => {
       transition={{ duration: 0.45 }}
     >
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b8d88]">
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
           Your journey
         </p>
-        <h1 className="font-display mt-2 text-4xl text-[#0f151f]">
+        <h1 className="font-display mt-2 text-3xl sm:text-4xl text-(--text)">
           Your progress
         </h1>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4">
-        <div className="rounded-2xl bg-[#75493c] p-5 text-white shadow-lg shadow-[#75493c]/15">
-          <Flame size={20} />
-          <p className="mt-3 text-4xl font-semibold">{streak}</p>
-          <p className="mt-1 text-sm text-white/70">Day streak</p>
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="rounded-2xl bg-[#75493c] p-4 sm:p-5 text-white shadow-lg shadow-[#75493c]/15">
+          <Flame size={18} />
+          <p className="mt-3 text-2xl sm:text-4xl font-semibold">{streak}</p>
+          <p className="mt-1 text-xs sm:text-sm text-white/70">Day streak</p>
         </div>
-        <div className="rounded-2xl border border-[#e9e0db] bg-white p-5">
-          <CalendarDays size={20} className="text-[#75493c]" />
-          <p className="mt-3 text-4xl font-semibold">{totalCompleted}</p>
-          <p className="mt-1 text-sm text-[#9b8d88]">Days completed</p>
+        <div className="rounded-2xl border border-(--border) bg-(--surface) p-4 sm:p-5">
+          <CalendarDays size={18} className="text-(--primary)" />
+          <p className="mt-3 text-2xl sm:text-4xl font-semibold text-(--text)">{totalCompleted}</p>
+          <p className="mt-1 text-xs sm:text-sm text-(--muted-strong)">Days completed</p>
         </div>
       </div>
 
       <div className="mt-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-[#9b8d88]">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
           History
         </h2>
 
         {progress?.length === 0 && (
-          <p className="mt-3 text-sm text-gray-500">No complete days yet</p>
+          <p className="mt-3 text-sm text-(--muted)">No complete days yet</p>
         )}
 
         <ul className="mt-3 space-y-2">
           {progress?.map((entry) => (
             <li
               key={entry.id}
-              className="flex justify-between rounded-xl border border-[#e9e0db] bg-white px-4 py-3 text-sm"
+              className="flex justify-between rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--muted-strong)"
             >
-              <span>Day {entry.pan_days?.day_number}</span>
-              <span className="text-[#9b8d88]">
+              <span className="font-medium">
+                Day {entry.pan_days?.day_number}
+              </span>
+              <span className="text-(--muted)">
                 {new Date(entry.completed_at).toLocaleDateString()}
               </span>
             </li>
@@ -127,37 +135,75 @@ export const ProgressPage = () => {
       </div>
 
       <div className="mt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <button
+            onClick={goToPreviousMonth}
+            className="inline-flex items-center justify-center rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary) sm:px-3"
+            aria-label="Previous month"
+            title="Previous month"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <h2 className="flex-1 text-center text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
             {format(viewedMonth, "MMMM yyyy")}
           </h2>
+
+          <button
+            onClick={goToNextMonth}
+            className="inline-flex items-center justify-center rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary) sm:px-3"
+            aria-label="Next month"
+            title="Next month"
+          >
+            <ChevronRight size={20} />
+          </button>
         </div>
 
-        <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.2}
-          onDragEnd={handleDragEnd}
-          className="mt-3 grid grid-cols-7 gap-1"
-        >
-          {calendarDays.map(({ date, isCompleted }) => (
-            <div
-              key={date.toISOString()}
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs ${
-                isCompleted
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-100 text-gray-500"
-              }`}
-            >
-              {date.getDate()}
+        <div className="relative">
+          <motion.div
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
+            className="mt-3 grid grid-cols-7 gap-2 cursor-grab active:cursor-grabbing"
+          >
+            {calendarDays.map(({ date, isCompleted }) => (
+              <div
+                key={date.toISOString()}
+                className="flex flex-col items-center gap-1"
+              >
+                <div className="text-xs font-medium text-(--muted) capitalize">
+                  {date
+                    .toLocaleDateString("en", { weekday: "short" })
+                    .charAt(0)}
+                </div>
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+                    isCompleted
+                      ? "bg-(--primary) text-white shadow-sm"
+                      : "bg-(--surface-muted) text-(--muted)"
+                  }`}
+                >
+                  {date.getDate()}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Swipe hint for mobile */}
+          <div className="mt-4 flex justify-center gap-2 sm:hidden">
+            <div className="flex items-center gap-2 text-xs text-(--muted)">
+              <ChevronLeft size={14} />
+              <span>Swipe</span>
+              <ChevronRight size={14} />
             </div>
-          ))}
-        </motion.div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-8">
-        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#9b8d88]">
-          <Trophy size={16} className="text-[#75493c]" />
+        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
+          <Trophy size={16} className="text-(--primary)" />
           Top streaks
         </h2>
 
@@ -165,12 +211,12 @@ export const ProgressPage = () => {
           {leaderboard?.map((entry, index) => (
             <li
               key={index}
-              className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm"
+              className="flex items-center justify-between rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--muted-strong)"
             >
-              <span>
+              <span className="font-medium">
                 #{index + 1} {entry.profiles?.name ?? entry.profiles?.username}
               </span>
-              <span>{entry.current_streak}</span>
+              <span className="text-(--muted)">{entry.current_streak}</span>
             </li>
           ))}
         </ol>

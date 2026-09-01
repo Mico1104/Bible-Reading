@@ -33,29 +33,40 @@ export const FeedbackModal = ({
 
   return (
     <Modal isOpen={isOpen}>
-      <h2 className="font-display text-2xl">Got feedback?</h2>
-      <p>Bugs, ideas, anything - goes straight to the developer.</p>
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        rows={4}
-        placeholder="What's on your mind?"
-        className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2"
-      />
-      <div className="mt-4 flex gap-3">
-        <button
-          onClick={onClose}
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => submitFeedback.mutate(message)}
-          disabled={!message.trim() || submitFeedback.isPending}
-          className="flex-1 rounded-lg bg-[#75493c] px-4 py-2.5 font-semibold text-white disabled:opacity-50"
-        >
-          {submitFeedback.isPending ? "Sending..." : "Send"}
-        </button>
+      <div className="space-y-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
+            Feedback
+          </p>
+          <h2 className="mt-2 font-display text-2xl text-(--text) sm:text-3xl">
+            Got feedback?
+          </h2>
+        </div>
+        <p className="text-(--muted-strong)">
+          Bugs, ideas, anything - goes straight to the developer.
+        </p>
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={4}
+          placeholder="What's on your mind?"
+          className="w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
+        />
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-lg border border-(--border) px-4 py-2.5 text-(--muted-strong) font-medium transition hover:bg-(--surface-strong)"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => submitFeedback.mutate(message)}
+            disabled={!message.trim() || submitFeedback.isPending}
+            className="flex-1 rounded-lg bg-(--primary) px-4 py-2.5 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
+          >
+            {submitFeedback.isPending ? "Sending..." : "Send"}
+          </button>
+        </div>
       </div>
     </Modal>
   );

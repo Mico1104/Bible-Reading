@@ -1,14 +1,40 @@
 import { useAuthStore } from "@/stores/authStore";
 import { Navigate, Link } from "react-router-dom";
 import { ArrowRight, BookOpen, Check, Flame } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
+import { useState, useEffect } from "react";
 
 export const LandingPage = () => {
   const user = useAuthStore((state) => state.user);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Array of reading images (reading1-reading10, plus landing image)
+  const images = [
+    "/landingImage.jpg",
+    "/reading1.jpg",
+    "/reading2.jpg",
+    "/reading3.jpg",
+    "/reading4.jpg",
+    "/reading5.jpg",
+    "/reading6.jpg",
+    "/reading7.jpg",
+    "/reading8.jpg",
+    "/reading9.jpg",
+    "/reading10.jpg",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
+
   return (
     <motion.div
       className="page-shell overflow-hidden"
@@ -52,23 +78,51 @@ export const LandingPage = () => {
           </p>
         </motion.div>
         <motion.div
-          className="relative"
+          className="relative h-[600px] w-full"
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.18 }}
         >
-          <img
-            src="/landingImage.jpg"
-            alt="Open Bible in warm morning light"
-            className="aspect-4/5 w-full rounded-4xl object-cover shadow-[0_20px_45px_rgba(117,73,60,0.18)] sm:aspect-5/4 lg:aspect-4/5"
-          />
-          <div className="absolute -bottom-5 -left-3 flex items-center gap-3 rounded-xl bg-(--surface) p-4 shadow-xl sm:-left-6">
-            <span className="rounded-full bg-(--surface-muted) p-2 text-(--primary)">
+          <div className="relative h-full w-full overflow-visible">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentImageIndex}
+                src={images[currentImageIndex]}
+                alt="Bible reading inspiration"
+                className="h-full w-full rounded-4xl object-cover shadow-[0_20px_45px_rgba(117,73,60,0.18)]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+              />
+            </AnimatePresence>
+
+            {/* Dot indicators */}
+            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 z-10">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`h-2 rounded-full transition-all ${
+                    index === currentImageIndex
+                      ? "w-6 bg-white"
+                      : "w-2 bg-white/50 hover:bg-white/75"
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:bottom-auto lg:top-0 lg:translate-y-1/2 lg:-right-12 lg:left-auto lg:translate-x-0 flex items-center gap-3 rounded-xl bg-(--surface) p-4 shadow-xl z-20">
+            <span className="rounded-full bg-(--surface-muted) p-2 text-(--primary) flex-shrink-0">
               <Flame size={18} />
             </span>
-            <div>
-              <p className="text-xs text-(--muted)">Your next habit</p>
-              <p className="font-semibold text-(--text)">
+            <div className="min-w-0">
+              <p className="text-xs text-(--muted) whitespace-nowrap">
+                Your next habit
+              </p>
+              <p className="font-semibold text-(--text) leading-snug">
                 One faithful day at a time
               </p>
             </div>

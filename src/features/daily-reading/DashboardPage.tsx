@@ -92,7 +92,7 @@ export const DashboardPage = () => {
           Day {daysNumber}
         </p>
         <h2 className="font-display mt-3 text-2xl text-(--text) sm:text-3xl">
-          {chapters.map((c) => c.reference).join("&")}
+          {chapters.map((c) => c.reference).join(" & ")}
         </h2>
 
         <MemoryVerse

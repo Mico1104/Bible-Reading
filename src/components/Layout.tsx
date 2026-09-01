@@ -67,31 +67,34 @@ export const Layout = () => {
                 <button
                   type="button"
                   onClick={handleSignout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:hidden"
                 >
                   <LogOut size={16} /> Sign out
                 </button>
 
-                <button
-                  type="button"
-                  aria-label="Open reading settings"
-                  onClick={() => {
-                    setSettingsOpen(true);
-                    setMenuOpen(false);
-                  }}
-                  className="flex items-center justify-center rounded-lg p-2 text-(--muted-strong) hover:bg-(--surface-strong)"
-                >
-                  <Settings size={18} />
-                </button>
+                <div className="border-t border-(--border) pt-2 md:hidden">
+                  <button
+                    type="button"
+                    aria-label="Open reading settings"
+                    onClick={() => {
+                      setSettingsOpen(true);
+                      setMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                  >
+                    <Settings size={18} /> Settings
+                  </button>
 
-                <button
-                  type="button"
-                  aria-label="Toggle theme"
-                  onClick={toggleTheme}
-                  className="flex items-center justify-center rounded-lg p-2 text-(--muted-strong) hover:bg-(--surface-strong)"
-                >
-                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
+                  <button
+                    type="button"
+                    aria-label="Toggle theme"
+                    onClick={toggleTheme}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                  >
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                    {isDark ? "Light mode" : "Dark mode"}
+                  </button>
+                </div>
               </div>
             </>
           ) : (
@@ -116,17 +119,19 @@ export const Layout = () => {
 
       <main>
         <Outlet />
-        
       </main>
       {user && (
         <button
           onClick={() => setFeedbackOpen(true)}
           className="fixed bottom-6 right-6 z-40 rounded-full bg-[#75493c] p-3 text-white shadow-lg"
         >
-          <MessageCircle size={20}/>
+          <MessageCircle size={20} />
         </button>
       )}
-      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)}/>
+      <FeedbackModal
+        isOpen={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+      />
     </div>
   );
 };
