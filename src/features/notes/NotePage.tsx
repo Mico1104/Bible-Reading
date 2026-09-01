@@ -4,8 +4,10 @@ import { useCreateNote } from "./useCreateNote";
 import { useDeleteNotes } from "./useDeleteNote";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, Bookmark, LoaderCircle, Trash2 } from "lucide-react";
+import { AlertCircle, Bookmark, LoaderCircle } from "lucide-react";
 import { motion } from "motion/react";
+import { useState } from "react";
+import { useUpdateNote } from "./useUpdateNote";
 
 const noteSchema = z.object({
   reference: z.string().min(1, "Enter a scripture reference"),
@@ -17,7 +19,6 @@ type NoteFormValue = z.infer<typeof noteSchema>;
 export const NotePage = () => {
   const { data: notes, isLoading, error } = useNotes();
   const createNote = useCreateNote();
-  const deleteNote = useDeleteNotes();
 
   const {
     register,
@@ -45,7 +46,7 @@ export const NotePage = () => {
             Your notes are unavailable
           </h1>
           <p className="mt-3 leading-7 text-[#7e6862]">
-            We couldn&apos;t load your saved reflections. Please refresh and try
+            We couldn't load your saved reflections. Please refresh and try
             again.
           </p>
         </div>
@@ -115,26 +116,95 @@ export const NotePage = () => {
           </p>
         )}
         {notes?.map((note) => (
-          <div
-            key={note.id}
-            className="rounded-xl border border-[#e9e0db] bg-white p-5 shadow-sm"
-          >
-            <div className="flex items-start justify-between">
-              <p className="text-sm font-semibold text-gray-700">
-                {note.reference}
-              </p>
-              <button
-                onClick={() => deleteNote.mutate(note.id)}
-                aria-label={`Delete note ${note.reference}`}
-                className="rounded-md p-1 text-[#9b8d88] hover:bg-[#f7f4f1] hover:text-[#75493c]"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-gray-800">{note.content}</p>
-          </div>
+          <NoteItem key={note.id} note={note} />
         ))}
       </div>
     </motion.div>
+  );
+};
+
+const NoteItem = ({
+  note,
+}: {
+  note: { id: string; reference: string; content: string };
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [reference, setReference] = useState(note.reference);
+  const [content, setContent] = useState(note.content);
+
+  const updateNote = useUpdateNote();
+  const deleteNote = useDeleteNotes();
+
+  const handleSave = () => {
+    updateNote.mutate(
+      { id: note.id, reference, content },
+      { onSuccess: () => setIsEditing(false) },
+    );
+  };
+
+  const handleCancel = () => {
+    setReference(note.reference);
+    setContent(note.content);
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="rounded-md border border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
+        <input
+          value={reference}
+          onChange={(e) => setReference(e.target.value)}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+        />
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={3}
+          className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+        />
+        <div className="mt-3 flex gap-2">
+          <button
+            onClick={handleCancel}
+            className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600 dark:text-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={updateNote.isPending}
+            className="flex-1 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+          >
+            {updateNote.isPending ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
+      <div className="flex items-start justify-between">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+          {note.reference}
+        </p>
+        <div className="flex gap-3 text-xs">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-gray-600 dark:text-gray-400"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => deleteNote.mutate(note.id)}
+            className="text-red-600"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      <p className="mt-2 text-sm text-gray-800 dark:text-gray-300">
+        {note.content}
+      </p>
+    </div>
   );
 };
