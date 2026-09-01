@@ -12,6 +12,7 @@ import { OnboardingContent } from "./OnboardingContent";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
+  const translation = profile?.bible_translation ?? "web";
   const { data, isLoading, error } = useTodayReading();
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
@@ -30,7 +31,7 @@ export const DashboardPage = () => {
           <div className="skeleton-line mt-6 h-12" />
         </div>
         <p className="mx-auto mt-5 text-center text-sm text-(--muted)">
-          Preparing today&apos;s reading...
+          Preparing today's reading...
         </p>
       </motion.div>
     );
@@ -78,6 +79,7 @@ export const DashboardPage = () => {
         <MemoryVerse
           chapterReference={memoryChapter.reference}
           seed={daysNumber}
+          translation={translation}
         />
 
         <button
@@ -93,7 +95,7 @@ export const DashboardPage = () => {
         </button>
 
         <AnimatePresence initial={false}>
-          {showFullPassage && <FullPassage chapters={chapters} />}
+          {showFullPassage && <FullPassage chapters={chapters} translation={translation} />}
         </AnimatePresence>
 
         <button
@@ -116,11 +118,13 @@ export const DashboardPage = () => {
 const MemoryVerse = ({
   chapterReference,
   seed,
+  translation,
 }: {
   chapterReference: string;
   seed: number;
+  translation: string
 }) => {
-  const { data: chapter, isLoading } = useVerse(chapterReference);
+  const { data: chapter, isLoading } = useVerse(chapterReference, translation);
 
   if (isLoading || !chapter) {
     return (
@@ -150,9 +154,9 @@ const MemoryVerse = ({
   );
 };
 
-const FullPassage = ({ chapters }: { chapters: { reference: string }[] }) => {
+const FullPassage = ({ chapters, translation }: { chapters: { reference: string }[], translation: string }) => {
   const references = chapters.map((c) => c.reference);
-  const { data: results, isLoading } = useVerses(references);
+  const { data: results, isLoading } = useVerses(references, translation);
 
   if (isLoading || !results) {
     return (

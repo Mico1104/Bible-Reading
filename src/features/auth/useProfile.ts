@@ -10,7 +10,9 @@ export const useProfile = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("name, username, chapters_per_day, testament_preference")
+        .select(
+          "name, username, chapters_per_day, testament_preference, bible_translation",
+        )
         .eq("id", userId)
         .single();
 

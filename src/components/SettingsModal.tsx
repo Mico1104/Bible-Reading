@@ -18,11 +18,23 @@ export const SettingsModal = ({
   const [chaptersPerDay, setChaptersPerDay] = useState(
     profile?.chapters_per_day ?? 2,
   );
+  const [translation, setTranslation] = useState(
+    profile?.bible_translation ?? "web",
+  );
+
+  const TRANSLATIONS = [
+    { id: "web", name: "World English Bible" },
+    { id: "kjv", name: "King James Version" },
+    { id: "bbe", name: "Bible in Basic English" },
+    { id: "asv", name: "American Standard Version" },
+    { id: "ylt", name: "Young's Literal Translation" },
+  ];
 
   const handleSave = () => {
-    updateSettings.mutate(chaptersPerDay, {
-      onSuccess: onClose,
-    });
+    updateSettings.mutate(
+      { chaptersPerDay, translation },
+      { onSuccess: onClose },
+    );
   };
 
   return (
@@ -78,6 +90,23 @@ export const SettingsModal = ({
               </button>
             ))}
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-(--muted-strong)">
+            Bible Version
+          </label>
+          <select
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
+            className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text)"
+          >
+            {TRANSLATIONS.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">

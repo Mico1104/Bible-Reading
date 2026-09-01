@@ -12,9 +12,9 @@ type BibleApiResponse = {
   verses: BibleVerse[];
 };
 
-const fetchVerse = async (reference: string): Promise<BibleApiResponse> => {
+const fetchVerse = async (reference: string, translation: string): Promise<BibleApiResponse> => {
   const encodedRef = encodeURIComponent(reference);
-  const response = await fetch(`https://bible-api.com/${encodedRef}`);
+  const response = await fetch(`https://bible-api.com/${encodedRef}?translation=${translation}`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch ${reference}`);
@@ -23,20 +23,20 @@ const fetchVerse = async (reference: string): Promise<BibleApiResponse> => {
   return response.json();
 };
 
-export const useVerse = (reference: string | undefined) => {
+export const useVerse = (reference: string | undefined, translation: string) => {
   return useQuery({
-    queryKey: ["verse", reference],
-    queryFn: () => fetchVerse(reference as string),
+    queryKey: ["verse", reference, translation],
+    queryFn: () => fetchVerse(reference as string, translation),
     enabled: !!reference,
   });
 };
 
-export const useVerses = (references: string[]) => {
+export const useVerses = (references: string[], translation: string) => {
   return useQuery({
-    queryKey: ["verses", references.join(",")],
+    queryKey: ["verses", references.join(","), translation],
     queryFn: async () => {
       const results = await Promise.all(
-        references.map((ref) => fetchVerse(ref)),
+        references.map((ref) => fetchVerse(ref, translation)),
       );
       return results;
     },
