@@ -5,6 +5,9 @@ import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { PasswordInput } from "@/components/PasswordInput";
+import { Link } from "react-router-dom";
+import { ArrowLeft, KeyRound } from "lucide-react";
+import { motion } from "motion/react";
 
 const resetSchema = z
   .object({
@@ -28,22 +31,28 @@ export const ResetPasswordPage = () => {
 
   const onSubmit = async ({ password }: ResetFormValues) => {
     const { error } = await supabase.auth.updateUser({ password });
-    if (error) return;
+    if (error) {
+      toast.error(error.message || "Unable to update your password");
+      return;
+    }
     toast.success("Password updated!");
     navigate("/dashboard");
   };
 
   return (
-    <div className="mx-auto max-w-sm p-6">
-      <h1 className="text-2xl font-semibold">Set a new Password</h1>
+    <motion.div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-md items-center px-4 py-10 sm:px-6" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="w-full rounded-3xl border border-(--border) bg-(--surface) p-6 shadow-sm sm:p-8">
+      <KeyRound className="text-(--primary)" size={30} />
+      <h1 className="mt-4 text-2xl font-semibold text-(--text)">Set a new password</h1>
+      <p className="mt-2 text-sm text-(--muted-strong)">Choose a strong password to keep your account secure.</p>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="password" className="block text-sm text-gray-700">
+          <label htmlFor="password" className="block text-sm font-semibold text-(--text)">
             New Password
           </label>
           <PasswordInput id="password" {...register("password")} />
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-2 text-sm text-(--danger)">
               {errors.password.message}
             </p>
           )}
@@ -51,7 +60,7 @@ export const ResetPasswordPage = () => {
         <div>
           <label
             htmlFor="confirmPassword"
-            className="block text-sm text-gray-700"
+            className="block text-sm font-semibold text-(--text)"
           >
             Confirm password
           </label>
@@ -60,7 +69,7 @@ export const ResetPasswordPage = () => {
             {...register("confirmPassword")}
           />
           {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-2 text-sm text-(--danger)">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -69,11 +78,15 @@ export const ResetPasswordPage = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md bg-gray-900 px-4 py-2.5 text-white disabled:opacity-50"
+          className="w-full rounded-xl bg-(--primary) px-4 py-3 font-semibold text-white hover:bg-(--primary-strong) focus:outline-none focus:ring-2 focus:ring-(--primary)/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? "Updating" : "Update password"}
         </button>
       </form>
-    </div>
+      <Link to="/login" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-(--primary) underline underline-offset-4">
+        <ArrowLeft size={16} /> Back to login
+      </Link>
+      </div>
+    </motion.div>
   );
 };

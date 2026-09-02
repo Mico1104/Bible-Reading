@@ -43,7 +43,10 @@ export const SignupPage = () => {
       },
     });
 
-    if (error) return;
+    if (error) {
+      toast.error(error.message || "Unable to create your account");
+      return;
+    }
 
     toast.success("Account created!");
     setSignupComplete(true);
@@ -60,78 +63,79 @@ export const SignupPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-sm p-6">
-      <h1 className="text-2xl font-semibold">Create your account</h1>
+    <div className="mx-auto min-h-[calc(100vh-5rem)] w-full max-w-md px-4 py-10 sm:px-6">
+      <div className="rounded-3xl border border-(--border) bg-(--surface) p-6 shadow-sm sm:p-8">
+      <h1 className="text-2xl font-semibold text-(--text)">Create your account</h1>
+      <p className="mt-2 text-sm text-(--muted-strong)">Start a flexible reading rhythm that works for you.</p>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm text-gray-700">
+          <label htmlFor="name" className="block text-sm font-semibold text-(--text)">
             Name
           </label>
           <input
             type="text"
             id="name"
             {...register("name")}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-(--text) placeholder:text-(--muted) focus:border-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/20"
           />
           {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            <p className="mt-2 text-sm text-(--danger)">{errors.name.message}</p>
           )}
         </div>
         <div>
-          <label htmlFor="username" className="block text-sm text-gray-700">
+          <label htmlFor="username" className="block text-sm font-semibold text-(--text)">
             Username
           </label>
           <input
             type="text"
             id="username"
             {...register("username")}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-(--text) placeholder:text-(--muted) focus:border-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/20"
           />
           {errors.username && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-2 text-sm text-(--danger)">
               {errors.username.message}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm text-gray-700">
+          <label htmlFor="email" className="block text-sm font-semibold text-(--text)">
             Email
           </label>
           <input
             type="email"
             id="email"
             {...register("email")}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-(--text) placeholder:text-(--muted) focus:border-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/20"
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            <p className="mt-2 text-sm text-(--danger)">{errors.email.message}</p>
           )}
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm text-gray-700">
+          <label htmlFor="password" className="block text-sm font-semibold text-(--text)">
             Password
           </label>
-          <PasswordInput id="password" {...register("password")}/>
+          <PasswordInput id="password" {...register("password")} />
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-2 text-sm text-(--danger)">
               {errors.password.message}
             </p>
           )}
         </div>
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm text-gray-700">
+          <label htmlFor="confirmPassword" className="block text-sm font-semibold text-(--text)">
             Confirm Password
           </label>
-          <input
-            type="password"
+          <PasswordInput
             id="confirmPassword"
             {...register("confirmPassword")}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1"
           />
           {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-2 text-sm text-(--danger)">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -140,20 +144,21 @@ export const SignupPage = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md bg-gray-900 px-4 py-2.5 text-white disabled:opacity-50"
+          className="w-full rounded-xl bg-(--primary) px-4 py-3 font-semibold text-white hover:bg-(--primary-strong) focus:outline-none focus:ring-2 focus:ring-(--primary)/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? "Creating account..." : "Sign up"}
         </button>
       </form>
-      <p className="mt-5 text-sm text-[#9b8d88]">
+      <p className="mt-5 text-center text-sm text-(--muted-strong)">
         Already have an account?{" "}
         <Link
           to="/login"
-          className="font-semibold text-[#75493c] underline underline-offset-4"
+          className="font-semibold text-(--primary) underline underline-offset-4"
         >
           Log in
         </Link>
       </p>
+      </div>
     </div>
   );
 };

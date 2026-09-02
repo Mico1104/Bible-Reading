@@ -2,19 +2,19 @@ import { Eye, EyeOff } from "lucide-react";
 import { forwardRef, useState } from "react";
 
 
-export const PasswordInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
+export const PasswordInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className = "", ...props }, ref) => {
     const [visible, setVisible] = useState(false);
 
     return (
         <div className="relative">
             <input {...props} ref={ref} type={visible ? "text" : "password"}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+            className={`w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 pr-11 text-(--text) placeholder:text-(--muted) focus:border-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/20 ${className}`}
             />
             <button
             type="button"
             onClick={() => setVisible((prev) => !prev)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-            tabIndex={-1}
+            aria-label={visible ? "Hide password" : "Show password"}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-(--muted-strong) hover:text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
             >
                 {visible ? <EyeOff size={18}/> : <Eye size={18}/> }
             </button>
@@ -23,4 +23,3 @@ export const PasswordInput = forwardRef<HTMLInputElement, React.InputHTMLAttribu
 })
 
 PasswordInput.displayName ="PasswordInput"
-
