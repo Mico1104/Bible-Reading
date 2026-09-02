@@ -8,6 +8,8 @@ import { LandingPage } from "./features/landing/LandingPage";
 import { Layout } from "./components/Layout";
 import { NotFoundPage } from "./components/NotFoundPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +28,8 @@ export const router = createBrowserRouter([
       },
 
       { path: "*", element: <NotFoundPage /> },
+      {path: "/forgot-password", element: <ForgotPasswordPage/>},
+      {path: "/reset-password", element: <ResetPasswordPage/>}
     ],
   },
 ]);

@@ -7,12 +7,18 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ConfirmationPrompt } from "@/components/ConfirmationPrompt";
 import { Modal } from "@/components/Modal";
+import { PasswordInput } from "@/components/PasswordInput";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+})
+.refine((data) => data.password === data.confirmPassword, {
+  message: "Password did not match",
+  path: ["confirmPassword"]
 });
 
 type SignFormValues = z.infer<typeof signUpSchema>;
@@ -107,15 +113,26 @@ export const SignupPage = () => {
           <label htmlFor="password" className="block text-sm text-gray-700">
             Password
           </label>
-          <input
-            type="password"
-            id="password"
-            {...register("password")}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-          />
+          <PasswordInput id="password" {...register("password")}/>
           {errors.password && (
             <p className="mt-1 text-sm text-red-600">
               {errors.password.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm text-gray-700">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            {...register("confirmPassword")}
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+          />
+          {errors.confirmPassword && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.confirmPassword.message}
             </p>
           )}
         </div>

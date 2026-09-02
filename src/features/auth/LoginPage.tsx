@@ -3,7 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/lib/supabase";
 import { useNavigate, Link } from "react-router-dom";
-import { toast} from "sonner"
+import { toast } from "sonner";
+import { PasswordInput } from "@/components/PasswordInput";
 
 const loginSchema = z.object({
   identifier: z.string().min(1, "Enter your username or email"),
@@ -45,11 +46,11 @@ export const LoginPage = () => {
 
     if (signInError) {
       setError("password", { message: "Incorrect email/username or password" });
-toast.error("Incorrect email/username or password")
+      toast.error("Incorrect email/username or password");
       return;
     }
 
-toast.success("Welcome back!");
+    toast.success("Welcome back!");
     navigate("/dashboard");
   };
   return (
@@ -76,12 +77,7 @@ toast.success("Welcome back!");
         <label htmlFor="password" className="block text-sm text-gray-700">
           Password
         </label>
-        <input
-          type="password"
-          id="password"
-          {...register("password")}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-        />
+        <PasswordInput id="password" {...register("password")} />
         {errors.password && (
           <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
         )}
@@ -94,6 +90,9 @@ toast.success("Welcome back!");
           {isSubmitting ? "Logging in..." : "Log in"}
         </button>
       </form>
+      <p className="mt-3 text-right text-sm">
+        <Link to="/forgot-password" className="text-gray-600 underline"> Forgot password?</Link>
+      </p>
       <p className="mt-5 text-sm text-[#9b8d88]">
         Don't have an account?{" "}
         <Link
