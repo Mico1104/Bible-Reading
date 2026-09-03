@@ -78,7 +78,7 @@ export const LandingPage = () => {
           </p>
         </motion.div>
         <motion.div
-          className="relative h-[600px] w-full"
+          className="relative h-150 w-full"
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.18 }}
@@ -115,14 +115,14 @@ export const LandingPage = () => {
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:bottom-auto lg:top-0 lg:translate-y-1/2 lg:-right-12 lg:left-auto lg:translate-x-0 flex items-center gap-3 rounded-xl bg-(--surface) p-4 shadow-xl z-20">
-            <span className="rounded-full bg-(--surface-muted) p-2 text-(--primary) flex-shrink-0">
+            <span className="rounded-full bg-(--surface-muted) p-2 text-(--primary) shrink-0">
               <Flame size={18} />
             </span>
             <div className="min-w-0">
               <p className="text-xs text-(--muted) whitespace-nowrap">
                 Your next habit
               </p>
-              <p className="font-semibold text-(--text) leading-snug">
+              <p className="font-semibold text-(--text) leading-snug text-nowrap">
                 One faithful day at a time
               </p>
             </div>

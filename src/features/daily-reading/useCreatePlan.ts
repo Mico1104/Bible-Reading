@@ -11,9 +11,13 @@ export const useCreatePlan = () => {
     mutationFn: async ({
       testament,
       chaptersPerDay,
+      startDate,
+      reminderTime,
     }: {
       testament: "OT" | "NT";
       chaptersPerDay: number;
+      startDate: string;
+      reminderTime: string | null;
     }) => {
       //Save their choice on the profile
       const { error: profileError } = await supabase
@@ -21,6 +25,7 @@ export const useCreatePlan = () => {
         .update({
           testament_preference: testament,
           chapters_per_day: chaptersPerDay,
+          reminder_time: reminderTime,
         })
         .eq("id", userId);
 
@@ -30,7 +35,7 @@ export const useCreatePlan = () => {
       const { error: planError } = await supabase.from("user_plans").insert({
         user_id: userId,
         status: "active",
-        start_date: new Date().toISOString().slice(0, 10),
+        start_date: startDate,
       });
       if (planError && planError.code !== "23505") throw planError;
     },

@@ -23,6 +23,15 @@ export const DashboardPage = () => {
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
 
+  if(data?.notStartedYet){
+    return (
+      <div className="mx-auto max-w-md p-6 text-center">
+        <h1 className="font-display text-2xl">Almost there</h1>
+        <p>Your reading plan begins on {new Date(data.startDate).toLocaleDateString()}.</p>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <motion.div

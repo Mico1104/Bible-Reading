@@ -21,6 +21,7 @@ export const SettingsModal = ({
   const [translation, setTranslation] = useState(
     profile?.bible_translation ?? "web",
   );
+  const [reminderTime, setReminderTime] = useState<string>(profile?.reminder_time ?? "")
 
   const TRANSLATIONS = [
     { id: "web", name: "World English Bible" },
@@ -32,7 +33,7 @@ export const SettingsModal = ({
 
   const handleSave = () => {
     updateSettings.mutate(
-      { chaptersPerDay, translation },
+      { chaptersPerDay, translation, reminderTime },
       { onSuccess: onClose },
     );
   };
@@ -64,6 +65,16 @@ export const SettingsModal = ({
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label htmlFor="reminderTime">Daily reminder time</label>
+          <input type="time"
+          id="reminderTime"
+          value={reminderTime}
+          onChange={(e) => setReminderTime(e.target.value)}
+          className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none focus:border-(--primary)"
+          />
         </div>
 
         <div>

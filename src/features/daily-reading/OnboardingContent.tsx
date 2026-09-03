@@ -6,6 +6,19 @@ import { useCreatePlan } from "./useCreatePlan";
 export const OnboardingContent = () => {
   const createPlan = useCreatePlan();
   const [chaptersPerDay, setChaptersPerDay] = useState(2);
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
+  const [reminderTime, setReminderTime] = useState("");
+
+  const handleStart = (testament: "OT" | "NT") => {
+    createPlan.mutate({
+      testament,
+      chaptersPerDay,
+      startDate,
+      reminderTime: reminderTime || null,
+    });
+  };
 
   return (
     <motion.div
@@ -26,8 +39,9 @@ export const OnboardingContent = () => {
           Set up your Bible reading
         </h1>
         <p className="max-w-xl text-sm leading-6 text-(--muted-strong) sm:text-base">
-          Choose your pace and pick the starting point. You&apos;ll move through
-          the text in order and loop back around once you finish.
+          Choose your pace and pick the starting point, and (optionally) a daily
+          reminder. You'll move through the text in order and loop back around
+          once you finish.
         </p>
       </div>
 
@@ -50,6 +64,28 @@ export const OnboardingContent = () => {
             ))}
           </select>
         </div>
+        <div>
+          <label className="text-sm text-[#7e6862]">Start date</label>
+          <input
+            type="date"
+            value={startDate}
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm text-[#7e6862]">
+            Daily reminder time (optional)
+          </label>
+          <input
+            type="time"
+            value={reminderTime}
+            onChange={(e) => setReminderTime(e.target.value)}
+            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2"
+          />
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -60,9 +96,7 @@ export const OnboardingContent = () => {
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="button"
-            onClick={() =>
-              createPlan.mutate({ testament: "OT", chaptersPerDay })
-            }
+            onClick={() => handleStart("OT")}
             disabled={createPlan.isPending}
             className="group flex items-center justify-between gap-3 rounded-2xl border border-(--border) bg-(--surface) px-4 py-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border(--primary) hover:bg-(--surface-strong) disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -82,9 +116,7 @@ export const OnboardingContent = () => {
 
           <button
             type="button"
-            onClick={() =>
-              createPlan.mutate({ testament: "NT", chaptersPerDay })
-            }
+            onClick={() => handleStart("NT")}
             disabled={createPlan.isPending}
             className="group flex items-center justify-between gap-3 rounded-2xl border border-(--border) bg-(--surface) px-4 py-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border(--primary) hover:bg-(--surface-strong) disabled:cursor-not-allowed disabled:opacity-60"
           >

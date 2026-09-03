@@ -93,7 +93,7 @@ export const LoginPage = () => {
           {isSubmitting ? "Logging in..." : "Log in"}
         </button>
       </form>
-      <p className="mt-3 text-right text-sm">
+      <p className="mt-3 text-center text-sm">
         <Link to="/forgot-password" className="font-medium text-(--primary) underline underline-offset-4">Forgot password?</Link>
       </p>
       <p className="mt-5 text-center text-sm text-(--muted-strong)">

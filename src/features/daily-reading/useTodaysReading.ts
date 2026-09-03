@@ -50,6 +50,15 @@ export const useTodayReading = () => {
         new Date(userPlan.start_date),
       );
 
+      if (daysSinceStart < 0) {
+        return {
+          chapters: [],
+          daysNumber: 0,
+          notStartedYet: true,
+          startDate: userPlan.start_date,
+        };
+      }
+
       const chaptersPerDay = profile.chapters_per_day;
       const offset = daysSinceStart * chaptersPerDay;
 
@@ -60,8 +69,6 @@ export const useTodayReading = () => {
           ((startChapter.global_position - 1 + offset + i) % TOTAL_CHAPTERS) +
           1,
       );
-
-    
 
       //6. Fetch those two chapters
       const { data: chapters, error: chaptersError } = await supabase
