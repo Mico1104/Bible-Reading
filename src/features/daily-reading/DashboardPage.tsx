@@ -2,9 +2,17 @@ import { useProfile } from "../auth/useProfile";
 import { useTodayReading } from "./useTodaysReading";
 import { useMarkComplete } from "./useMarkComplete";
 import { Modal } from "@/components/Modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useVerse, useVerses } from "./useVerse";
-import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  BookOpen,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Pause,
+  Play,
+  Square,
+} from "lucide-react";
 import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { seededRandomIndex } from "@/lib/random";
@@ -15,6 +23,7 @@ import {
 } from "@/features/progress/insights";
 
 import { REFLECTION_PROMPTS } from "./reflectionPrompts";
+import { useSpeech } from "./useSpeech";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
@@ -23,13 +32,16 @@ export const DashboardPage = () => {
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
 
-  if(data?.notStartedYet){
+  if (data?.notStartedYet) {
     return (
       <div className="mx-auto max-w-md p-6 text-center">
         <h1 className="font-display text-2xl">Almost there</h1>
-        <p>Your reading plan begins on {new Date(data.startDate).toLocaleDateString()}.</p>
+        <p>
+          Your reading plan begins on{" "}
+          {new Date(data.startDate).toLocaleDateString()}.
+        </p>
       </div>
-    )
+    );
   }
 
   if (isLoading) {
@@ -202,6 +214,32 @@ const FullPassage = ({
 }) => {
   const references = chapters.map((c) => c.reference);
   const { data: results, isLoading } = useVerses(references, translation);
+  const { isSpeaking, isPaused, speak, pause, resume, stop } = useSpeech();
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, [])
+
+  const handlePlayToggle = () => {
+    if (!results) return;
+
+    if (isSpeaking && !isPaused) {
+      pause();
+      return;
+    }
+
+    if (isSpeaking && isPaused) {
+      resume();
+      return;
+    }
+
+    const fullText = results
+      .map((chapter) => chapter.verses.map((v) => v.text).join(" "))
+      .join(".Next chapter.");
+    speak(fullText);
+  };
 
   if (isLoading || !results) {
     return (
@@ -227,6 +265,20 @@ const FullPassage = ({
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
     >
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handlePlayToggle}
+          className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
+        >
+          {isSpeaking && !isPaused ? <Pause size={16} /> : <Play size={16} />}
+          {isSpeaking && !isPaused ? "Pause" : isPaused ? "Resume" : "Listen"}
+        </button>
+        {isSpeaking && (
+          <button onClick={stop} className="text-sm text-(--muted)">
+            <Square size={14} />
+          </button>
+        )}
+      </div>
       {results.map((chapter) => (
         <VerseBlock
           key={chapter.reference}
