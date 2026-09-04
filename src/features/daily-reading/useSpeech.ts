@@ -1,8 +1,20 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const useSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false)
+  const [voicesReady, setVoicesReady] = useState(false);
+
+  useEffect(() => {
+    const checkVoices = () => {
+      if(window.speechSynthesis.getVoices().length > 0){
+        setVoicesReady(true);
+      }
+    };
+    checkVoices();
+    window.speechSynthesis.onvoiceschanged = checkVoices
+  })
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const speak = useCallback((text: string) => {
@@ -12,16 +24,20 @@ export const useSpeech = () => {
     utterance.rate = 0.95;
 
     utterance.onstart = () => {
+      setIsPreparing(false)
       setIsSpeaking(true);
       setIsPaused(false);
+      
     };
 
     utterance.onend = () => {
+      setIsPreparing(false)
       setIsSpeaking(false);
       setIsPaused(false);
     };
 
     utterance.onerror = () => {
+      setIsPreparing(false)
       setIsSpeaking(false);
       setIsPaused(false);
     };
@@ -46,6 +62,6 @@ export const useSpeech = () => {
     setIsPaused(false);
   }, []);
 
-  return { isSpeaking, isPaused, speak, pause, resume, stop };
+  return { isSpeaking, isPaused, speak, pause, resume, stop, isPreparing, voicesReady };
   
 };

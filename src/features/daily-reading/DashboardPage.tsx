@@ -214,16 +214,26 @@ const FullPassage = ({
 }) => {
   const references = chapters.map((c) => c.reference);
   const { data: results, isLoading } = useVerses(references, translation);
-  const { isSpeaking, isPaused, speak, pause, resume, stop } = useSpeech();
+  const {
+    isSpeaking,
+    isPaused,
+    speak,
+    pause,
+    resume,
+    stop,
+    isPreparing,
+    voicesReady,
+  } = useSpeech();
+  const isSupported = "speechSynthesis" in window;
 
   useEffect(() => {
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [])
+  }, []);
 
   const handlePlayToggle = () => {
-    if (!results) return;
+    if (!results || !voicesReady) return;
 
     if (isSpeaking && !isPaused) {
       pause();
@@ -268,15 +278,37 @@ const FullPassage = ({
       <div className="flex items-center gap-3">
         <button
           onClick={handlePlayToggle}
+          disabled={isPreparing || !voicesReady}
           className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
         >
           {isSpeaking && !isPaused ? <Pause size={16} /> : <Play size={16} />}
           {isSpeaking && !isPaused ? "Pause" : isPaused ? "Resume" : "Listen"}
+          {isPreparing
+            ? "Loading..."
+            : isSpeaking && !isPaused
+              ? "Pause"
+              : isPaused
+                ? "Resume"
+                : "Listen"}
+          {!voicesReady
+            ? "Loading voices..."
+            : isPreparing
+              ? "Loading..."
+              : isSpeaking && !isPaused
+                ? "Pause"
+                : isPaused
+                  ? "Resume"
+                  : "Listen"}
         </button>
         {isSpeaking && (
           <button onClick={stop} className="text-sm text-(--muted)">
             <Square size={14} />
           </button>
+        )}
+        {!isSupported && (
+          <p className="mt-2 text-xs text-(--muted)">
+            Audio playback isn't support on this browser.
+          </p>
         )}
       </div>
       {results.map((chapter) => (
