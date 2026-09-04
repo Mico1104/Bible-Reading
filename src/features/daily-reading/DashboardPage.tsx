@@ -25,6 +25,7 @@ import {
 import { REFLECTION_PROMPTS } from "./reflectionPrompts";
 import { useSpeech } from "./useSpeech";
 
+
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
   const translation = profile?.bible_translation ?? "web";
@@ -281,15 +282,7 @@ const FullPassage = ({
           disabled={isPreparing || !voicesReady}
           className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
         >
-          {isSpeaking && !isPaused ? <Pause size={16} /> : <Play size={16} />}
-          {isSpeaking && !isPaused ? "Pause" : isPaused ? "Resume" : "Listen"}
-          {isPreparing
-            ? "Loading..."
-            : isSpeaking && !isPaused
-              ? "Pause"
-              : isPaused
-                ? "Resume"
-                : "Listen"}
+          {isSpeaking && !isPaused ? <Pause size={16}/> : <Play size={16}/> }
           {!voicesReady
             ? "Loading voices..."
             : isPreparing

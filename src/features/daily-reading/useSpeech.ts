@@ -14,11 +14,12 @@ export const useSpeech = () => {
     };
     checkVoices();
     window.speechSynthesis.onvoiceschanged = checkVoices
-  })
+  }, [])
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const speak = useCallback((text: string) => {
     window.speechSynthesis.cancel();
+    setIsPreparing(true);
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.95;
@@ -53,7 +54,7 @@ export const useSpeech = () => {
 
   const resume = useCallback(() => {
     window.speechSynthesis.resume();
-    setIsSpeaking(false);
+    setIsPaused(false);
   }, []);
 
   const stop = useCallback(() => {
