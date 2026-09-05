@@ -6,6 +6,7 @@ import { toast } from "sonner";
 type SettingsInput = {
   chaptersPerDay: number;
   translation: string;
+  translationProvider: string;
   reminderTime: string;
 };
 
@@ -14,12 +15,13 @@ export const useUpdateSettings = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ chaptersPerDay, translation, reminderTime }: SettingsInput) => {
+    mutationFn: async ({ chaptersPerDay, translation, translationProvider, reminderTime }: SettingsInput) => {
       const { error } = await supabase
         .from("profiles")
         .update({
           chapters_per_day: chaptersPerDay,
           bible_translation: translation,
+          translation_provider: translationProvider, 
           reminder_time: reminderTime || null
           
         })

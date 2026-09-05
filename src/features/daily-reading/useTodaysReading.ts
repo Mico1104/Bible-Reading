@@ -41,7 +41,7 @@ export const useTodayReading = () => {
         .select("global_position")
         .eq("reference", startReference)
         .single();
-      console.log("startChapter", startChapter);
+      
       if (startError) throw startError;
 
       //4. WORK OUT HOW MANY CHAPTER_PAIRS HAVE ELAPSED SINCE START_DATE

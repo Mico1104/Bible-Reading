@@ -21,9 +21,15 @@ export const SettingsModal = ({
   const [translation, setTranslation] = useState(
     profile?.bible_translation ?? "web",
   );
-  const [reminderTime, setReminderTime] = useState<string>(profile?.reminder_time ?? "")
 
-  const TRANSLATIONS = [
+  const [translationProvider, setTranslationProvider] = useState(
+    profile?.translation_provider ?? "bible-api-com",
+  );
+  const [reminderTime, setReminderTime] = useState<string>(
+    profile?.reminder_time ?? "",
+  );
+
+  const ENGLISH_VERSIONS = [
     { id: "web", name: "World English Bible" },
     { id: "kjv", name: "King James Version" },
     { id: "bbe", name: "Bible in Basic English" },
@@ -31,9 +37,15 @@ export const SettingsModal = ({
     { id: "ylt", name: "Young's Literal Translation" },
   ];
 
+  const LANGUAGES = [
+    { id: "b8d1feac6e94bd74-01", name: "Yoruba" },
+    { id: "a36fc06b086699f1-02", name: "Igbo" },
+    { id: "0ab0c764d56a715d-02", name: "Hausa" },
+  ];
+
   const handleSave = () => {
     updateSettings.mutate(
-      { chaptersPerDay, translation, reminderTime },
+      { chaptersPerDay, translation, translationProvider, reminderTime },
       { onSuccess: onClose },
     );
   };
@@ -69,11 +81,12 @@ export const SettingsModal = ({
 
         <div>
           <label htmlFor="reminderTime">Daily reminder time</label>
-          <input type="time"
-          id="reminderTime"
-          value={reminderTime}
-          onChange={(e) => setReminderTime(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none focus:border-(--primary)"
+          <input
+            type="time"
+            id="reminderTime"
+            value={reminderTime}
+            onChange={(e) => setReminderTime(e.target.value)}
+            className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none focus:border-(--primary)"
           />
         </div>
 
@@ -103,7 +116,7 @@ export const SettingsModal = ({
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-(--muted-strong)">
             Bible Version
           </label>
@@ -112,9 +125,51 @@ export const SettingsModal = ({
             onChange={(e) => setTranslation(e.target.value)}
             className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text)"
           >
-            {TRANSLATIONS.map((t) => (
+            {ENGLISH_VERSIONS.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
+              </option>
+            ))}
+          </select>
+        </div> */}
+
+        <div>
+          <label className="block text-sm font-medium text-(--muted-strong)">
+            Bible Version (English)
+          </label>
+          <select
+            value={translationProvider === "bible-api-com" ? translation : ""}
+            onChange={(e) => {
+              setTranslation(e.target.value);
+              setTranslationProvider("bible-api-com");
+            }}
+            className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text)"
+          >
+            <option value="">Choose a version</option>
+            {ENGLISH_VERSIONS.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-(--muted-strong)">
+            Or read in another language
+          </label>
+          <select
+            value={translationProvider === "api-bible" ? translation : ""}
+            onChange={(e) => {
+              setTranslation(e.target.value);
+              setTranslationProvider("api-bible");
+            }}
+            className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text)"
+          >
+            <option>None (use English version above)</option>
+            {LANGUAGES.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
               </option>
             ))}
           </select>

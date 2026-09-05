@@ -25,13 +25,34 @@ import {
 import { REFLECTION_PROMPTS } from "./reflectionPrompts";
 import { useSpeech } from "./useSpeech";
 
-
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
   const translation = profile?.bible_translation ?? "web";
-  const { data, isLoading, error } = useTodayReading();
-  const markComplete = useMarkComplete();
-  const [showFullPassage, setShowFullPassage] = useState(false);
+  const translationProvider = profile?.translation_provider ?? "bible-api-com";
+  // const { data, isLoading, error } = useTodayReading();
+  // const markComplete = useMarkComplete();
+  // const [showFullPassage, setShowFullPassage] = useState(false);
+  //  const references = chapters.map((c) => c.reference) ?? [];
+  // const { data: fetchedChapters } = useVerses(
+  //   references,
+  //   translation,
+  //   translationProvider,
+  // );
+
+const { data, isLoading, error } = useTodayReading();
+const markComplete = useMarkComplete();
+const [showFullPassage, setShowFullPassage] = useState(false);
+
+const chapters = data?.chapters ?? [];
+const daysNumber = data?.daysNumber ?? 0;
+
+const references = chapters.map((c) => c.reference);
+
+const { data: fetchedChapters } = useVerses(
+  references,
+  translation,
+  translationProvider,
+);
 
   if (data?.notStartedYet) {
     return (
@@ -65,6 +86,8 @@ export const DashboardPage = () => {
     );
   }
 
+   
+
   if (error || !data) {
     return (
       <div>
@@ -75,7 +98,7 @@ export const DashboardPage = () => {
     );
   }
 
-  const { chapters, daysNumber } = data;
+ // const { chapters, daysNumber } = data;
   const memoryChapter = chapters[daysNumber % chapters.length];
   const completePercentage = getCompletionPercentage(
     daysNumber,
@@ -88,6 +111,13 @@ export const DashboardPage = () => {
     REFLECTION_PROMPTS.length,
   );
   const todaysPrompt = REFLECTION_PROMPTS[promptIndex];
+
+ 
+
+  const headerText = fetchedChapters
+    ? fetchedChapters.map((c) => c.reference).join(" & ")
+    : chapters.map((c) => c.reference).join(" & ");
+
   return (
     <motion.div
       className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
@@ -112,13 +142,14 @@ export const DashboardPage = () => {
           Day {daysNumber}
         </p>
         <h2 className="font-display mt-3 text-2xl text-(--text) sm:text-3xl">
-          {chapters.map((c) => c.reference).join(" & ")}
+          {headerText}
         </h2>
 
         <MemoryVerse
           chapterReference={memoryChapter.reference}
           seed={daysNumber}
           translation={translation}
+          translationProvider={translationProvider}
         />
 
         <button
@@ -135,7 +166,11 @@ export const DashboardPage = () => {
 
         <AnimatePresence initial={false}>
           {showFullPassage && (
-            <FullPassage chapters={chapters} translation={translation} />
+            <FullPassage
+              fetchedChapters={fetchedChapters}
+              isLoading={!fetchedChapters}
+              translationProvider={translationProvider}
+            />
           )}
         </AnimatePresence>
 
@@ -171,12 +206,18 @@ const MemoryVerse = ({
   chapterReference,
   seed,
   translation,
+  translationProvider,
 }: {
   chapterReference: string;
   seed: number;
   translation: string;
+  translationProvider: string;
 }) => {
-  const { data: chapter, isLoading } = useVerse(chapterReference, translation);
+  const { data: chapter, isLoading } = useVerse(
+    chapterReference,
+    translation,
+    translationProvider,
+  );
 
   if (isLoading || !chapter) {
     return (
@@ -199,7 +240,7 @@ const MemoryVerse = ({
         <p className="mt-1 text-sm text-(--muted)">Loading...</p>
       ) : (
         <p className="mt-2 font-display text-lg leading-7 text-(--text)">
-          {verse.text.trim()} - {chapterReference}:{verse.verse}
+          {verse.text.trim()} - {chapter.reference}:{verse.verse}
         </p>
       )}
     </div>
@@ -207,14 +248,16 @@ const MemoryVerse = ({
 };
 
 const FullPassage = ({
-  chapters,
-  translation,
+  fetchedChapters,
+  isLoading,
+  translationProvider,
 }: {
-  chapters: { reference: string }[];
-  translation: string;
+  fetchedChapters:
+    | { reference: string; verses: { verse: number; text: string }[] }[]
+    | undefined;
+  isLoading: boolean;
+  translationProvider: string;
 }) => {
-  const references = chapters.map((c) => c.reference);
-  const { data: results, isLoading } = useVerses(references, translation);
   const {
     isSpeaking,
     isPaused,
@@ -225,7 +268,6 @@ const FullPassage = ({
     isPreparing,
     voicesReady,
   } = useSpeech();
-  const isSupported = "speechSynthesis" in window;
 
   useEffect(() => {
     return () => {
@@ -234,7 +276,7 @@ const FullPassage = ({
   }, []);
 
   const handlePlayToggle = () => {
-    if (!results || !voicesReady) return;
+    if (!fetchedChapters || !voicesReady) return;
 
     if (isSpeaking && !isPaused) {
       pause();
@@ -246,13 +288,13 @@ const FullPassage = ({
       return;
     }
 
-    const fullText = results
+    const fullText = fetchedChapters
       .map((chapter) => chapter.verses.map((v) => v.text).join(" "))
       .join(".Next chapter.");
     speak(fullText);
   };
 
-  if (isLoading || !results) {
+  if (isLoading || !fetchedChapters) {
     return (
       <motion.div
         className="mt-6 border-t border-(--border) pt-5"
@@ -276,8 +318,7 @@ const FullPassage = ({
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
     >
-      <div className="flex items-center gap-3">
-        <button
+      {/* <button
           onClick={handlePlayToggle}
           disabled={isPreparing || !voicesReady}
           className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
@@ -292,19 +333,40 @@ const FullPassage = ({
                 : isPaused
                   ? "Resume"
                   : "Listen"}
-        </button>
-        {isSpeaking && (
-          <button onClick={stop} className="text-sm text-(--muted)">
-            <Square size={14} />
+        </button> */}
+      {translationProvider === "bible-api-com" && (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handlePlayToggle}
+            disabled={isPreparing || !voicesReady}
+            className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
+          >
+            {isSpeaking && !isPaused ? <Pause size={16} /> : <Play size={16} />}
+            {!voicesReady
+              ? "Loading voices..."
+              : isPreparing
+                ? "Loading..."
+                : isSpeaking && !isPaused
+                  ? "Pause"
+                  : isPaused
+                    ? "Resume"
+                    : "Listen"}{" "}
           </button>
-        )}
-        {!isSupported && (
-          <p className="mt-2 text-xs text-(--muted)">
-            Audio playback isn't support on this browser.
-          </p>
-        )}
-      </div>
-      {results.map((chapter) => (
+          {isSpeaking && (
+            <button onClick={stop} className="text-sm text-(--muted)">
+              <Square size={14} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {translationProvider === "api-bible" && (
+        <p className="mt-2 text-xs text-(--muted)">
+          Audio playback isn't support on this browser.
+        </p>
+      )}
+
+      {fetchedChapters.map((chapter) => (
         <VerseBlock
           key={chapter.reference}
           title={chapter.reference}
