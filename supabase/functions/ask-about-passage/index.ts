@@ -1,46 +1,198 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
-
-console.log("Hello from Functions!");
-
-// This endpoint uses 'publishable' | 'secret' access, apiKey is required.
-// Use publishable for Client-facing, key-validated endpoints
-// Use secret for Server-to-server, internal calls
-export default {
-  fetch: withSupabase({ auth: ["publishable", "secret"] }, async (req, ctx) => {
-    // Called by another service with a secret key
-    // ctx.supabaseAdmin bypasses RLS — use for privileged operations
-    /*
-    if (ctx.authMode === "secret") {
-      const { user_id } = await req.json();
-      const { data } = await ctx.supabaseAdmin.auth.admin.getUserById(user_id);
-
-      return Response.json({
-        email: data?.user?.email,
-      });
-    }
-    */
-
-    const { name } = await req.json();
-
-    return Response.json({
-      message: `Hello ${name}!`,
-    });
-  }),
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-/* To invoke locally:
+type GeminiContent = {
+  type?: string;
+  text?: string;
+};
 
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+type GeminiStep = {
+  type?: string;
+  content?: GeminiContent[];
+};
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/ask-about-passage' \
-    --header 'apiKey: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH' \
-    --data '{"name":"Functions"}'
+type GeminiResponse = {
+  id?: string;
+  model?: string;
+  status?: string;
+  steps?: GeminiStep[];
+};
 
-*/
+Deno.serve(async (req) => {
+  // Handle CORS preflight request
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
+  }
+
+  // Only allow POST requests
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({
+        error: "Method not allowed. Use POST.",
+      }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  }
+
+  try {
+    // Read request body
+    const {
+      question,
+      passageText,
+      passageReference,
+    } = await req.json();
+
+    // Validate required fields
+    if (!question || !passageText || !passageReference) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "question, passageText, and passageReference are required.",
+        }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    }
+
+    // Get Gemini API key from Supabase secrets
+    const apiKey = Deno.env.get("GEMINI_API_KEY");
+
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({
+          error: "GEMINI_API_KEY is not configured.",
+        }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    }
+
+    // Instructions that keep Gemini focused on today's passage'
+
+const systemInstruction = `
+You help someone understand a specific Bible passage they are reading today.
+
+Only discuss this passage: "${passageReference}".
+
+Here is the passage:
+
+"${passageText}"
+
+Rules:
+- Answer using ONLY the provided passage.
+- Do not use information from other Bible passages.
+- Do not invent information that is not found in the provided passage.
+- If the answer cannot be found in the provided passage, clearly say that it is not stated in today's passage.
+- If the question is unrelated to today's passage, gently redirect the user back to the passage.
+- Keep answers concise, warm, simple, and reflective.
+- Reference the relevant verse when possible.
+- Do not sound preachy or like a long lecture.
+`;
+
+    // Call Gemini Interactions API
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1/interactions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          model: "gemini-3.6-flash",
+          system_instruction: systemInstruction,
+          input: question,
+        }),
+      },
+    );
+
+    // Handle Gemini API errors
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      console.error("Gemini API error:", errorText);
+
+      return new Response(
+        JSON.stringify({
+          error: "Failed to get a response from Gemini.",
+          detail: errorText,
+        }),
+        {
+          status: response.status,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    }
+
+    // Parse Gemini response
+    const data: GeminiResponse = await response.json();
+
+    // Find the model's text response
+    const answer =
+      data.steps
+        ?.find((step) => step.type === "model_output")
+        ?.content?.find((content) => content.type === "text")
+        ?.text ??
+      "I couldn't come up with an answer to that.";
+
+    // Return answer to React
+    return new Response(
+      JSON.stringify({
+        answer,
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (err) {
+    console.error("ask-about-passage error:", err);
+
+    return new Response(
+      JSON.stringify({
+        error:
+          err instanceof Error
+            ? err.message
+            : String(err),
+      }),
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  }
+});
+

@@ -2,13 +2,15 @@ import { useProfile } from "../auth/useProfile";
 import { useTodayReading } from "./useTodaysReading";
 import { useMarkComplete } from "./useMarkComplete";
 import { Modal } from "@/components/Modal";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useVerse, useVerses } from "./useVerse";
 import {
   BookOpen,
   Check,
   ChevronDown,
   ChevronUp,
+  Send,
+  X,
   Pause,
   Play,
   Square,
@@ -24,6 +26,7 @@ import {
 
 import { REFLECTION_PROMPTS } from "./reflectionPrompts";
 import { useSpeech } from "./useSpeech";
+import { useAskAboutPassage } from "./useAskAboutPassage";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
@@ -39,20 +42,21 @@ export const DashboardPage = () => {
   //   translationProvider,
   // );
 
-const { data, isLoading, error } = useTodayReading();
-const markComplete = useMarkComplete();
-const [showFullPassage, setShowFullPassage] = useState(false);
+  const { data, isLoading, error } = useTodayReading();
+  const markComplete = useMarkComplete();
+  const [showFullPassage, setShowFullPassage] = useState(false);
+  const [isAskOpen, setIsAskOpen] = useState(false);
 
-const chapters = data?.chapters ?? [];
-const daysNumber = data?.daysNumber ?? 0;
+  const chapters = data?.chapters ?? [];
+  const daysNumber = data?.daysNumber ?? 0;
 
-const references = chapters.map((c) => c.reference);
+  const references = chapters.map((c) => c.reference);
 
-const { data: fetchedChapters } = useVerses(
-  references,
-  translation,
-  translationProvider,
-);
+  const { data: fetchedChapters } = useVerses(
+    references,
+    translation,
+    translationProvider,
+  );
 
   if (data?.notStartedYet) {
     return (
@@ -86,8 +90,6 @@ const { data: fetchedChapters } = useVerses(
     );
   }
 
-   
-
   if (error || !data) {
     return (
       <div>
@@ -98,7 +100,7 @@ const { data: fetchedChapters } = useVerses(
     );
   }
 
- // const { chapters, daysNumber } = data;
+  // const { chapters, daysNumber } = data;
   const memoryChapter = chapters[daysNumber % chapters.length];
   const completePercentage = getCompletionPercentage(
     daysNumber,
@@ -111,8 +113,6 @@ const { data: fetchedChapters } = useVerses(
     REFLECTION_PROMPTS.length,
   );
   const todaysPrompt = REFLECTION_PROMPTS[promptIndex];
-
- 
 
   const headerText = fetchedChapters
     ? fetchedChapters.map((c) => c.reference).join(" & ")
@@ -192,6 +192,12 @@ const { data: fetchedChapters } = useVerses(
           ? `You've read through the Bible ${completePasses} time${completePasses > 1 ? "s" : ""}, and you're ${completePercentage}% through your current pass.`
           : `You're ${completePercentage}% through the Bible`}
       </p>
+      <AskAboutPassage
+        fetchedChapters={fetchedChapters}
+        isOpen={isAskOpen}
+        onOpen={() => setIsAskOpen(true)}
+        onClose={() => setIsAskOpen(false)}
+      />
       <div className="mt-6 rounded-xl border border-(--border) bg-(--surface) p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
           Reflect
@@ -407,5 +413,280 @@ const VerseBlock = ({
         ))}
       </p>
     </motion.article>
+  );
+};
+
+const AskAboutPassage = ({
+  fetchedChapters,
+  isOpen,
+  onOpen,
+  onClose,
+}: {
+  fetchedChapters:
+    | { reference: string; verses: { verse: number; text: string }[] }[]
+    | undefined;
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) => {
+  const [question, setQuestion] = useState("");
+  const [conversation, setConversation] = useState<
+    { question: string; answer: string }[]
+  >([]);
+  const [failedQuestion, setFailedQuestion] = useState("");
+  const ask = useAskAboutPassage();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const passageReference = fetchedChapters
+    ?.map((chapter) => chapter.reference)
+    .join(" & ");
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    inputRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, onClose]);
+
+  const handleAsk = (questionToAsk = question) => {
+    const trimmedQuestion = questionToAsk.trim();
+    if (!fetchedChapters || !trimmedQuestion || ask.isPending) return;
+
+    const passageText = fetchedChapters
+      .map((c) => `${c.reference}: ${c.verses.map((v) => v.text).join(" ")}`)
+      .join("\n\n");
+
+    setFailedQuestion("");
+
+    ask.mutate(
+      {
+        question: trimmedQuestion,
+        passageText,
+        passageReference: passageReference ?? "",
+      },
+      {
+        onSuccess: (answer) => {
+          setConversation((prev) => [
+            ...prev,
+            { question: trimmedQuestion, answer },
+          ]);
+          setQuestion("");
+        },
+        onError: () => setFailedQuestion(trimmedQuestion),
+      },
+    );
+  };
+
+  return (
+    <>
+      <motion.button
+        type="button"
+        onClick={onOpen}
+        className="mt-6 flex w-full items-center justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary) hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--background) sm:p-5"
+        whileTap={{ scale: 0.99 }}
+        aria-haspopup="dialog"
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-(--surface-muted) text-(--primary)">
+            <Sparkles size={18} aria-hidden="true" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-(--text)">
+              Ask about today's passage
+            </span>
+            <span className="mt-1 block text-sm text-(--muted-strong)">
+              Explore today's reading with questions and reflection.
+            </span>
+          </span>
+        </span>
+        <span className="shrink-0 text-sm font-semibold text-(--primary)">
+          Ask
+        </span>
+      </motion.button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-(--overlay) p-0 backdrop-blur-sm sm:items-center sm:p-4"
+            role="presentation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) onClose();
+            }}
+          >
+            <motion.section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="ask-passage-title"
+              className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-(--border) bg-(--surface) text-(--text) shadow-[0_18px_50px_var(--shadow)] sm:max-w-2xl sm:rounded-3xl"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 24 }}
+            >
+              <header className="flex items-start justify-between gap-4 border-b border-(--border) p-5 sm:p-6">
+                <div className="flex min-w-0 items-start gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-(--surface-muted) text-(--primary)">
+                    <Sparkles size={19} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h2
+                      id="ask-passage-title"
+                      className="font-display text-xl sm:text-2xl"
+                    >
+                      Ask About Today's Passage
+                    </h2>
+                    <p className="mt-1 text-sm text-(--muted-strong)">
+                      Explore today's reading with questions and reflection.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close passage questions"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full text-(--muted-strong) hover:bg-(--surface-muted) hover:text-(--text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)"
+                >
+                  <X size={19} aria-hidden="true" />
+                </button>
+              </header>
+
+              <div className="border-b border-(--border) bg-(--surface-muted) px-5 py-3 sm:px-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-(--muted)">
+                  Today's passage
+                </p>
+                <p className="mt-1 text-sm font-semibold text-(--text)">
+                  {passageReference ?? "Today's reading"}
+                </p>
+              </div>
+
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
+                {conversation.length === 0 && !ask.isPending ? (
+                  <div className="py-3 text-center sm:py-6">
+                    <p className="font-display text-xl text-(--text)">
+                      Have a question about today's reading?
+                    </p>
+                    <div className="mx-auto mt-5 grid max-w-lg gap-2 text-left">
+                      {[
+                        "What is the main message of this passage?",
+                        "What can I learn from this passage?",
+                        "Which verse stands out most?",
+                        "What does this passage teach about God?",
+                      ].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => handleAsk(suggestion)}
+                          className="rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-left text-sm text-(--text-soft) transition hover:border-(--primary) hover:bg-(--surface-muted) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  conversation.map((entry) => (
+                    <article
+                      key={`${entry.question}-${entry.answer}`}
+                      className="space-y-3"
+                    >
+                      <div className="ml-8 rounded-2xl rounded-tr-md bg-(--primary) px-4 py-3 text-sm text-white">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/75">
+                          You
+                        </p>
+                        <p>{entry.question}</p>
+                      </div>
+                      <div className="mr-8 rounded-2xl rounded-tl-md border border-(--border) bg-(--surface-muted) px-4 py-3 text-sm leading-6 text-(--text-soft)">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-(--primary)">
+                          AI
+                        </p>
+                        <p>{entry.answer}</p>
+                      </div>
+                    </article>
+                  ))
+                )}
+                {ask.isPending && (
+                  <div className="mr-8 rounded-2xl rounded-tl-md border border-(--border) bg-(--surface-muted) px-4 py-3 text-sm text-(--muted-strong)">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-(--primary)">
+                      AI
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span>Thinking about the passage...</span>
+                      <span className="flex gap-1" aria-label="Loading">
+                        <span className="size-1.5 animate-pulse rounded-full bg-(--primary)" />
+                        <span className="size-1.5 animate-pulse rounded-full bg-(--primary) [animation-delay:150ms]" />
+                        <span className="size-1.5 animate-pulse rounded-full bg-(--primary) [animation-delay:300ms]" />
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {failedQuestion && (
+                  <div className="rounded-xl border border-(--danger) bg-(--surface-muted) p-4 text-sm">
+                    <p className="text-(--text)">
+                      Sorry, I couldn't answer that right now. Please try again.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleAsk(failedQuestion)}
+                      className="mt-2 font-semibold text-(--primary) underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <form
+                className="border-t border-(--border) p-4 sm:p-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleAsk();
+                }}
+              >
+                <div className="flex items-end gap-2 rounded-2xl border border-(--border) bg-(--surface-muted) p-2 focus-within:border-(--primary) focus-within:ring-2 focus-within:ring-(--primary)/25">
+                  <textarea
+                    ref={inputRef}
+                    value={question}
+                    onChange={(event) => setQuestion(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        handleAsk();
+                      }
+                    }}
+                    rows={1}
+                    placeholder="Ask something about today's passage..."
+                    aria-label="Question about today's passage"
+                    className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-(--text) outline-none placeholder:text-(--muted)"
+                  />
+                  <button
+                    type="submit"
+                    disabled={ask.isPending || !question.trim()}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-(--primary) text-white transition hover:bg-(--primary-strong) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Ask about today's passage"
+                  >
+                    <Send size={17} aria-hidden="true" />
+                  </button>
+                </div>
+                <p className="mt-2 px-2 text-xs text-(--muted)">
+                  Press Enter to ask, or Shift+Enter for a new line.
+                </p>
+              </form>
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
