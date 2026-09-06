@@ -1,4 +1,5 @@
 
+
 [functions.fetch-bible-chapter]
 enabled = true
 verify_jwt = false
@@ -9,3 +10,25 @@ entrypoint = "./functions/fetch-bible-chapter/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/fetch-bible-chapter/*.html" ]
+
+[functions.send-reminders]
+enabled = true
+verify_jwt = false
+import_map = "./functions/send-reminders/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/send-reminders/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/send-reminders/*.html" ]
+
+[functions.ask-about-passage]
+enabled = true
+verify_jwt = false
+import_map = "./functions/ask-about-passage/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/ask-about-passage/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/ask-about-passage/*.html" ]

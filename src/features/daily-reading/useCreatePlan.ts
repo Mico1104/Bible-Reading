@@ -6,6 +6,7 @@ import { toast } from "sonner";
 export const useCreatePlan = () => {
   const userId = useAuthStore((state) => state.user?.id);
   const queryClient = useQueryClient();
+  const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
   return useMutation({
     mutationFn: async ({
@@ -26,6 +27,7 @@ export const useCreatePlan = () => {
           testament_preference: testament,
           chapters_per_day: chaptersPerDay,
           reminder_time: reminderTime,
+          timezone: detectedTimezone
         })
         .eq("id", userId);
 

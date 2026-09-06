@@ -22,8 +22,8 @@ export const useUpdateSettings = () => {
           chapters_per_day: chaptersPerDay,
           bible_translation: translation,
           translation_provider: translationProvider, 
-          reminder_time: reminderTime || null
-          
+          reminder_time: reminderTime || null,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, 
         })
         .eq("id", userId);
       if (error) throw error;
