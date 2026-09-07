@@ -2,7 +2,7 @@ import { useProfile } from "../auth/useProfile";
 import { useTodayReading } from "./useTodaysReading";
 import { useMarkComplete } from "./useMarkComplete";
 import { Modal } from "@/components/Modal";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Fragment } from "react";
 import { useVerse, useVerses } from "./useVerse";
 import {
   BookOpen,
@@ -32,15 +32,6 @@ export const DashboardPage = () => {
   const { data: profile } = useProfile();
   const translation = profile?.bible_translation ?? "web";
   const translationProvider = profile?.translation_provider ?? "bible-api-com";
-  // const { data, isLoading, error } = useTodayReading();
-  // const markComplete = useMarkComplete();
-  // const [showFullPassage, setShowFullPassage] = useState(false);
-  //  const references = chapters.map((c) => c.reference) ?? [];
-  // const { data: fetchedChapters } = useVerses(
-  //   references,
-  //   translation,
-  //   translationProvider,
-  // );
 
   const { data, isLoading, error } = useTodayReading();
   const markComplete = useMarkComplete();
@@ -57,6 +48,23 @@ export const DashboardPage = () => {
     translation,
     translationProvider,
   );
+
+  const { data: englishChapters } = useVerses(
+    references,
+    "web",
+    "bible-api-com",
+  );
+
+  const responseLanguage =
+    translationProvider === "api-bible"
+      ? translation === "b8d1feac6e94bd74-01"
+        ? "Yoruba"
+        : translation === "a36fc06b086699f1-02"
+          ? "Igbo"
+          : translation === "0ab0c764d56a715d-02"
+            ? "Hausa"
+            : "English"
+      : "English";
 
   if (data?.notStartedYet) {
     return (
@@ -193,7 +201,8 @@ export const DashboardPage = () => {
           : `You're ${completePercentage}% through the Bible`}
       </p>
       <AskAboutPassage
-        fetchedChapters={fetchedChapters}
+        englishChapters={englishChapters}
+        responseLanguage={responseLanguage}
         isOpen={isAskOpen}
         onOpen={() => setIsAskOpen(true)}
         onClose={() => setIsAskOpen(false)}
@@ -324,22 +333,6 @@ const FullPassage = ({
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
     >
-      {/* <button
-          onClick={handlePlayToggle}
-          disabled={isPreparing || !voicesReady}
-          className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
-        >
-          {isSpeaking && !isPaused ? <Pause size={16}/> : <Play size={16}/> }
-          {!voicesReady
-            ? "Loading voices..."
-            : isPreparing
-              ? "Loading..."
-              : isSpeaking && !isPaused
-                ? "Pause"
-                : isPaused
-                  ? "Resume"
-                  : "Listen"}
-        </button> */}
       {translationProvider === "bible-api-com" && (
         <div className="flex items-center gap-3">
           <button
@@ -417,14 +410,16 @@ const VerseBlock = ({
 };
 
 const AskAboutPassage = ({
-  fetchedChapters,
+  englishChapters,
+  responseLanguage,
   isOpen,
   onOpen,
   onClose,
 }: {
-  fetchedChapters:
+  englishChapters:
     | { reference: string; verses: { verse: number; text: string }[] }[]
     | undefined;
+  responseLanguage: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -435,8 +430,9 @@ const AskAboutPassage = ({
   >([]);
   const [failedQuestion, setFailedQuestion] = useState("");
   const ask = useAskAboutPassage();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const passageReference = fetchedChapters
+  const passageReference = englishChapters
     ?.map((chapter) => chapter.reference)
     .join(" & ");
 
@@ -458,29 +454,52 @@ const AskAboutPassage = ({
     };
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }, [conversation.length, ask.isPending, isOpen]);
+
   const handleAsk = (questionToAsk = question) => {
     const trimmedQuestion = questionToAsk.trim();
-    if (!fetchedChapters || !trimmedQuestion || ask.isPending) return;
+    if (!englishChapters || !trimmedQuestion || ask.isPending) return;
 
-    const passageText = fetchedChapters
+    const passageText = englishChapters
       .map((c) => `${c.reference}: ${c.verses.map((v) => v.text).join(" ")}`)
       .join("\n\n");
 
     setFailedQuestion("");
+
+    setConversation((prev) => [
+      ...prev,
+      { question: trimmedQuestion, answer: "" },
+    ]);
+
+    setQuestion("");
 
     ask.mutate(
       {
         question: trimmedQuestion,
         passageText,
         passageReference: passageReference ?? "",
+        responseLanguage,
       },
       {
         onSuccess: (answer) => {
-          setConversation((prev) => [
-            ...prev,
-            { question: trimmedQuestion, answer },
-          ]);
-          setQuestion("");
+          setConversation((prev) => {
+            if (prev.length === 0) return prev;
+
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              answer,
+            };
+
+            return updated;
+          });
         },
         onError: () => setFailedQuestion(trimmedQuestion),
       },
@@ -530,7 +549,7 @@ const AskAboutPassage = ({
               role="dialog"
               aria-modal="true"
               aria-labelledby="ask-passage-title"
-              className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-(--border) bg-(--surface) text-(--text) shadow-[0_18px_50px_var(--shadow)] sm:max-w-2xl sm:rounded-3xl"
+              className="flex max-h-dvh w-full flex-col overflow-hidden rounded-t-3xl border border-(--border) bg-(--surface) text-(--text) shadow-[0_18px_50px_var(--shadow)] sm:max-w-2xl sm:rounded-3xl"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 24 }}
@@ -596,41 +615,51 @@ const AskAboutPassage = ({
                     </div>
                   </div>
                 ) : (
-                  conversation.map((entry) => (
-                    <article
-                      key={`${entry.question}-${entry.answer}`}
-                      className="space-y-3"
-                    >
-                      <div className="ml-8 rounded-2xl rounded-tr-md bg-(--primary) px-4 py-3 text-sm text-white">
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/75">
-                          You
-                        </p>
-                        <p>{entry.question}</p>
-                      </div>
-                      <div className="mr-8 rounded-2xl rounded-tl-md border border-(--border) bg-(--surface-muted) px-4 py-3 text-sm leading-6 text-(--text-soft)">
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-(--primary)">
-                          AI
-                        </p>
-                        <p>{entry.answer}</p>
-                      </div>
-                    </article>
-                  ))
-                )}
-                {ask.isPending && (
-                  <div className="mr-8 rounded-2xl rounded-tl-md border border-(--border) bg-(--surface-muted) px-4 py-3 text-sm text-(--muted-strong)">
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-(--primary)">
-                      AI
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span>Thinking about the passage...</span>
-                      <span className="flex gap-1" aria-label="Loading">
-                        <span className="size-1.5 animate-pulse rounded-full bg-(--primary)" />
-                        <span className="size-1.5 animate-pulse rounded-full bg-(--primary) [animation-delay:150ms]" />
-                        <span className="size-1.5 animate-pulse rounded-full bg-(--primary) [animation-delay:300ms]" />
-                      </span>
-                    </div>
+                  <div className="min-h-0 flex-1 overflow-y-auto p-5">
+                    {conversation.map((entry, index) => (
+                      <article
+                        key={`${entry.question}-${index}`}
+                        className="space-y-3"
+                      >
+                        <div className="ml-8 rounded-2xl rounded-tr-md bg-(--primary) px-4 py-3 text-sm text-white">
+                          <p
+                            className="mb-1 text-xs font
+                        -semibold uppercase tracking-wide text-white/75"
+                          >
+                            You
+                          </p>
+                          <p>{entry.question}</p>
+                        </div>
+                        {/* Ai response*/}
+                        <div className="mr-8 rounded-2xl rounded-tl-md border border-(--border) bg-(--surface-muted) px-4 py-3 text-sm leading-6 text-(--text-soft)">
+                          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-(--primary)">
+                            WordAI
+                          </p>
+                          {entry.answer ? (
+                            <div className="leading-6 text-(--muted-strong)">
+                              <AiResponse text={entry.answer} />
+                            </div>
+                          ) : ask.isPending &&
+                            index === conversation.length - 1 ? (
+                            <div className="flex items-center gap-2 text-(--muted-strong)">
+                              <span>Thinking</span>
+                              <span className="flex gap-1">
+                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--primary)" />
+                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--primary) [animation-delay:150ms]" />
+                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--primary) [animation-delay:300ms]" />
+                              </span>
+                            </div>
+                          ) : (
+                            <p>
+                              ! Couldn't generate a response. Please try again
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    ))}
                   </div>
                 )}
+
                 {failedQuestion && (
                   <div className="rounded-xl border border-(--danger) bg-(--surface-muted) p-4 text-sm">
                     <p className="text-(--text)">
@@ -648,7 +677,7 @@ const AskAboutPassage = ({
               </div>
 
               <form
-                className="border-t border-(--border) p-4 sm:p-5"
+                className="border-t border-(--border) bg-(--surface) p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-5"
                 onSubmit={(event) => {
                   event.preventDefault();
                   handleAsk();
@@ -668,19 +697,30 @@ const AskAboutPassage = ({
                     rows={1}
                     placeholder="Ask something about today's passage..."
                     aria-label="Question about today's passage"
-                    className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-(--text) outline-none placeholder:text-(--muted)"
+                    className="max-h-32 min-h-11 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2.5 text-[15px] leading-6 text-(--text) outline-none placeholder:text-(--muted)"
                   />
                   <button
                     type="submit"
                     disabled={ask.isPending || !question.trim()}
                     className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-(--primary) text-white transition hover:bg-(--primary-strong) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) disabled:cursor-not-allowed disabled:opacity-50"
-                    aria-label="Ask about today's passage"
+                    aria-label={
+                      ask.isPending
+                        ? "WordAI is thinking"
+                        : "Ask about today's passage"
+                    }
                   >
-                    <Send size={17} aria-hidden="true" />
+                    {ask.isPending ? (
+                      <span
+                        className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Send size={17} aria-hidden="true" />
+                    )}
                   </button>
                 </div>
                 <p className="mt-2 px-2 text-xs text-(--muted)">
-                  Press Enter to ask, or Shift+Enter for a new line.
+                  Enter to ask · Shift+Enter for a new line
                 </p>
               </form>
             </motion.section>
@@ -689,4 +729,103 @@ const AskAboutPassage = ({
       </AnimatePresence>
     </>
   );
+};
+
+const AiResponse = ({ text }: { text: string }) => {
+  const lines = text.split("\n");
+
+  return (
+    <div className="space-y-2">
+      {lines.map((line, index) => {
+        const trimmedLine = line.trim();
+
+        if (!trimmedLine) {
+          return <div key={index} className="h-1" />;
+        }
+
+        // Headings
+        if (trimmedLine.startsWith("### ")) {
+          return (
+            <p key={index} className="font-semibold text-(--text)">
+              {formatInlineMarkdown(trimmedLine.slice(4))}
+            </p>
+          );
+        }
+
+        if (trimmedLine.startsWith("## ")) {
+          return (
+            <p key={index} className="font-semibold text-base text-(--text)">
+              {formatInlineMarkdown(trimmedLine.slice(3))}
+            </p>
+          );
+        }
+
+        if (trimmedLine.startsWith("# ")) {
+          return (
+            <p key={index} className="font-display text-lg text-(--text)">
+              {formatInlineMarkdown(trimmedLine.slice(2))}
+            </p>
+          );
+        }
+
+        // Bullet points
+        if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
+          return (
+            <div key={index} className="flex gap-2">
+              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-(--primary)" />
+              <p className="min-w-0 flex-1">
+                {formatInlineMarkdown(trimmedLine.slice(2))}
+              </p>
+            </div>
+          );
+        }
+
+        // Numbered lists
+        const numberedMatch = trimmedLine.match(/^(\d+)\.\s+(.*)$/);
+
+        if (numberedMatch) {
+          return (
+            <div key={index} className="flex gap-2">
+              <span className="shrink-0 font-semibold text-(--primary)">
+                {numberedMatch[1]}.
+              </span>
+              <p className="min-w-0 flex-1">
+                {formatInlineMarkdown(numberedMatch[2])}
+              </p>
+            </div>
+          );
+        }
+
+        // Normal paragraph
+        return <p key={index}>{formatInlineMarkdown(trimmedLine)}</p>;
+      })}
+    </div>
+  );
+};
+
+const formatInlineMarkdown = (text: string) => {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={index}>{part.slice(2, -2)}</strong>;
+    }
+
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return <em key={index}>{part.slice(1, -1)}</em>;
+    }
+
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code
+          key={index}
+          className="rounded bg-(--surface) px-1.5 py-0.5 text-xs"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+
+    return <Fragment key={index}>{part}</Fragment>;
+  });
 };

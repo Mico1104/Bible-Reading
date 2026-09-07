@@ -54,14 +54,15 @@ Deno.serve(async (req) => {
       question,
       passageText,
       passageReference,
+      responseLanguage,
     } = await req.json();
 
     // Validate required fields
-    if (!question || !passageText || !passageReference) {
+    if (!question || !passageText || !passageReference || !responseLanguage) {
       return new Response(
         JSON.stringify({
           error:
-            "question, passageText, and passageReference are required.",
+            "question, passageText, and passageReference, and responseLanguage are required.",
         }),
         {
           status: 400,
@@ -96,18 +97,21 @@ Deno.serve(async (req) => {
 const systemInstruction = `
 You help someone understand a specific Bible passage they are reading today.
 
-Only discuss this passage: "${passageReference}".
+Today's passage: "${passageReference}".
 
-Here is the passage:
+English Bible passage (World English Bible / WEB): ${passageText}
 
-"${passageText}"
+The user's preferred response language is: 4 {responseLanguage}
 
 Rules:
-- Answer using ONLY the provided passage.
-- Do not use information from other Bible passages.
+- Answer using ONLY the provided English Bible passage.
+- The provided passage is the only source of biblical information you may use,
+- Do not use information from other Bible passages or outside biblical knowledge.
 - Do not invent information that is not found in the provided passage.
-- If the answer cannot be found in the provided passage, clearly say that it is not stated in today's passage.
-- If the question is unrelated to today's passage, gently redirect the user back to the passage.
+- Understand the user's question regardless of the language it is written in.
+- Answer entirely in ${responseLanguage}.
+- If the answer cannot be found in the provided passage, clearly say that it is not stated in today's passage, in ${responseLanguage}.
+- If the question is unrelated to today's passage, gently redirect the user back to the passage, in ${responseLanguage}.
 - Keep answers concise, warm, simple, and reflective.
 - Reference the relevant verse when possible.
 - Do not sound preachy or like a long lecture.
