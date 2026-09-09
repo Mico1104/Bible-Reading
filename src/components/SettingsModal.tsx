@@ -34,7 +34,8 @@ export const SettingsModal = ({
     { id: "kjv", name: "King James Version" },
     { id: "bbe", name: "Bible in Basic English" },
     { id: "asv", name: "American Standard Version" },
-    { id: "ylt", name: "Young's Literal Translation" },
+    { id: "oeb-us", name: "Open English Bible (US)" },
+    { id: "oeb-cw", name: "Open English Bible (Commonwealth)" },
   ];
 
   const LANGUAGES = [

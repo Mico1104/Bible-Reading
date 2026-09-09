@@ -27,9 +27,12 @@ import {
 import { REFLECTION_PROMPTS } from "./reflectionPrompts";
 import { useSpeech } from "./useSpeech";
 import { useAskAboutPassage } from "./useAskAboutPassage";
+import { OnboardingTour } from "./OnboardingTour";
+import { useAuthStore } from "@/stores/authStore";
 
 export const DashboardPage = () => {
   const { data: profile } = useProfile();
+  const userId = useAuthStore((state) => state.user?.id);
   const translation = profile?.bible_translation ?? "web";
   const translationProvider = profile?.translation_provider ?? "bible-api-com";
 
@@ -37,6 +40,7 @@ export const DashboardPage = () => {
   const markComplete = useMarkComplete();
   const [showFullPassage, setShowFullPassage] = useState(false);
   const [isAskOpen, setIsAskOpen] = useState(false);
+  const [isTourDismissed, setIsTourDismissed] = useState(false);
 
   const chapters = data?.chapters ?? [];
   const daysNumber = data?.daysNumber ?? 0;
@@ -127,93 +131,110 @@ export const DashboardPage = () => {
     : chapters.map((c) => c.reference).join(" & ");
 
   return (
-    <motion.div
-      className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.45 }}
-    >
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
-        Welcome back
-      </p>
-      <h1 className="font-display mt-2 text-4xl text-(--text)">
-        Welcome, {profile?.name ?? profile?.username}
-      </h1>
+    <>
       <motion.div
-        className="mt-8 max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8"
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.12, duration: 0.45 }}
+        className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
+        data-onboarding="dashboard-header"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.45 }}
       >
-        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--primary)">
-          <BookOpen size={16} />
-          Day {daysNumber}
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
+          Welcome back
         </p>
-        <h2 className="font-display mt-3 text-2xl text-(--text) sm:text-3xl">
-          {headerText}
-        </h2>
+        <h1 className="font-display mt-2 text-4xl text-(--text)">
+          Welcome, {profile?.name ?? profile?.username}
+        </h1>
 
-        <MemoryVerse
-          chapterReference={memoryChapter.reference}
-          seed={daysNumber}
-          translation={translation}
-          translationProvider={translationProvider}
+        <motion.div
+          className="mt-8 max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8"
+          data-onboarding="todays-reading"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.45 }}
+        >
+          <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--primary)">
+            <BookOpen size={16} />
+            Day {daysNumber}
+          </p>
+          <h2 className="font-display mt-3 text-2xl text-(--text) sm:text-3xl">
+            {headerText}
+          </h2>
+
+          <MemoryVerse
+            chapterReference={memoryChapter.reference}
+            seed={daysNumber}
+            translation={translation}
+            translationProvider={translationProvider}
+          />
+
+          <button
+            onClick={() => setShowFullPassage((prev) => !prev)}
+            className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-(--primary)"
+          >
+            {showFullPassage ? (
+              <ChevronUp size={16} />
+            ) : (
+              <ChevronDown size={16} />
+            )}
+            {showFullPassage ? "Hide full passage" : "Read full passage"}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {showFullPassage && (
+              <FullPassage
+                fetchedChapters={fetchedChapters}
+                isLoading={!fetchedChapters}
+                translationProvider={translationProvider}
+              />
+            )}
+          </AnimatePresence>
+
+          <button
+            data-onboarding="mark-as-read"
+            onClick={() => markComplete.mutate(daysNumber)}
+            disabled={markComplete.isPending}
+            className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--primary) px-4 py-3 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
+          >
+            <Check size={17} />
+            {markComplete.isPending ? "Saving..." : "Mark as read"}
+          </button>
+
+          {markComplete.isSuccess && (
+            <p className="mt-3 text-sm text-(--success)">Marked Complete!</p>
+          )}
+        </motion.div>
+        <p data-onboarding="progress" className="mt-2 text-sm text-(--muted)">
+          {completePasses > 0
+            ? `You've read through the Bible ${completePasses} time${completePasses > 1 ? "s" : ""}, and you're ${completePercentage}% through your current pass.`
+            : `You're ${completePercentage}% through the Bible`}
+        </p>
+        <AskAboutPassage
+          englishChapters={englishChapters}
+          responseLanguage={responseLanguage}
+          isOpen={isAskOpen}
+          onOpen={() => setIsAskOpen(true)}
+          onClose={() => setIsAskOpen(false)}
         />
-
-        <button
-          onClick={() => setShowFullPassage((prev) => !prev)}
-          className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-(--primary)"
+        <div
+          data-onboarding="reflection"
+          className="mt-6 rounded-xl border border-(--border) bg-(--surface) p-5"
         >
-          {showFullPassage ? (
-            <ChevronUp size={16} />
-          ) : (
-            <ChevronDown size={16} />
-          )}
-          {showFullPassage ? "Hide full passage" : "Read full passage"}
-        </button>
-
-        <AnimatePresence initial={false}>
-          {showFullPassage && (
-            <FullPassage
-              fetchedChapters={fetchedChapters}
-              isLoading={!fetchedChapters}
-              translationProvider={translationProvider}
-            />
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => markComplete.mutate(daysNumber)}
-          disabled={markComplete.isPending}
-          className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--primary) px-4 py-3 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
-        >
-          <Check size={17} />
-          {markComplete.isPending ? "Saving..." : "Mark as read"}
-        </button>
-
-        {markComplete.isSuccess && (
-          <p className="mt-3 text-sm text-(--success)">Marked Complete!</p>
-        )}
+          <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
+            Reflect
+          </p>
+          <p className="mt-2 text-(--muted-strong)">{todaysPrompt}</p>
+        </div>
       </motion.div>
-      <p className="mt-2 text-sm text-(--muted)">
-        {completePasses > 0
-          ? `You've read through the Bible ${completePasses} time${completePasses > 1 ? "s" : ""}, and you're ${completePercentage}% through your current pass.`
-          : `You're ${completePercentage}% through the Bible`}
-      </p>
-      <AskAboutPassage
-        englishChapters={englishChapters}
-        responseLanguage={responseLanguage}
-        isOpen={isAskOpen}
-        onOpen={() => setIsAskOpen(true)}
-        onClose={() => setIsAskOpen(false)}
-      />
-      <div className="mt-6 rounded-xl border border-(--border) bg-(--surface) p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
-          Reflect
-        </p>
-        <p className="mt-2 text-(--muted-strong)">{todaysPrompt}</p>
-      </div>
-    </motion.div>
+      {userId &&
+        profile?.onboarding_completed === false &&
+        !isTourDismissed && (
+          <OnboardingTour
+            userId={userId}
+            onClose={() => setIsTourDismissed(true)}
+          />
+        )}
+    </>
   );
 };
 
@@ -246,7 +267,10 @@ const MemoryVerse = ({
   const verse = chapter.verses[index];
 
   return (
-    <div className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5">
+    <div
+      data-onboarding="memory-verse"
+      className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5"
+    >
       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-(--primary)">
         <Sparkles size={14} />
         Memory verse
@@ -509,6 +533,7 @@ const AskAboutPassage = ({
   return (
     <>
       <motion.button
+        data-onboarding="ask-about-passage"
         type="button"
         onClick={onOpen}
         className="mt-6 flex w-full items-center justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary) hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--background) sm:p-5"
