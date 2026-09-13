@@ -3,6 +3,8 @@ import { useUpdateSettings } from "@/features/settings/useUpdateSettings";
 import { useThemeStore } from "@/stores/themeStore";
 import { useState } from "react";
 import { Modal } from "./Modal";
+import {subscribeToPushNotifications} from "@/lib/pushNotifications";
+
 
 export const SettingsModal = ({
   isOpen,
@@ -28,14 +30,28 @@ export const SettingsModal = ({
   const [reminderTime, setReminderTime] = useState<string>(
     profile?.reminder_time ?? "",
   );
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationLoading, setNotificationLoading] = useState(false);
+
+  const handleEnableNotifications = async () => {
+    try {
+      setNotificationLoading(true);
+      await subscribeToPushNotifications();
+      setNotificationsEnabled(true);
+    } catch(error) {
+      console.error("Failed enabling notifications:", error);
+      alert(error instanceof Error ? error.message : "Could not enable notifications.");
+    } finally {
+      setNotificationLoading(false);
+    }
+  }
 
   const ENGLISH_VERSIONS = [
     { id: "web", name: "World English Bible" },
     { id: "kjv", name: "King James Version" },
     { id: "bbe", name: "Bible in Basic English" },
     { id: "asv", name: "American Standard Version" },
-    { id: "oeb-us", name: "Open English Bible (US)" },
-    { id: "oeb-cw", name: "Open English Bible (Commonwealth)" },
+    { id: "darby", name: "Darby Bible" },
   ];
 
   const LANGUAGES = [
@@ -90,6 +106,30 @@ export const SettingsModal = ({
             className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none focus:border-(--primary)"
           />
         </div>
+        <div>
+  <label className="block text-sm font-medium text-(--muted-strong)">
+    Push Notifications
+  </label>
+
+  <p className="mt-1 text-sm text-(--muted)">
+    Get a notification when your daily Bible reading is ready.
+  </p>
+
+  <button
+    type="button"
+    onClick={handleEnableNotifications}
+    disabled={
+      notificationLoading || notificationsEnabled
+    }
+    className="mt-3 rounded-lg px-4 py-2 text-sm font-medium bg-(--primary) text-white disabled:opacity-50"
+  >
+    {notificationLoading
+      ? "Enabling..."
+      : notificationsEnabled
+        ? "Notifications Enabled"
+        : "Enable Notifications"}
+  </button>
+</div>
 
         <div>
           <p className="text-sm font-medium text-(--muted-strong)">Theme</p>

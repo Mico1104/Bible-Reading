@@ -64,9 +64,16 @@ export const useVerses = (references: string[], translation: string, provider: s
   return useQuery({
     queryKey: ["verses", references.join(","), translation, provider],
     queryFn: async () => {
-      const results = await Promise.all(
-        references.map((ref) => fetchVerse(ref, translation, provider)),
-      );
+     const results: BibleApiResponse[] = [];
+
+     for(const ref of references) {
+      const result = await fetchVerse(ref, translation, provider);
+      results.push(result);
+
+      if(provider === "bible-api-com"){
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+     }
       return results;
     },
 
