@@ -90,25 +90,29 @@ export const ProgressPage = () => {
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
           Your journey
         </p>
-        <h1 className="font-display mt-2 text-3xl sm:text-4xl text-(--text)">
+        <h1 className="font-display mt-2 text-3xl text-(--text) sm:text-4xl">
           Your progress
         </h1>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="rounded-2xl bg-[#75493c] p-4 sm:p-5 text-white shadow-lg shadow-[#75493c]/15">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="rounded-3xl bg-[#75493c] p-4 text-white shadow-lg shadow-[#75493c]/15 sm:p-5">
           <Flame size={18} />
-          <p className="mt-3 text-2xl sm:text-4xl font-semibold">{streak}</p>
-          <p className="mt-1 text-xs sm:text-sm text-white/70">Day streak</p>
+          <p className="mt-3 text-3xl font-semibold sm:text-4xl">{streak}</p>
+          <p className="mt-1 text-xs text-white/70 sm:text-sm">Day streak</p>
         </div>
-        <div className="rounded-2xl border border-(--border) bg-(--surface) p-4 sm:p-5">
+        <div className="rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
           <CalendarDays size={18} className="text-(--primary)" />
-          <p className="mt-3 text-2xl sm:text-4xl font-semibold text-(--text)">{totalCompleted}</p>
-          <p className="mt-1 text-xs sm:text-sm text-(--muted-strong)">Days completed</p>
+          <p className="mt-3 text-3xl font-semibold text-(--text) sm:text-4xl">
+            {totalCompleted}
+          </p>
+          <p className="mt-1 text-xs text-(--muted-strong) sm:text-sm">
+            Days completed
+          </p>
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 rounded-[1.5rem] border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
           History
         </h2>
@@ -121,7 +125,7 @@ export const ProgressPage = () => {
           {progress?.map((entry) => (
             <li
               key={entry.id}
-              className="flex justify-between rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--muted-strong)"
+              className="flex items-center justify-between rounded-xl border border-(--border) bg-(--surface-strong) px-4 py-3 text-sm text-(--muted-strong)"
             >
               <span className="font-medium">
                 Day {entry.pan_days?.day_number}
@@ -134,7 +138,7 @@ export const ProgressPage = () => {
         </ul>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 rounded-[1.5rem] border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <button
             onClick={goToPreviousMonth}
@@ -172,13 +176,13 @@ export const ProgressPage = () => {
                 key={date.toISOString()}
                 className="flex flex-col items-center gap-1"
               >
-                <div className="text-xs font-medium text-(--muted) capitalize">
+                <div className="text-[10px] font-medium uppercase tracking-wide text-(--muted)">
                   {date
                     .toLocaleDateString("en", { weekday: "short" })
                     .charAt(0)}
                 </div>
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition-colors ${
                     isCompleted
                       ? "bg-(--primary) text-white shadow-sm"
                       : "bg-(--surface-muted) text-(--muted)"
@@ -190,7 +194,6 @@ export const ProgressPage = () => {
             ))}
           </motion.div>
 
-          {/* Swipe hint for mobile */}
           <div className="mt-4 flex justify-center gap-2 sm:hidden">
             <div className="flex items-center gap-2 text-xs text-(--muted)">
               <ChevronLeft size={14} />
@@ -201,7 +204,7 @@ export const ProgressPage = () => {
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 rounded-[1.5rem] border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
         <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
           <Trophy size={16} className="text-(--primary)" />
           Top streaks
@@ -211,7 +214,7 @@ export const ProgressPage = () => {
           {leaderboard?.map((entry, index) => (
             <li
               key={index}
-              className="flex items-center justify-between rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm text-(--muted-strong)"
+              className="flex items-center justify-between rounded-xl border border-(--border) bg-(--surface-strong) px-4 py-3 text-sm text-(--muted-strong)"
             >
               <span className="font-medium">
                 #{index + 1} {entry.profiles?.name ?? entry.profiles?.username}

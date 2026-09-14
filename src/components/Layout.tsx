@@ -22,16 +22,18 @@ export const Layout = () => {
 
   return (
     <div className="min-h-screen bg-(--background) text-(--text)">
-      <header className="relative border-b border-(--border) bg-(--surface)/90 px-4 py-4 backdrop-blur-sm sm:px-8">
-        <nav className="content-width flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 border-b border-(--border) bg-(--surface)/90 px-4 py-3 backdrop-blur-sm sm:px-8">
+        <nav className="content-width flex items-center justify-between gap-3">
           {user ? (
             <>
               <Link
                 to={user ? "/dashboard" : "/"}
-                className="flex items-center gap-2 font-semibold text-(--primary)"
+                className="flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-2.5 py-2 font-semibold text-(--primary) shadow-sm"
               >
-                <BookOpen size={20} strokeWidth={2.5} />
-                <span className="font-display text-lg">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--surface) text-(--primary)">
+                  <BookOpen size={18} strokeWidth={2.5} />
+                </span>
+                <span className="font-display text-base sm:text-lg">
                   Daily Bible Reading
                 </span>
               </Link>
@@ -40,34 +42,34 @@ export const Layout = () => {
                 type="button"
                 aria-label="Toggle navigation"
                 onClick={() => setMenuOpen((open) => !open)}
-                className="rounded-lg p-2 text-(--primary) md:hidden"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border) bg-(--surface-strong) text-(--primary) md:hidden"
               >
-                {menuOpen ? <X size={21} /> : <Menu size={21} />}
+                {menuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
 
               <div
                 className={`${
                   menuOpen ? "flex" : "hidden"
-                } absolute left-4 right-4 top-18 z-20 flex-col gap-1 rounded-2xl border border-(--border) bg-(--surface) p-3 shadow-lg md:static md:flex md:flex-row md:items-center md:gap-2 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
+                } absolute left-4 right-4 top-[calc(100%+0.5rem)] z-20 flex-col gap-1 rounded-2xl border border-(--border) bg-(--surface) p-2.5 shadow-[0_18px_40px_var(--shadow)] md:static md:flex md:flex-row md:items-center md:gap-1 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
               >
                 <Link
                   onClick={() => setMenuOpen(false)}
                   to="/progress"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
                 >
                   Progress
                 </Link>
                 <Link
                   onClick={() => setMenuOpen(false)}
                   to="/notes"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
                 >
                   Notes
                 </Link>
                 <button
                   type="button"
                   onClick={handleSignout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:hidden"
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:hidden"
                 >
                   <LogOut size={16} /> Sign out
                 </button>
@@ -80,7 +82,7 @@ export const Layout = () => {
                       setSettingsOpen(true);
                       setMenuOpen(false);
                     }}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
                   >
                     <Settings size={18} /> Settings
                   </button>
@@ -89,20 +91,19 @@ export const Layout = () => {
                     type="button"
                     aria-label="Toggle theme"
                     onClick={toggleTheme}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong)"
                   >
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
                     {isDark ? "Light mode" : "Dark mode"}
                   </button>
                 </div>
 
-                {/* Desktop-only Settings, Theme and SignOut buttons */}
                 <div className="hidden md:flex md:items-center md:gap-1 md:border-l md:border-(--border) md:pl-2">
                   <button
                     type="button"
                     aria-label="Open reading settings"
                     onClick={() => setSettingsOpen(true)}
-                    className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
                   >
                     <Settings size={18} />
                   </button>
@@ -111,7 +112,7 @@ export const Layout = () => {
                     type="button"
                     aria-label="Toggle theme"
                     onClick={toggleTheme}
-                    className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-(--primary)"
                   >
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
                   </button>
@@ -119,7 +120,7 @@ export const Layout = () => {
                   <button
                     type="button"
                     onClick={handleSignout}
-                    className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-red-600"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-red-600"
                     aria-label="Sign out"
                   >
                     <LogOut size={18} />
@@ -133,7 +134,9 @@ export const Layout = () => {
                 to="/"
                 className="flex items-center gap-2 font-semibold text-(--primary)"
               >
-                <BookOpen size={20} />
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--surface-strong)">
+                  <BookOpen size={18} />
+                </span>
                 <span className="font-display text-lg">The Daily Word</span>
               </Link>
             </>
@@ -153,7 +156,7 @@ export const Layout = () => {
       {user && (
         <button
           onClick={() => setFeedbackOpen(true)}
-          className="fixed bottom-6 right-6 z-40 rounded-full bg-(--primary) p-3 text-white shadow-lg transition hover:bg-(--primary-strong)"
+          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-(--primary) text-white shadow-[0_10px_25px_rgba(117,73,60,0.25)] transition hover:bg-(--primary-strong)"
         >
           <MessageCircle size={20} />
         </button>

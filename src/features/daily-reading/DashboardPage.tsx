@@ -139,25 +139,45 @@ export const DashboardPage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45 }}
       >
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
-          Welcome back
-        </p>
-        <h1 className="font-display mt-2 text-4xl text-(--text)">
-          Welcome, {profile?.name ?? profile?.username}
-        </h1>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
+              Welcome back
+            </p>
+            <h1 className="font-display mt-2 text-3xl text-(--text) sm:text-4xl">
+              {profile?.name ?? profile?.username}
+            </h1>
+          </div>
+          <div className="rounded-full border border-(--border) bg-(--surface) px-3 py-2 text-right shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
+              Progress
+            </p>
+            <p className="text-sm font-semibold text-(--primary)">
+              {completePercentage}%
+            </p>
+          </div>
+        </div>
 
         <motion.div
-          className="mt-8 max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8"
+          className="mt-8 max-w-3xl rounded-[1.75rem] border border-(--border) bg-(--surface) p-5 shadow-[0_16px_32px_var(--shadow)] sm:p-7"
           data-onboarding="todays-reading"
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12, duration: 0.45 }}
         >
-          <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--primary)">
-            <BookOpen size={16} />
-            Day {daysNumber}
-          </p>
-          <h2 className="font-display mt-3 text-2xl text-(--text) sm:text-3xl">
+          <div className="flex items-center justify-between gap-3">
+            <p className="inline-flex items-center gap-2 rounded-full bg-(--surface-strong) px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
+              <BookOpen size={14} />
+              Day {daysNumber}
+            </p>
+            <span className="text-xs font-medium text-(--muted)">
+              {completePasses > 0
+                ? `${completePasses} pass${completePasses > 1 ? "es" : ""}`
+                : "New pass"}
+            </span>
+          </div>
+
+          <h2 className="font-display mt-4 text-2xl text-(--text) sm:text-3xl">
             {headerText}
           </h2>
 
@@ -170,7 +190,7 @@ export const DashboardPage = () => {
 
           <button
             onClick={() => setShowFullPassage((prev) => !prev)}
-            className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-(--primary)"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3 py-2 text-sm font-semibold text-(--primary)"
           >
             {showFullPassage ? (
               <ChevronUp size={16} />
@@ -194,21 +214,25 @@ export const DashboardPage = () => {
             data-onboarding="mark-as-read"
             onClick={() => markComplete.mutate(daysNumber)}
             disabled={markComplete.isPending}
-            className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--primary) px-4 py-3 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
+            className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-(--primary) px-4 py-3.5 text-base font-semibold text-white shadow-[0_8px_18px_rgba(117,73,60,0.18)] transition hover:bg-(--primary-strong) disabled:opacity-50"
           >
             <Check size={17} />
             {markComplete.isPending ? "Saving..." : "Mark as read"}
           </button>
 
           {markComplete.isSuccess && (
-            <p className="mt-3 text-sm text-(--success)">Marked Complete!</p>
+            <p className="mt-3 text-sm font-medium text-(--success)">
+              Marked Complete!
+            </p>
           )}
         </motion.div>
-        <p data-onboarding="progress" className="mt-2 text-sm text-(--muted)">
+
+        <p data-onboarding="progress" className="mt-3 text-sm text-(--muted)">
           {completePasses > 0
             ? `You've read through the Bible ${completePasses} time${completePasses > 1 ? "s" : ""}, and you're ${completePercentage}% through your current pass.`
             : `You're ${completePercentage}% through the Bible`}
         </p>
+
         <AskAboutPassage
           englishChapters={englishChapters}
           responseLanguage={responseLanguage}
@@ -216,16 +240,20 @@ export const DashboardPage = () => {
           onOpen={() => setIsAskOpen(true)}
           onClose={() => setIsAskOpen(false)}
         />
+
         <div
           data-onboarding="reflection"
-          className="mt-6 rounded-xl border border-(--border) bg-(--surface) p-5"
+          className="mt-6 rounded-2xl border border-(--border) bg-(--surface) p-4 shadow-sm"
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
             Reflect
           </p>
-          <p className="mt-2 text-(--muted-strong)">{todaysPrompt}</p>
+          <p className="mt-2 text-sm leading-6 text-(--muted-strong)">
+            {todaysPrompt}
+          </p>
         </div>
       </motion.div>
+
       {userId &&
         profile?.onboarding_completed === false &&
         !isTourDismissed && (
@@ -269,17 +297,20 @@ const MemoryVerse = ({
   return (
     <div
       data-onboarding="memory-verse"
-      className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5"
+      className="mt-6 rounded-2xl border border-(--border) bg-(--card-verse) p-4 shadow-sm sm:p-5"
     >
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-(--primary)">
+      <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
         <Sparkles size={14} />
         Memory verse
       </p>
       {isLoading ? (
-        <p className="mt-1 text-sm text-(--muted)">Loading...</p>
+        <p className="mt-2 text-sm text-(--muted)">Loading...</p>
       ) : (
-        <p className="mt-2 font-display text-lg leading-7 text-(--text)">
-          {verse.text.trim()} - {chapter.reference}:{verse.verse}
+        <p className="mt-3 font-display text-lg leading-7 text-(--text) italic">
+          “{verse.text.trim()}”
+          <span className="mt-1 block text-sm font-sans not-italic text-(--muted-strong)">
+            {chapter.reference}:{verse.verse}
+          </span>
         </p>
       )}
     </div>
@@ -352,7 +383,7 @@ const FullPassage = ({
 
   return (
     <motion.div
-      className="mt-6 space-y-5 border-t border-(--border) pt-5 text-sm leading-relaxed text-(--muted-strong)"
+      className="mt-6 space-y-4 border-t border-(--border) pt-5 text-sm leading-relaxed text-(--muted-strong)"
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
@@ -362,7 +393,7 @@ const FullPassage = ({
           <button
             onClick={handlePlayToggle}
             disabled={isPreparing || !voicesReady}
-            className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white"
+            className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
           >
             {isSpeaking && !isPaused ? <Pause size={16} /> : <Play size={16} />}
             {!voicesReady
@@ -389,13 +420,15 @@ const FullPassage = ({
         </p>
       )}
 
-      {fetchedChapters.map((chapter) => (
-        <VerseBlock
-          key={chapter.reference}
-          title={chapter.reference}
-          verses={chapter.verses}
-        />
-      ))}
+      <div className="reading-scroll space-y-4 pr-1">
+        {fetchedChapters.map((chapter) => (
+          <VerseBlock
+            key={chapter.reference}
+            title={chapter.reference}
+            verses={chapter.verses}
+          />
+        ))}
+      </div>
     </motion.div>
   );
 };
@@ -409,20 +442,20 @@ const VerseBlock = ({
 }) => {
   return (
     <motion.article
-      className="relative overflow-hidden rounded-xl bg-(--card-verse) p-5 sm:p-6"
+      className="relative overflow-hidden rounded-2xl border border-(--border) bg-(--card-verse) p-4 shadow-sm sm:p-5"
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
     >
       <BookMarked
         className="absolute right-4 top-4 text-(--surface-muted)"
-        size={28}
+        size={26}
       />
       <p className="relative font-display text-xl text-(--primary)">{title}</p>
-      <p className="relative mt-3 text-[15px] leading-8 text-(--text-soft)">
+      <p className="relative mt-3 text-[15px] leading-8 tracking-[0.01em] text-(--text-soft)">
         {verses?.map((v) => (
           <span key={v.verse} className="verse-line">
-            <sup className="mr-1 text-xs font-semibold text-(--primary)">
+            <sup className="mr-1 text-[10px] font-semibold text-(--primary)">
               {v.verse}
             </sup>
             {v.text.trim()}{" "}

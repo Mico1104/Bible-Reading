@@ -72,13 +72,19 @@ export const NotePage = () => {
       </p>
       <h1 className="font-display mt-2 text-4xl text-(--text)">Notes</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-3">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="mt-6 rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5"
+      >
         <div>
+          <label className="text-xs font-semibold uppercase tracking-[0.16em] text-(--muted)">
+            Reference
+          </label>
           <input
             type="text"
             {...register("reference")}
-            placeholder="Reference (e.g Matthew 1:21)"
-            className="w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
+            placeholder="Matthew 1:21"
+            className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-3 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
           />
           {errors.reference && (
             <p className="mt-1 text-sm text-red-600">
@@ -86,12 +92,15 @@ export const NotePage = () => {
             </p>
           )}
         </div>
-        <div>
+        <div className="mt-4">
+          <label className="text-xs font-semibold uppercase tracking-[0.16em] text-(--muted)">
+            Reflection
+          </label>
           <textarea
             placeholder="Write your note..."
-            rows={3}
+            rows={4}
             {...register("content")}
-            className="w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-2.5 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
+            className="mt-2 min-h-28 w-full rounded-xl border border-(--border) bg-(--surface-strong) px-3 py-3 text-(--text) outline-none ring-0 transition-colors duration-200 focus:border-(--primary) placeholder:text-(--muted)"
           />
           {errors.content && (
             <p className="mt-1 text-sm text-red-600">
@@ -103,7 +112,7 @@ export const NotePage = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-(--primary) px-4 py-3 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-(--primary) px-4 py-3.5 font-semibold text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
         >
           <Bookmark size={17} />
           {isSubmitting ? "Saving..." : "Add note"}
@@ -111,8 +120,8 @@ export const NotePage = () => {
       </form>
 
       {notes?.length === 0 && (
-        <p className="mt-8 text-sm text-(--muted)">
-          No notes yet - add one above
+        <p className="mt-8 rounded-2xl border border-dashed border-(--border) bg-(--surface) px-4 py-5 text-sm text-(--muted)">
+          No notes yet — capture a lesson, promise, or prayer here.
         </p>
       )}
 
@@ -158,29 +167,29 @@ const NoteItem = ({
 
   if (isEditing) {
     return (
-      <div className="rounded-xl border border-(--border) bg-(--surface-strong) p-4 sm:p-5">
+      <div className="rounded-2xl border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value)}
-          className="w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--text) outline-none focus:border-(--primary)"
+          className="w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text) outline-none focus:border-(--primary)"
         />
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={3}
-          className="mt-3 w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--text) outline-none focus:border-(--primary)"
+          className="mt-3 min-h-28 w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text) outline-none focus:border-(--primary)"
         />
         <div className="mt-3 flex gap-2">
           <button
             onClick={handleCancel}
-            className="flex-1 rounded-lg border border-(--border) px-3 py-2 text-sm font-medium text-(--muted-strong) transition hover:bg-(--surface)"
+            className="flex-1 rounded-lg border border-(--border) px-3 py-2.5 text-sm font-medium text-(--muted-strong) transition hover:bg-(--surface)"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={updateNote.isPending}
-            className="flex-1 rounded-lg bg-(--primary) px-3 py-2 text-sm font-medium text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
+            className="flex-1 rounded-lg bg-(--primary) px-3 py-2.5 text-sm font-medium text-white transition hover:bg-(--primary-strong) disabled:opacity-50"
           >
             {updateNote.isPending ? "Saving..." : "Save"}
           </button>
@@ -190,17 +199,17 @@ const NoteItem = ({
   }
 
   return (
-    <div className="rounded-xl border border-(--border) bg-(--surface-strong) p-4 sm:p-5">
+    <div className="rounded-[1.25rem] border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-(--text) break-words">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-(--text) wrap-break-word">
             {note.reference}
           </p>
-          <p className="mt-2 text-sm text-(--muted-strong) break-words">
+          <p className="mt-2 text-sm leading-6 text-(--muted-strong) wrap-break-word">
             {note.content}
           </p>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex shrink-0 gap-2">
           <button
             onClick={() => setIsEditing(true)}
             className="rounded-lg p-2 text-(--muted-strong) transition hover:bg-(--surface) hover:text-(--primary)"
@@ -222,4 +231,3 @@ const NoteItem = ({
     </div>
   );
 };
-
