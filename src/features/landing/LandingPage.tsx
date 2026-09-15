@@ -125,7 +125,7 @@ export const LandingPage = () => {
 
         {/* Image showcase */}
         <motion.div
-          className="relative mx-auto h-[28rem] w-full max-w-xl sm:h-[34rem] lg:h-[38rem]"
+          className="relative mx-auto h-112 w-full max-w-xl sm:h-136 lg:h-152"
           initial={
             shouldReduceMotion ? false : { opacity: 0, scale: 0.97, y: 12 }
           }
