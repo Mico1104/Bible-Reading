@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -14,6 +15,11 @@ export const usePWA = () => {
     useState<BeforeInstallPromptEvent | null>(null);
 
   const [isInstalled, setIsInstalled] = useState(false);
+
+  const {
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+  } = useRegisterSW();
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
@@ -67,9 +73,15 @@ export const usePWA = () => {
     }
   };
 
+  const updateApp = async () => {
+    await updateServiceWorker(true);
+  };
+
   return {
     canInstall: !!installPrompt && !isInstalled,
     isInstalled,
+    updateAvailable: needRefresh,
     installApp,
+    updateApp,
   };
 };
