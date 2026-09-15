@@ -112,7 +112,7 @@ export const ProgressPage = () => {
         </div>
       </div>
 
-      <div className="mt-8 rounded-[1.5rem] border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
+      <div className="mt-8 rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
           History
         </h2>
@@ -138,7 +138,7 @@ export const ProgressPage = () => {
         </ul>
       </div>
 
-      <div className="mt-8 rounded-[1.5rem] border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
+      <div className="mt-8 rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <button
             onClick={goToPreviousMonth}
@@ -204,7 +204,7 @@ export const ProgressPage = () => {
         </div>
       </div>
 
-      <div className="mt-8 rounded-[1.5rem] border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
+      <div className="mt-8 rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
         <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
           <Trophy size={16} className="text-(--primary)" />
           Top streaks
