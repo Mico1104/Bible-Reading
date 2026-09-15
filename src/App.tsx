@@ -1,3 +1,4 @@
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { RouterProvider } from "react-router-dom";
 import { useAuthStore } from "./stores/authStore";
 import { router } from "./router";
@@ -24,6 +25,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-(--background) text-(--text) transition-colors duration-300">
         <RouterProvider router={router} />
+        <PWAInstallPrompt />
         <Toaster position="top-center" richColors theme="system" />
       </div>
     </QueryClientProvider>
