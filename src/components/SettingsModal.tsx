@@ -16,9 +16,11 @@ export const SettingsModal = ({
   const updateSettings = useUpdateSettings();
   const themeMode = useThemeStore((state) => state.themeMode);
   const setThemeMode = useThemeStore((state) => state.setThemeMode);
+
   const [chaptersPerDay, setChaptersPerDay] = useState(
     profile?.chapters_per_day ?? 2,
   );
+
   const [translation, setTranslation] = useState(
     profile?.bible_translation ?? "web",
   );
@@ -26,19 +28,28 @@ export const SettingsModal = ({
   const [translationProvider, setTranslationProvider] = useState(
     profile?.translation_provider ?? "bible-api-com",
   );
+
   const [reminderTime, setReminderTime] = useState<string>(
     profile?.reminder_time ?? "",
   );
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    profile?.push_notifications_enabled ?? false,
+  );
+
   const [notificationLoading, setNotificationLoading] = useState(false);
+
 
   const handleEnableNotifications = async () => {
     try {
       setNotificationLoading(true);
+
       await subscribeToPushNotifications();
+
       setNotificationsEnabled(true);
     } catch (error) {
       console.error("Failed enabling notifications:", error);
+
       alert(
         error instanceof Error
           ? error.message
@@ -65,8 +76,16 @@ export const SettingsModal = ({
 
   const handleSave = () => {
     updateSettings.mutate(
-      { chaptersPerDay, translation, translationProvider, reminderTime },
-      { onSuccess: onClose },
+      {
+        chaptersPerDay,
+        translation,
+        translationProvider,
+        reminderTime,
+        pushNotificationsEnabled: notificationsEnabled,
+      },
+      {
+        onSuccess: onClose,
+      },
     );
   };
 
@@ -77,6 +96,7 @@ export const SettingsModal = ({
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--muted)">
             Preferences
           </p>
+
           <h2 className="mt-2 font-display text-2xl text-(--text) sm:text-3xl">
             Reading settings
           </h2>
@@ -87,6 +107,7 @@ export const SettingsModal = ({
             <label className="block text-sm font-medium text-(--muted-strong)">
               Chapters per day
             </label>
+
             <select
               value={chaptersPerDay}
               onChange={(e) => setChaptersPerDay(Number(e.target.value))}
@@ -107,6 +128,7 @@ export const SettingsModal = ({
             >
               Daily reminder time
             </label>
+
             <input
               type="time"
               id="reminderTime"
@@ -141,7 +163,10 @@ export const SettingsModal = ({
         </div>
 
         <div className="rounded-3xl border border-(--border) bg-(--surface-strong) p-4">
-          <p className="text-sm font-medium text-(--muted-strong)">Theme</p>
+          <p className="text-sm font-medium text-(--muted-strong)">
+            Theme
+          </p>
+
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             {[
               { label: "System", value: "system" },
@@ -152,7 +177,9 @@ export const SettingsModal = ({
                 key={option.value}
                 type="button"
                 onClick={() =>
-                  setThemeMode(option.value as "system" | "light" | "dark")
+                  setThemeMode(
+                    option.value as "system" | "light" | "dark",
+                  )
                 }
                 className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                   themeMode === option.value
@@ -171,8 +198,13 @@ export const SettingsModal = ({
             <label className="block text-sm font-medium text-(--muted-strong)">
               Bible Version (English)
             </label>
+
             <select
-              value={translationProvider === "bible-api-com" ? translation : ""}
+              value={
+                translationProvider === "bible-api-com"
+                  ? translation
+                  : ""
+              }
               onChange={(e) => {
                 setTranslation(e.target.value);
                 setTranslationProvider("bible-api-com");
@@ -180,6 +212,7 @@ export const SettingsModal = ({
               className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-(--text)"
             >
               <option value="">Choose a version</option>
+
               {ENGLISH_VERSIONS.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
@@ -192,15 +225,21 @@ export const SettingsModal = ({
             <label className="block text-sm font-medium text-(--muted-strong)">
               Or read in another language
             </label>
+
             <select
-              value={translationProvider === "api-bible" ? translation : ""}
+              value={
+                translationProvider === "api-bible"
+                  ? translation
+                  : ""
+              }
               onChange={(e) => {
                 setTranslation(e.target.value);
                 setTranslationProvider("api-bible");
               }}
               className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-(--text)"
             >
-              <option>None (use English version above)</option>
+              <option value="">None (use English version above)</option>
+
               {LANGUAGES.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.name}
@@ -218,6 +257,7 @@ export const SettingsModal = ({
           >
             Cancel
           </button>
+
           <button
             type="button"
             onClick={handleSave}

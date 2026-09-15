@@ -8,6 +8,7 @@ type SettingsInput = {
   translation: string;
   translationProvider: string;
   reminderTime: string;
+  pushNotificationsEnabled: boolean;
 };
 
 export const useUpdateSettings = () => {
@@ -15,17 +16,25 @@ export const useUpdateSettings = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ chaptersPerDay, translation, translationProvider, reminderTime }: SettingsInput) => {
+    mutationFn: async ({
+      chaptersPerDay,
+      translation,
+      translationProvider,
+      reminderTime,
+      pushNotificationsEnabled,
+    }: SettingsInput) => {
       const { error } = await supabase
         .from("profiles")
         .update({
           chapters_per_day: chaptersPerDay,
           bible_translation: translation,
-          translation_provider: translationProvider, 
+          translation_provider: translationProvider,
           reminder_time: reminderTime || null,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, 
+          push_notifications_enabled: pushNotificationsEnabled,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         })
         .eq("id", userId);
+
       if (error) throw error;
     },
 
@@ -36,3 +45,4 @@ export const useUpdateSettings = () => {
     },
   });
 };
+
