@@ -91,7 +91,7 @@ export const SettingsModal = ({
 
   return (
     <Modal isOpen={isOpen}>
-      <div className="space-y-5">
+      <div className="space-y-5 max-h-[85vh] overflow-auto sm:max-h-none sm:overflow-visible">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--muted)">
             Preferences
