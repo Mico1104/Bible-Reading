@@ -39,7 +39,6 @@ export const SettingsModal = ({
 
   const [notificationLoading, setNotificationLoading] = useState(false);
 
-
   const handleEnableNotifications = async () => {
     try {
       setNotificationLoading(true);
@@ -68,7 +67,7 @@ export const SettingsModal = ({
     { id: "darby", name: "Darby Bible" },
   ];
 
-  const LANGUAGES = [
+  const NIGERIAN_LANGUAGES = [
     { id: "b8d1feac6e94bd74-01", name: "Yoruba" },
     { id: "a36fc06b086699f1-02", name: "Igbo" },
     { id: "0ab0c764d56a715d-02", name: "Hausa" },
@@ -91,7 +90,7 @@ export const SettingsModal = ({
 
   return (
     <Modal isOpen={isOpen}>
-      <div className="space-y-5 max-h-[85vh] overflow-auto sm:max-h-none sm:overflow-visible">
+      <div className="max-h-[85vh] space-y-5 overflow-auto sm:max-h-none sm:overflow-visible">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--muted)">
             Preferences
@@ -193,13 +192,27 @@ export const SettingsModal = ({
           </div>
         </div>
 
-        <div className="space-y-4 rounded-3xl border border-(--border) bg-(--surface-strong) p-4">
+        <div className="space-y-5 rounded-3xl border border-(--border) bg-(--surface-strong) p-4">
           <div>
-            <label className="block text-sm font-medium text-(--muted-strong)">
-              Bible Version (English)
+            <p className="text-sm font-semibold text-(--text)">
+              Bible Version
+            </p>
+
+            <p className="mt-1 text-sm text-(--muted)">
+              Choose the version or language you want to read.
+            </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="englishVersion"
+              className="block text-sm font-medium text-(--muted-strong)"
+            >
+              English
             </label>
 
             <select
+              id="englishVersion"
               value={
                 translationProvider === "bible-api-com"
                   ? translation
@@ -209,24 +222,28 @@ export const SettingsModal = ({
                 setTranslation(e.target.value);
                 setTranslationProvider("bible-api-com");
               }}
-              className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-(--text)"
+              className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-(--text) outline-none focus:border-(--primary)"
             >
-              <option value="">Choose a version</option>
+              <option value="">Choose an English version</option>
 
-              {ENGLISH_VERSIONS.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
+              {ENGLISH_VERSIONS.map((version) => (
+                <option key={version.id} value={version.id}>
+                  {version.name}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-(--muted-strong)">
-              Or read in another language
+            <label
+              htmlFor="nigerianLanguage"
+              className="block text-sm font-medium text-(--muted-strong)"
+            >
+              Nigerian Languages
             </label>
 
             <select
+              id="nigerianLanguage"
               value={
                 translationProvider === "api-bible"
                   ? translation
@@ -236,13 +253,13 @@ export const SettingsModal = ({
                 setTranslation(e.target.value);
                 setTranslationProvider("api-bible");
               }}
-              className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-(--text)"
+              className="mt-2 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-(--text) outline-none focus:border-(--primary)"
             >
               <option value="">None (use English version above)</option>
 
-              {LANGUAGES.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
+              {NIGERIAN_LANGUAGES.map((language) => (
+                <option key={language.id} value={language.id}>
+                  {language.name}
                 </option>
               ))}
             </select>
