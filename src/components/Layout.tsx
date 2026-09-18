@@ -1,7 +1,16 @@
 import { useAuthStore } from "@/stores/authStore";
 import { Link, Outlet } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, LogOut, Menu, Settings, X, Sun, Moon } from "lucide-react";
+import {
+  BookOpen,
+  LogOut,
+  Menu,
+  Settings,
+  X,
+  Sun,
+  Moon,
+  BookMarked,
+} from "lucide-react";
 import { useState } from "react";
 import { SettingsModal } from "./SettingsModal";
 import { useThemeStore } from "@/stores/themeStore";
@@ -58,6 +67,14 @@ export const Layout = () => {
                   className="rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
                 >
                   Progress
+                </Link>
+                <Link
+                  onClick={() => setMenuOpen(false)}
+                  to="/bookmarks"
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
+                >
+                  <BookMarked size={16} />
+                  Bookmarks
                 </Link>
                 <Link
                   onClick={() => setMenuOpen(false)}

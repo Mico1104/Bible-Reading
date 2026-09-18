@@ -10,6 +10,8 @@ import { NotFoundPage } from "./components/NotFoundPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
+import { BookmarksPage} from  "./features/bookmarks/BookmarksPage"
+import { PassagePage } from "./features/passage/PassagePage";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +26,8 @@ export const router = createBrowserRouter([
           { path: "/dashboard", element: <DashboardPage /> },
           { path: "/progress", element: <ProgressPage /> },
           { path: "/notes", element: <NotePage /> },
+          {path: "/bookmarks", element: <BookmarksPage />},
+          {path: "/passage/:reference", element: <PassagePage />},
         ],
       },
 

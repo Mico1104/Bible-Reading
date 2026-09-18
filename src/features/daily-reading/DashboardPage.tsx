@@ -4,6 +4,7 @@ import { useMarkComplete } from "./useMarkComplete";
 import { Modal } from "@/components/Modal";
 import { useEffect, useRef, useState, Fragment } from "react";
 import { useVerse, useVerses } from "./useVerse";
+import { useBookmarks } from "@/hooks/useBookmarks"
 import {
   BookOpen,
   Check,
@@ -36,6 +37,7 @@ export const DashboardPage = () => {
   const userId = useAuthStore((state) => state.user?.id);
   const translation = profile?.bible_translation ?? "web";
   const translationProvider = profile?.translation_provider ?? "bible-api-com";
+  const { isBookmarked, toggleBookmark } = useBookmarks();
 
   const { data, isLoading, error } = useTodayReading();
   const markComplete = useMarkComplete();
@@ -234,6 +236,9 @@ if (data?.notStartedYet) {
                 fetchedChapters={fetchedChapters}
                 isLoading={!fetchedChapters}
                 translationProvider={translationProvider}
+                translation={translation}
+                isBookmarked={isBookmarked}
+                toggleBookmark={toggleBookmark}
               />
             )}
           </AnimatePresence>
@@ -349,12 +354,22 @@ const FullPassage = ({
   fetchedChapters,
   isLoading,
   translationProvider,
+  translation,
+  isBookmarked,
+  toggleBookmark
 }: {
   fetchedChapters:
     | { reference: string; verses: { verse: number; text: string }[] }[]
     | undefined;
   isLoading: boolean;
   translationProvider: string;
+  translation: string;
+  isBookmarked: (reference: string, translation: string) => boolean;
+  toggleBookmark: (
+reference: string,
+translation: string,
+
+  ) => Promise<boolean>
 }) => {
   const {
     isSpeaking,
@@ -454,6 +469,9 @@ const FullPassage = ({
             key={chapter.reference}
             title={chapter.reference}
             verses={chapter.verses}
+            translation={translation}
+            isBookmarked={isBookmarked}
+            toggleBookmark={toggleBookmark}
           />
         ))}
       </div>
@@ -464,9 +482,18 @@ const FullPassage = ({
 const VerseBlock = ({
   title,
   verses,
+  translation,
+  isBookmarked,
+  toggleBookmark,
 }: {
   title: string | undefined;
   verses: { verse: number; text: string }[] | undefined;
+  translation: string;
+  isBookmarked: (reference: string, translation: string) => boolean;
+  toggleBookmark: (
+    reference: string,
+    translation: string,
+  ) => Promise<boolean>;
 }) => {
   return (
     <motion.article
@@ -475,21 +502,50 @@ const VerseBlock = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <BookMarked
-        className="absolute right-4 top-4 text-(--surface-muted)"
-        size={26}
-      />
-      <p className="relative font-display text-xl text-(--primary)">{title}</p>
-      <p className="relative mt-3 text-[15px] leading-8 tracking-[0.01em] text-(--text-soft)">
-        {verses?.map((v) => (
-          <span key={v.verse} className="verse-line">
-            <sup className="mr-1 text-[10px] font-semibold text-(--primary)">
-              {v.verse}
-            </sup>
-            {v.text.trim()}{" "}
-          </span>
-        ))}
+      <p className="relative font-display text-xl text-(--primary)">
+        {title}
       </p>
+
+      <div className="relative mt-3 space-y-3 text-[15px] leading-8 tracking-[0.01em] text-(--text-soft)">
+        {verses?.map((v) => {
+          const reference = `${title}:${v.verse}`;
+          const bookmarked = isBookmarked(reference, translation);
+
+          return (
+            <div
+              key={v.verse}
+              className="group flex items-start gap-2"
+            >
+              <span className="flex-1">
+                <sup className="mr-1 text-[10px] font-semibold text-(--primary)">
+                  {v.verse}
+                </sup>
+                {v.text.trim()}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  void toggleBookmark(reference, translation);
+                }}
+                aria-label={
+                  bookmarked
+                    ? `Remove bookmark from ${reference}`
+                    : `Bookmark ${reference}`
+                }
+                title={bookmarked ? "Remove bookmark" : "Bookmark verse"}
+                className="mt-1 shrink-0 rounded-md p-1.5 text-(--surface-muted) transition hover:bg-(--surface) hover:text-(--primary)"
+              >
+                <BookMarked
+                  size={18}
+                  fill={bookmarked ? "currentColor" : "none"}
+                  strokeWidth={bookmarked ? 2.5 : 2}
+                />
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </motion.article>
   );
 };
