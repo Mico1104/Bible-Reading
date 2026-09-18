@@ -19,6 +19,7 @@ import { BookMarked, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { seededRandomIndex } from "@/lib/random";
 import { OnboardingContent } from "./OnboardingContent";
+import {ProfileSetUpContent} from "./ProfileSetUpContent"
 import {
   getCompletionPercentage,
   getCompletedPasses,
@@ -31,7 +32,7 @@ import { OnboardingTour } from "./OnboardingTour";
 import { useAuthStore } from "@/stores/authStore";
 
 export const DashboardPage = () => {
-  const { data: profile } = useProfile();
+  const { data: profile, isLoading: isProfileLoading } = useProfile();
   const userId = useAuthStore((state) => state.user?.id);
   const translation = profile?.bible_translation ?? "web";
   const translationProvider = profile?.translation_provider ?? "bible-api-com";
@@ -41,7 +42,7 @@ export const DashboardPage = () => {
   const [showFullPassage, setShowFullPassage] = useState(false);
   const [isAskOpen, setIsAskOpen] = useState(false);
   const [isTourDismissed, setIsTourDismissed] = useState(false);
-
+  const [onboardingStep, setOnboardingStep] = useState<"profile" | "plan">("profile",)
   const chapters = data?.chapters ?? [];
   const daysNumber = data?.daysNumber ?? 0;
 
@@ -70,17 +71,43 @@ export const DashboardPage = () => {
             : "English"
       : "English";
 
-  if (data?.notStartedYet) {
-    return (
-      <div className="mx-auto max-w-md p-6 text-center">
-        <h1 className="font-display text-2xl">Almost there</h1>
-        <p>
-          Your reading plan begins on{" "}
-          {new Date(data.startDate).toLocaleDateString()}.
-        </p>
+if (isProfileLoading) {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="text-sm text-(--muted-strong)">
+        Loading your profile...
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+if (profile?.onboarding_completed === false) {
+  return (
+    <div>
+      <Modal isOpen={true}>
+        {onboardingStep === "profile" ? (
+          <ProfileSetUpContent
+            onComplete={() => setOnboardingStep("plan")}
+          />
+        ) : (
+          <OnboardingContent />
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+if (data?.notStartedYet) {
+  return (
+    <div className="mx-auto max-w-md p-6 text-center">
+      <h1 className="font-display text-2xl">Almost there</h1>
+      <p>
+        Your reading plan begins on{" "}
+        {new Date(data.startDate).toLocaleDateString()}.
+      </p>
+    </div>
+  );
+}
 
   if (isLoading) {
     return (
@@ -103,14 +130,15 @@ export const DashboardPage = () => {
   }
 
   if (error || !data) {
-    return (
-      <div>
-        <Modal isOpen={true}>
-          <OnboardingContent />
-        </Modal>
-      </div>
-    );
-  }
+  return (
+    <div className="mx-auto max-w-md p-6 text-center">
+      <h1 className="font-display text-2xl">Something went wrong</h1>
+      <p className="mt-2 text-sm text-(--muted-strong)">
+        We couldn't load your reading for today. Please try again.
+      </p>
+    </div>
+  );
+}
 
   // const { chapters, daysNumber } = data;
   const memoryChapter = chapters[daysNumber % chapters.length];
