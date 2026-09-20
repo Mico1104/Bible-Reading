@@ -9,6 +9,7 @@ import {
   Bookmark,
   LoaderCircle,
   Edit,
+  NotebookText,
   Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -67,10 +68,22 @@ export const NotePage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
     >
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
-        Your reflections
-      </p>
-      <h1 className="font-display mt-2 text-4xl text-(--text)">Notes</h1>
+      <div className="flex items-start gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--primary)/10 text-(--primary)">
+          <NotebookText size={20} />
+        </div>
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
+            Your reflections
+          </p>
+          <h1 className="font-display mt-2 text-3xl text-(--text) sm:text-4xl">
+            Notes
+          </h1>
+          <p className="mt-2 text-sm text-(--muted-strong)">
+            Capture lessons, promises, and prayers from today’s reading.
+          </p>
+        </div>
+      </div>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -120,9 +133,18 @@ export const NotePage = () => {
       </form>
 
       {notes?.length === 0 && (
-        <p className="mt-8 rounded-2xl border border-dashed border-(--border) bg-(--surface) px-4 py-5 text-sm text-(--muted)">
-          No notes yet — capture a lesson, promise, or prayer here.
-        </p>
+        <div className="mt-8 rounded-[1.75rem] border border-dashed border-(--border) bg-(--surface) px-5 py-8 text-center shadow-sm">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-(--primary)/10 text-(--primary)">
+            <NotebookText size={24} />
+          </div>
+          <h2 className="mt-4 font-display text-xl text-(--text)">
+            No notes yet
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-(--muted-strong)">
+            Capture a lesson, promise, or prayer here while you reflect on the
+            passage.
+          </p>
+        </div>
       )}
 
       <div className="mt-8 space-y-3">
@@ -167,17 +189,17 @@ const NoteItem = ({
 
   if (isEditing) {
     return (
-      <div className="rounded-2xl border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
+      <div className="rounded-[1.5rem] border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value)}
-          className="w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text) outline-none focus:border-(--primary)"
+          className="w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text) outline-none transition focus:border-(--primary)"
         />
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={3}
-          className="mt-3 min-h-28 w-full rounded-lg border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text) outline-none focus:border-(--primary)"
+          className="mt-3 min-h-28 w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text) outline-none transition focus:border-(--primary)"
         />
         <div className="mt-3 flex gap-2">
           <button
@@ -199,7 +221,7 @@ const NoteItem = ({
   }
 
   return (
-    <div className="rounded-[1.25rem] border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
+    <div className="rounded-[1.5rem] border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-(--text) wrap-break-word">

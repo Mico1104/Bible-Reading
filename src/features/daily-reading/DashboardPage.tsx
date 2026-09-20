@@ -2,12 +2,19 @@ import { useProfile } from "../auth/useProfile";
 import { useTodayReading } from "./useTodaysReading";
 import { useMarkComplete } from "./useMarkComplete";
 import { Modal } from "@/components/Modal";
-
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useVerses } from "./useVerse";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  BookOpen,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Bookmark,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { seededRandomIndex } from "@/lib/random";
 import { OnboardingContent } from "./OnboardingContent";
@@ -164,6 +171,17 @@ export const DashboardPage = () => {
       ? 100
       : Math.round((chaptersInCurrentPass / 1189) * 100);
 
+  const encouragement =
+    completePercentage === 100
+      ? "You've completed this pass. What a milestone!"
+      : completePercentage >= 75
+        ? "You're getting close. Stay faithful to the journey."
+        : completePercentage >= 50
+          ? "You're more than halfway through this pass."
+          : completePercentage >= 25
+            ? "You're building a meaningful rhythm. Keep going."
+            : "Every chapter is a step forward.";
+
   const promptIndex = seededRandomIndex(
     daysNumber + 100,
     REFLECTION_PROMPTS.length,
@@ -252,8 +270,9 @@ export const DashboardPage = () => {
           />
 
           <button
+            data-onboarding="full-passage"
             onClick={() => setShowFullPassage((prev) => !prev)}
-            className="mt-5 inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3 py-2 text-sm font-semibold text-(--primary)"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3.5 py-2.5 text-sm font-semibold text-(--primary) transition hover:border-(--primary)/30 hover:bg-(--surface)"
           >
             {showFullPassage ? (
               <ChevronUp size={16} />
@@ -342,6 +361,51 @@ export const DashboardPage = () => {
             <p className="text-xs font-medium text-(--muted-strong)">
               Keep going!
             </p>
+          </div>
+        </div>
+        <div className="mt-3 px-1">
+          <p className="text-center text-sm font-medium text-(--muted-strong)">
+            {encouragement}
+          </p>
+        </div>
+
+        <div data-onboarding="quick-actions" className="mt-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
+            Quick actions
+          </p>
+
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <Link
+              to="/bookmarks"
+              className="group rounded-2xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary)/30 hover:shadow-md"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--surface-strong) text-(--primary)">
+                <Bookmark size={18} />
+              </div>
+
+              <p className="mt-3 text-sm font-semibold text-(--text)">
+                Bookmarks
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-(--muted)">
+                View your saved verses
+              </p>
+            </Link>
+
+            <Link
+              to="/notes"
+              className="group rounded-2xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary)/30 hover:shadow-md"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--surface-strong) text-(--primary)">
+                <FileText size={18} />
+              </div>
+
+              <p className="mt-3 text-sm font-semibold text-(--text)">Notes</p>
+
+              <p className="mt-1 text-xs leading-5 text-(--muted)">
+                Write and revisit your thoughts
+              </p>
+            </Link>
           </div>
         </div>
 

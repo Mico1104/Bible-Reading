@@ -1,5 +1,6 @@
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { Bookmark, Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowRight, Bookmark, BookMarked, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const BookmarksPage = () => {
@@ -14,19 +15,22 @@ export const BookmarksPage = () => {
   };
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
+    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 lg:px-0">
       <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--primary)/10 text-(--primary)">
-            <Bookmark size={22} />
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--primary)/10 text-(--primary)">
+            <BookMarked size={22} />
           </div>
 
           <div>
-            <h1 className="font-display text-2xl font-semibold text-(--text)">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--muted)">
+              Saved verses
+            </p>
+            <h1 className="mt-2 font-display text-3xl text-(--text) sm:text-4xl">
               Bookmarks
             </h1>
-            <p className="text-sm text-(--muted)">
-              Your saved Bible verses
+            <p className="mt-2 text-sm text-(--muted-strong)">
+              Verses you want to revisit and remember.
             </p>
           </div>
         </div>
@@ -39,55 +43,72 @@ export const BookmarksPage = () => {
           <div className="skeleton-line h-24 rounded-2xl" />
         </div>
       ) : bookmarks.length === 0 ? (
-        <div className="rounded-2xl border border-(--border) bg-(--card-verse) px-5 py-10 text-center">
-          <Bookmark
-            size={32}
-            className="mx-auto text-(--surface-muted)"
-          />
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-[1.75rem] border border-(--border) bg-(--surface) px-5 py-10 text-center shadow-sm sm:px-8"
+        >
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-(--primary)/10 text-(--primary)">
+            <Bookmark size={30} />
+          </div>
 
-          <h2 className="mt-4 font-display text-lg font-semibold text-(--text)">
-            No bookmarks yet
+          <h2 className="mt-5 font-display text-2xl text-(--text)">
+            You haven't saved any verses yet
           </h2>
 
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-(--muted)">
-            When you find a Bible verse you want to remember, tap the bookmark
-            icon beside it and it will appear here.
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-(--muted-strong)">
+            Save the verses that stand out to you during today's reading and
+            they will appear here for easy revisiting.
           </p>
-        </div>
+
+          <Link
+            to="/dashboard"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-(--primary) px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(117,73,60,0.18)] transition hover:bg-(--primary-strong)"
+          >
+            Back to dashboard
+            <ArrowRight size={16} />
+          </Link>
+        </motion.div>
       ) : (
-        <div className="space-y-3">
-          {bookmarks.map((bookmark) => (
-            <article
-              key={bookmark.id}
-              className="flex items-center justify-between gap-4 rounded-2xl border border-(--border) bg-(--card-verse) p-4 shadow-sm"
-            >
-              <Link
-                to={`/passage/${encodeURIComponent(bookmark.reference)}`}
-                className="min-w-0 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-(--primary)/40"
+        <AnimatePresence initial={false}>
+          <div className="space-y-3">
+            {bookmarks.map((bookmark) => (
+              <motion.article
+                key={bookmark.id}
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-between gap-3 rounded-3xl border border-(--border) bg-(--card-verse) p-4 shadow-sm sm:p-4"
               >
-                <h2 className="font-display text-lg font-semibold text-(--primary) transition hover:underline">
-                  {bookmark.reference}
-                </h2>
+                <Link
+                  to={`/passage/${encodeURIComponent(bookmark.reference)}`}
+                  className="min-w-0 flex-1 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/40"
+                >
+                  <h2 className="font-display text-xl font-semibold text-(--primary) transition hover:text-(--primary-strong)">
+                    {bookmark.reference}
+                  </h2>
 
-                <p className="mt-1 text-xs uppercase tracking-wide text-(--muted)">
-                  {bookmark.translation}
-                </p>
-              </Link>
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
+                    {bookmark.translation}
+                  </p>
+                </Link>
 
-              <button
-                type="button"
-                onClick={() => void handleRemove(bookmark.id)}
-                aria-label={`Remove ${bookmark.reference} bookmark`}
-                title="Remove bookmark"
-                className="shrink-0 rounded-lg p-2 text-(--muted) transition hover:bg-(--surface) hover:text-red-500"
-              >
-                <Trash2 size={18} />
-              </button>
-            </article>
-          ))}
-        </div>
+                <button
+                  type="button"
+                  onClick={() => void handleRemove(bookmark.id)}
+                  aria-label={`Remove ${bookmark.reference} bookmark`}
+                  title="Remove bookmark"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-(--border) bg-(--surface) text-(--muted-strong) transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/35"
+                >
+                  <Trash2 size={17} />
+                </button>
+              </motion.article>
+            ))}
+          </div>
+        </AnimatePresence>
       )}
     </main>
   );
 };
-

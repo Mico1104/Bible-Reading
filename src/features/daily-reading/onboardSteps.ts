@@ -8,65 +8,65 @@ export type OnboardingStep = {
 export const onboardingSteps: OnboardingStep[] = [
   {
     id: "welcome",
-    title: "Welcome to your Bible journey",
+    title: "Welcome to Daily Word",
     description:
-      "This is your daily Bible reading space. Let's take a quick look around.",
+      "This is your daily reading space. Start with the greeting, today's plan, and the reading itself.",
     target: "dashboard-header",
   },
   {
     id: "todays-reading",
-    title: "Today's Reading",
+    title: "Today's reading",
     description:
-      "Here you'll find the Bible chapters assigned for you to read today.",
+      "Here you'll find the chapter or chapters assigned for today and the main context for your reading.",
     target: "todays-reading",
   },
   {
-    id: "chapter-controls",
-    title: "Reading tools",
-    description:
-      "Use the available reading controls to make your Bible reading easier and more personal.",
-    target: "chapter-controls",
-  },
-  {
     id: "memory-verse",
-    title: "Memory Verse",
+    title: "Memory verse",
     description:
-      "A verse from today's reading is selected to help you reflect on and remember God's Word.",
+      "A verse from today's reading is highlighted here to help you reflect and remember what matters most.",
     target: "memory-verse",
   },
   {
-    id: "mark-as-read",
-    title: "Mark as Read",
+    id: "full-passage",
+    title: "Full passage",
     description:
-      "When you finish today's reading, mark it as read to keep track of your progress.",
+      "Open the full assignment when you want to read more carefully or revisit a passage in context.",
+    target: "full-passage",
+  },
+  {
+    id: "mark-as-read",
+    title: "Mark as read",
+    description:
+      "When you finish today's reading, mark it complete to keep your reading streak moving forward.",
     target: "mark-as-read",
   },
   {
-    id: "ask-about-passage",
-    title: "Ask About Today's Passage",
+    id: "progress",
+    title: "Your progress",
     description:
-      "Have a question about what you just read? Ask the AI about today's passage for a simple explanation.",
+      "This section shows how far you've come through the current reading pass and how consistent you've been.",
+    target: "progress",
+  },
+  {
+    id: "quick-actions",
+    title: "Quick actions",
+    description:
+      "Jump to your saved verses or notes whenever you want to revisit what stood out to you.",
+    target: "quick-actions",
+  },
+  {
+    id: "ask-about-passage",
+    title: "Ask about today's passage",
+    description:
+      "Have a question about what you just read? Ask the AI for a brief explanation or reflection.",
     target: "ask-about-passage",
   },
   {
     id: "reflection",
-    title: "Daily Reflection",
+    title: "Daily reflection",
     description:
-      "Take a moment to reflect on what today's reading means to you.",
+      "Take a moment to reflect on what this passage means for your day and your life.",
     target: "reflection",
-  },
-  {
-    id: "progress",
-    title: "Your Progress",
-    description:
-      "Keep an eye on your reading progress and celebrate your consistency.",
-    target: "progress",
-  },
-  {
-    id: "finish",
-    title: "You're ready to begin",
-    description:
-      "That's the quick tour. Now let's get into today's reading.",
-    target: "todays-reading",
   },
 ];

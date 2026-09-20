@@ -1,21 +1,26 @@
 import { useAuthStore } from "@/stores/authStore";
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import {
+  BookMarked,
   BookOpen,
   LogOut,
   Menu,
-  Settings,
-  X,
-  Sun,
   Moon,
-  BookMarked,
+  NotebookText,
+  Settings,
+  Sun,
+  TrendingUp,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { SettingsModal } from "./SettingsModal";
 import { useThemeStore } from "@/stores/themeStore";
 import { MessageCircle } from "lucide-react";
 import { FeedbackModal } from "./FeedbackModal";
+
+const navItemClass =
+  "flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition md:px-3 md:py-2";
 
 export const Layout = () => {
   const user = useAuthStore((state) => state.user);
@@ -61,32 +66,52 @@ export const Layout = () => {
                   menuOpen ? "flex" : "hidden"
                 } absolute left-4 right-4 top-[calc(100%+0.5rem)] z-20 flex-col gap-1 rounded-2xl border border-(--border) bg-(--surface) p-2.5 shadow-[0_18px_40px_var(--shadow)] md:static md:flex md:flex-row md:items-center md:gap-1 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
               >
-                <Link
+                <NavLink
                   onClick={() => setMenuOpen(false)}
                   to="/progress"
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
+                  className={({ isActive }) =>
+                    `${navItemClass} ${
+                      isActive
+                        ? "bg-(--surface-strong) text-(--primary)"
+                        : "text-(--muted-strong) hover:bg-(--surface-strong) hover:text-(--text)"
+                    }`
+                  }
                 >
-                  Progress
-                </Link>
-                <Link
+                  <TrendingUp size={16} />
+                  <span>Progress</span>
+                </NavLink>
+                <NavLink
                   onClick={() => setMenuOpen(false)}
                   to="/bookmarks"
-                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
+                  className={({ isActive }) =>
+                    `${navItemClass} ${
+                      isActive
+                        ? "bg-(--surface-strong) text-(--primary)"
+                        : "text-(--muted-strong) hover:bg-(--surface-strong) hover:text-(--text)"
+                    }`
+                  }
                 >
                   <BookMarked size={16} />
-                  Bookmarks
-                </Link>
-                <Link
+                  <span>Bookmarks</span>
+                </NavLink>
+                <NavLink
                   onClick={() => setMenuOpen(false)}
                   to="/notes"
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:px-3 md:py-2"
+                  className={({ isActive }) =>
+                    `${navItemClass} ${
+                      isActive
+                        ? "bg-(--surface-strong) text-(--primary)"
+                        : "text-(--muted-strong) hover:bg-(--surface-strong) hover:text-(--text)"
+                    }`
+                  }
                 >
-                  Notes
-                </Link>
+                  <NotebookText size={16} />
+                  <span>Notes</span>
+                </NavLink>
                 <button
                   type="button"
                   onClick={handleSignout}
-                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-(--muted-strong) hover:bg-(--surface-strong) md:hidden"
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-(--muted-strong) transition hover:bg-(--surface-strong) hover:text-red-600 md:hidden"
                 >
                   <LogOut size={16} /> Sign out
                 </button>

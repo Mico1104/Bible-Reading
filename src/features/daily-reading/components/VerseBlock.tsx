@@ -29,15 +29,15 @@ export const VerseBlock = ({
           const bookmarked = isBookmarked(reference, translation);
 
           return (
-            <div key={v.verse} className="group flex items-start gap-2">
-              <span className="flex-1">
+            <div key={v.verse} className="group flex items-start gap-2.5">
+              <span className="flex-1 min-w-0">
                 <sup className="mr-1 text-[10px] font-semibold text-(--primary)">
                   {v.verse}
                 </sup>
                 {v.text.trim()}
               </span>
 
-              <button
+              <motion.button
                 type="button"
                 onClick={() => {
                   void toggleBookmark(reference, translation);
@@ -47,15 +47,24 @@ export const VerseBlock = ({
                     ? `Remove bookmark from ${reference}`
                     : `Bookmark ${reference}`
                 }
+                aria-pressed={bookmarked}
                 title={bookmarked ? "Remove bookmark" : "Bookmark verse"}
-                className="mt-1 shrink-0 rounded-md p-1.5 text-(--surface-muted) transition hover:bg-(--surface) hover:text-(--primary)"
+                whileTap={{ scale: 0.92 }}
+                className={`mt-1 shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/35 ${
+                  bookmarked
+                    ? "border-(--primary)/25 bg-(--primary)/10 text-(--primary) shadow-sm"
+                    : "border-(--border) bg-(--surface) text-(--muted-strong) hover:border-(--primary)/30 hover:bg-(--surface-strong) hover:text-(--primary)"
+                }`}
               >
                 <BookMarked
-                  size={18}
+                  size={17}
                   fill={bookmarked ? "currentColor" : "none"}
-                  strokeWidth={bookmarked ? 2.5 : 2}
+                  strokeWidth={bookmarked ? 2.4 : 2}
+                  className={
+                    bookmarked ? "drop-shadow-[0_0_0_rgba(0,0,0,0)]" : ""
+                  }
                 />
-              </button>
+              </motion.button>
             </div>
           );
         })}

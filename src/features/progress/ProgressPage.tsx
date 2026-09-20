@@ -96,10 +96,10 @@ export const ProgressPage = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="rounded-3xl bg-[#75493c] p-4 text-white shadow-lg shadow-[#75493c]/15 sm:p-5">
+        <div className="rounded-3xl bg-(--primary) p-4 text-white shadow-[0_16px_32px_rgba(117,73,60,0.18)] sm:p-5">
           <Flame size={18} />
           <p className="mt-3 text-3xl font-semibold sm:text-4xl">{streak}</p>
-          <p className="mt-1 text-xs text-white/70 sm:text-sm">Day streak</p>
+          <p className="mt-1 text-xs text-white/75 sm:text-sm">Day streak</p>
         </div>
         <div className="rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
           <CalendarDays size={18} className="text-(--primary)" />
@@ -113,7 +113,7 @@ export const ProgressPage = () => {
       </div>
 
       <div className="mt-8 rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
+        <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
           History
         </h2>
 
@@ -149,7 +149,7 @@ export const ProgressPage = () => {
             <ChevronLeft size={20} />
           </button>
 
-          <h2 className="flex-1 text-center text-sm font-semibold uppercase tracking-wide text-(--muted-strong)">
+          <h2 className="flex-1 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
             {format(viewedMonth, "MMMM yyyy")}
           </h2>
 
