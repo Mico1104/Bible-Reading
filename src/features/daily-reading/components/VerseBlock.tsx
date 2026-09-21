@@ -3,16 +3,21 @@ import { BookMarked } from "lucide-react";
 
 export const VerseBlock = ({
   title,
+  canonicalReference,
   verses,
   translation,
   isBookmarked,
   toggleBookmark,
 }: {
   title: string | undefined;
+  canonicalReference: string | undefined;
   verses: { verse: number; text: string }[] | undefined;
   translation: string;
   isBookmarked: (reference: string, translation: string) => boolean;
-  toggleBookmark: (reference: string, translation: string) => Promise<boolean>;
+  toggleBookmark: (
+    reference: string,
+    translation: string,
+  ) => Promise<boolean>;
 }) => {
   return (
     <motion.article
@@ -21,19 +26,25 @@ export const VerseBlock = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <p className="relative font-display text-xl text-(--primary)">{title}</p>
+      <p className="relative font-display text-xl text-(--primary)">
+        {title}
+      </p>
 
       <div className="relative mt-3 space-y-3 text-[15px] leading-8 tracking-[0.01em] text-(--text-soft)">
         {verses?.map((v) => {
-          const reference = `${title}:${v.verse}`;
+          const reference = `${canonicalReference}:${v.verse}`;
           const bookmarked = isBookmarked(reference, translation);
 
           return (
-            <div key={v.verse} className="group flex items-start gap-2.5">
-              <span className="flex-1 min-w-0">
+            <div
+              key={v.verse}
+              className="group flex items-start gap-2.5"
+            >
+              <span className="min-w-0 flex-1">
                 <sup className="mr-1 text-[10px] font-semibold text-(--primary)">
                   {v.verse}
                 </sup>
+
                 {v.text.trim()}
               </span>
 
@@ -48,9 +59,13 @@ export const VerseBlock = ({
                     : `Bookmark ${reference}`
                 }
                 aria-pressed={bookmarked}
-                title={bookmarked ? "Remove bookmark" : "Bookmark verse"}
+                title={
+                  bookmarked
+                    ? "Remove bookmark"
+                    : "Bookmark verse"
+                }
                 whileTap={{ scale: 0.92 }}
-                className={`mt-1 shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/35 ${
+                className={`mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/35 ${
                   bookmarked
                     ? "border-(--primary)/25 bg-(--primary)/10 text-(--primary) shadow-sm"
                     : "border-(--border) bg-(--surface) text-(--muted-strong) hover:border-(--primary)/30 hover:bg-(--surface-strong) hover:text-(--primary)"
@@ -60,9 +75,6 @@ export const VerseBlock = ({
                   size={17}
                   fill={bookmarked ? "currentColor" : "none"}
                   strokeWidth={bookmarked ? 2.4 : 2}
-                  className={
-                    bookmarked ? "drop-shadow-[0_0_0_rgba(0,0,0,0)]" : ""
-                  }
                 />
               </motion.button>
             </div>

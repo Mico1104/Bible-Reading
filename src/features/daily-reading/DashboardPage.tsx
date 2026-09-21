@@ -291,6 +291,7 @@ export const DashboardPage = () => {
                 translation={translation}
                 isBookmarked={isBookmarked}
                 toggleBookmark={toggleBookmark}
+                canonicalReferences={references}
               />
             )}
           </AnimatePresence>

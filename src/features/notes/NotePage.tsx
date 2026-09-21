@@ -189,7 +189,7 @@ const NoteItem = ({
 
   if (isEditing) {
     return (
-      <div className="rounded-[1.5rem] border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
+      <div className="rounded-3xl border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
         <input
           value={reference}
           onChange={(e) => setReference(e.target.value)}
@@ -221,7 +221,7 @@ const NoteItem = ({
   }
 
   return (
-    <div className="rounded-[1.5rem] border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
+    <div className="rounded-3xl border border-(--border) bg-(--surface-strong) p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-(--text) wrap-break-word">
