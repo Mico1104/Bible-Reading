@@ -20,10 +20,12 @@ export const useProgress = () => {
         .from("reading_progress")
         .select("*")
         .eq("user_id", userId)
+        .is("plan_day_id", null)
         .order("completed_at", { ascending: false })
         .limit(5);
 
       if (error) throw error;
+
       return data;
     },
     enabled: !!userId,
@@ -40,9 +42,11 @@ export const useStreakData = () => {
         .from("reading_progress")
         .select("completed_at")
         .eq("user_id", userId)
+        .is("plan_day_id", null)
         .order("completed_at", { ascending: false });
 
       if (error) throw error;
+
       return data;
     },
     enabled: !!userId,
@@ -57,7 +61,6 @@ export const calculateStreak = (
   const completedDates = progress.map((p) => new Date(p.completed_at));
   const today = new Date();
 
-  //Streak only counts if the most recent entry is today or yesterday
   const mostRecent = completedDates[0];
   const gap = differenceInCalendarDays(today, mostRecent);
 
@@ -68,6 +71,7 @@ export const calculateStreak = (
 
   for (let i = 1; i < completedDates.length; i++) {
     const expectedPrevDay = subDays(cursor, 1);
+
     if (isSameDay(completedDates[i], expectedPrevDay)) {
       streak++;
       cursor = completedDates[i];
@@ -83,11 +87,12 @@ export const getCalendarDays = (
   monthDate: Date,
   completedDays: { completed_at: string }[] | undefined,
 ) => {
-
   const start = startOfMonth(monthDate);
   const end = endOfMonth(monthDate);
-  
-  const completedDates = (completedDays ?? []).map((p) => new Date(p.completed_at));
+
+  const completedDates = (completedDays ?? []).map(
+    (p) => new Date(p.completed_at),
+  );
 
   return eachDayOfInterval({ start, end }).map((date) => ({
     date,

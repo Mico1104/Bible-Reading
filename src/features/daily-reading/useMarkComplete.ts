@@ -32,7 +32,7 @@ export const useMarkComplete = () => {
       queryClient.invalidateQueries({ queryKey: ["streak-data"] });
 
       if (newStreak && isMilestoneStreak(newStreak)) {
-        toast.success("🔥 ${newStreak}-day streak! Keep going.");
+        toast.success(`🔥 ${newStreak}-day streak! Keep going.`);
       } else {
         toast.success("Marked as read - well done!");
       }

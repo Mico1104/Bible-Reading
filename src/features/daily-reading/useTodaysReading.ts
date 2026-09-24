@@ -10,19 +10,24 @@ export const useTodayReading = () => {
 
   return useQuery({
     queryKey: ["todays-reading", userId],
+
     queryFn: async () => {
-      //1. GET THE USER'S PLAN ENROLLMENT (START DATE)
+      // 1. Get the user's Daily Word enrollment.
+      // Daily Word enrollments have no reading plan attached.
       const { data: userPlan, error: userPlanError } = await supabase
         .from("user_plans")
         .select("*")
         .eq("user_id", userId)
         .eq("status", "active")
-        .single();
+        .is("plan_id", null)
+        .maybeSingle();
 
       if (userPlanError) throw userPlanError;
+      if (!userPlan) {
+  throw new Error("Daily Word enrollment could not be found.");
+}
 
-      // 2. GET THEIR TESTAMENT PREFERENCE
-
+      // 2. Get the user's Daily Word preferences.
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("testament_preference, chapters_per_day")
@@ -31,25 +36,28 @@ export const useTodayReading = () => {
 
       if (profileError) throw profileError;
 
-      //3. FIND THE CHAPTER POSITION WHERE THEIR SEQUENCE BEGINS
-
+      // 3. Find where the user's Daily Word sequence begins.
       const startReference =
-        profile.testament_preference === "NT" ? "Matthew 1" : "Genesis 1";
+        profile.testament_preference === "NT"
+          ? "Matthew 1"
+          : "Genesis 1";
 
       const { data: startChapter, error: startError } = await supabase
         .from("bible_chapters")
         .select("global_position")
         .eq("reference", startReference)
         .single();
-      
+
       if (startError) throw startError;
 
-      //4. WORK OUT HOW MANY CHAPTER_PAIRS HAVE ELAPSED SINCE START_DATE
+      // 4. Calculate how many days have passed since the
+      // user started Daily Word.
       const daysSinceStart = differenceInCalendarDays(
         new Date(),
         new Date(userPlan.start_date),
       );
 
+      // The user's Daily Word schedule has not started yet.
       if (daysSinceStart < 0) {
         return {
           chapters: [],
@@ -62,15 +70,16 @@ export const useTodayReading = () => {
       const chaptersPerDay = profile.chapters_per_day;
       const offset = daysSinceStart * chaptersPerDay;
 
-      //5. Compute the two chapter positions, wrapping with modulo
+      // 5. Calculate today's chapter positions.
       const positions = Array.from(
         { length: chaptersPerDay },
         (_, i) =>
-          ((startChapter.global_position - 1 + offset + i) % TOTAL_CHAPTERS) +
+          ((startChapter.global_position - 1 + offset + i) %
+            TOTAL_CHAPTERS) +
           1,
       );
 
-      //6. Fetch those two chapters
+      // 6. Fetch today's Daily Word chapters.
       const { data: chapters, error: chaptersError } = await supabase
         .from("bible_chapters")
         .select("*")
@@ -79,7 +88,12 @@ export const useTodayReading = () => {
 
       if (chaptersError) throw chaptersError;
 
-      return { chapters, daysNumber: daysSinceStart + 1 };
+      return {
+        chapters,
+        daysNumber: daysSinceStart + 1,
+        notStartedYet: false,
+        startDate: userPlan.start_date,
+      };
     },
 
     enabled: !!userId,
