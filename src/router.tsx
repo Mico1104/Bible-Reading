@@ -12,6 +12,7 @@ import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
 import { BookmarksPage} from  "./features/bookmarks/BookmarksPage"
 import { PassagePage } from "./features/passage/PassagePage";
+import {ReadingPlansPage} from "./features/reading-plans/ReadingPlansPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
           { path: "/notes", element: <NotePage /> },
           {path: "/bookmarks", element: <BookmarksPage />},
           {path: "/passage/:reference", element: <PassagePage />},
+          {path: "/reading-plans", element: <ReadingPlansPage/>}
         ],
       },
 

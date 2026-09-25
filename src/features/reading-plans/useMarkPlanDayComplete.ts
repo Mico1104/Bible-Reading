@@ -63,6 +63,7 @@ export const useMarkPlanDayComplete = () => {
         );
       }
 
+      // Record the completed plan day.
       const { error: insertError } = await supabase
         .from("reading_progress")
         .insert({
@@ -76,13 +77,81 @@ export const useMarkPlanDayComplete = () => {
         throw insertError;
       }
 
+      // Get the plan duration.
+      const { data: userPlan, error: userPlanError } = await supabase
+        .from("user_plans")
+        .select(
+          `
+            id,
+            status,
+            reading_plan (
+              duration_days
+            )
+          `,
+        )
+        .eq("id", userPlanId)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (userPlanError) {
+        throw userPlanError;
+      }
+
+      if (!userPlan) {
+        throw new Error("Reading plan enrollment could not be found.");
+      }
+
+      // Supabase returns the related reading_plan as an array.
+      const readingPlan = userPlan.reading_plan?.[0];
+
+      if (!readingPlan) {
+        throw new Error("Reading plan details could not be found.");
+      }
+
+      const durationDays = readingPlan.duration_days;
+
+      if (!durationDays) {
+        throw new Error("Reading plan duration could not be determined.");
+      }
+
+      // Count the user's completed plan days.
+      const { count: completedDays, error: countError } = await supabase
+        .from("reading_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("user_plan_id", userPlanId)
+        .not("plan_day_id", "is", null);
+
+      if (countError) {
+        throw countError;
+      }
+
+      const planCompleted = (completedDays ?? 0) >= durationDays;
+
+      // Only mark the enrollment completed when every
+      // plan day has actually been completed.
+      if (planCompleted && userPlan.status === "active") {
+        const { error: updateError } = await supabase
+          .from("user_plans")
+          .update({
+            status: "completed",
+          })
+          .eq("id", userPlanId)
+          .eq("user_id", userId);
+
+        if (updateError) {
+          throw updateError;
+        }
+      }
+
       return {
         dayNumber,
         planDayId,
+        planCompleted,
       };
     },
 
-    onSuccess: ({ dayNumber }) => {
+    onSuccess: ({ dayNumber, planCompleted }) => {
       queryClient.invalidateQueries({
         queryKey: ["today-reading-plan"],
       });
@@ -91,7 +160,17 @@ export const useMarkPlanDayComplete = () => {
         queryKey: ["progress"],
       });
 
-      toast.success(`Day ${dayNumber} completed! Keep going.`);
+      queryClient.invalidateQueries({
+        queryKey: ["reading-plans"],
+      });
+
+      if (planCompleted) {
+        toast.success(
+          "Congratulations! You have completed the entire reading plan.",
+        );
+      } else {
+        toast.success(`Day ${dayNumber} completed! Keep going.`);
+      }
     },
 
     onError: (error) => {
@@ -99,3 +178,4 @@ export const useMarkPlanDayComplete = () => {
     },
   });
 };
+
