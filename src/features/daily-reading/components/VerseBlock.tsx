@@ -14,10 +14,7 @@ export const VerseBlock = ({
   verses: { verse: number; text: string }[] | undefined;
   translation: string;
   isBookmarked: (reference: string, translation: string) => boolean;
-  toggleBookmark: (
-    reference: string,
-    translation: string,
-  ) => Promise<boolean>;
+  toggleBookmark: (reference: string, translation: string) => Promise<boolean>;
 }) => {
   const chapterTitle = title?.replace(/:\d+(?:-\d+)?$/, "") ?? "Passage";
 
@@ -43,10 +40,7 @@ export const VerseBlock = ({
           const bookmarked = isBookmarked(reference, translation);
 
           return (
-            <div
-              key={v.verse}
-              className="group flex items-start gap-3"
-            >
+            <div key={v.verse} className="group flex items-start gap-3">
               <p className="min-w-0 flex-1">
                 <sup className="mr-2 inline-flex min-w-5 translate-y-[-0.1em] items-center justify-center rounded-full bg-(--surface-muted) px-1.5 py-0.5 align-baseline text-[10px] font-bold leading-none text-(--primary)">
                   {v.verse}
@@ -66,11 +60,7 @@ export const VerseBlock = ({
                     : `Bookmark ${reference}`
                 }
                 aria-pressed={bookmarked}
-                title={
-                  bookmarked
-                    ? "Remove bookmark"
-                    : "Bookmark verse"
-                }
+                title={bookmarked ? "Remove bookmark" : "Bookmark verse"}
                 whileTap={{ scale: 0.92 }}
                 className={`mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/35 ${
                   bookmarked

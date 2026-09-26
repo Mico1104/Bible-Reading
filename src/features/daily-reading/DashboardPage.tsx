@@ -674,9 +674,15 @@ export const DashboardPage = () => {
 
                             <p className="mt-4 text-xs font-semibold text-(--muted-strong)">
                               <span className="text-(--primary)">
-                                Verse {selectedReadingPlanMemoryVerse.verses[0]?.verse}
+                                Verse{" "}
+                                {
+                                  selectedReadingPlanMemoryVerse.verses[0]
+                                    ?.verse
+                                }
                               </span>
-                              <span className="mx-2 text-(--border-strong)">|</span>
+                              <span className="mx-2 text-(--border-strong)">
+                                |
+                              </span>
                               {selectedReadingPlanMemoryVerse.reference}
                             </p>
                           </div>
