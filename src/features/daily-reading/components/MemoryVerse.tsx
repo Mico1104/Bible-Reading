@@ -49,12 +49,14 @@ return (
       </div>
     ) : (
       <div className="p-5 sm:p-6">
-        <p className="font-display text-xl leading-8 text-(--text) italic sm:text-2xl sm:leading-9">
+        <blockquote className="max-w-2xl font-display text-xl leading-8 text-(--text) italic sm:text-2xl sm:leading-9">
           “{verse.text.trim()}”
-        </p>
+        </blockquote>
 
-        <p className="mt-4 text-sm font-semibold text-(--muted-strong)">
-          {chapter.reference}:{verse.verse}
+        <p className="mt-5 text-sm font-semibold text-(--muted-strong)">
+          <span className="text-(--primary)">Verse {verse.verse}</span>
+          <span className="mx-2 text-(--border-strong)">|</span>
+          {chapter.reference}
         </p>
       </div>
     )}

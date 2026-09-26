@@ -9,7 +9,7 @@ import { Modal } from "@/components/Modal";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useVerses } from "./useVerse";
+import { useVerses, useVerse } from "./useVerse";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import {
   BookOpen,
@@ -82,7 +82,7 @@ export const DashboardPage = () => {
     useReadingPlanDays(readingPlanData?.userPlanId, readingPlan?.id);
 
   const readingPlanDay = readingPlanData?.planDay;
- 
+
   const readingPlanEnrolled = readingPlanData?.enrolled ?? false;
   const readingPlanCompleted = readingPlanData?.planCompleted ?? false;
   const readingPlanDays = readingPlanDaysData?.days ?? [];
@@ -107,7 +107,8 @@ export const DashboardPage = () => {
   const selectedReadingPlanDayId =
     selectedReadingPlanDayData?.id ?? readingPlanDay?.id ?? null;
 
-  const [showFullPassage, setShowFullPassage] = useState(false);
+  const [showDailyWordPassage, setShowDailyWordPassage] = useState(false);
+  const [showReadingPlanPassage, setShowReadingPlanPassage] = useState(false);
   const [isAskOpen, setIsAskOpen] = useState(false);
   const [isTourDismissed, setIsTourDismissed] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState<"profile" | "plan">(
@@ -131,8 +132,9 @@ export const DashboardPage = () => {
     "bible-api-com",
   );
 
-const { data: selectedReadingPlanPassages = [] } =
-  useReadingPlanPassages(selectedReadingPlanDayId);
+  const { data: selectedReadingPlanPassages = [] } = useReadingPlanPassages(
+    selectedReadingPlanDayId,
+  );
 
   const selectedReadingPlanReferences = (selectedReadingPlanPassages ?? []).map(
     (passage) => passage.reference,
@@ -143,6 +145,15 @@ const { data: selectedReadingPlanPassages = [] } =
     isLoading: isSelectedReadingPlanPassageLoading,
   } = useVerses(
     selectedReadingPlanReferences,
+    translation,
+    translationProvider,
+  );
+
+  const {
+    data: selectedReadingPlanMemoryVerse,
+    isLoading: isSelectedReadingPlanMemoryVerseLoading,
+  } = useVerse(
+    selectedReadingPlanDayData?.memory_verse_reference,
     translation,
     translationProvider,
   );
@@ -346,20 +357,20 @@ const { data: selectedReadingPlanPassages = [] } =
 
           <button
             data-onboarding="full-passage"
-            onClick={() => setShowFullPassage((prev) => !prev)}
+            onClick={() => setShowDailyWordPassage((prev) => !prev)}
             className="mt-5 inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3.5 py-2.5 text-sm font-semibold text-(--primary) transition hover:border-(--primary)/30 hover:bg-(--surface)"
           >
-            {showFullPassage ? (
+            {showDailyWordPassage ? (
               <ChevronUp size={16} />
             ) : (
               <ChevronDown size={16} />
             )}
 
-            {showFullPassage ? "Hide full passage" : "Read full passage"}
+            {showDailyWordPassage ? "Hide full passage" : "Read full passage"}
           </button>
 
           <AnimatePresence initial={false}>
-            {showFullPassage && (
+            {showDailyWordPassage && (
               <FullPassage
                 fetchedChapters={fetchedChapters}
                 isLoading={!fetchedChapters}
@@ -643,29 +654,50 @@ const { data: selectedReadingPlanPassages = [] } =
                         </p>
                       )}
                     </div>
-
                     {selectedReadingPlanDayData.memory_verse_reference && (
                       <div className="mt-5 rounded-2xl border border-(--border) bg-(--surface-strong) p-4">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
                           Memory verse
                         </p>
 
-                        <p className="mt-2 text-sm font-semibold leading-6 text-(--text)">
-                          {selectedReadingPlanDayData.memory_verse_reference}
-                        </p>
+                        {isSelectedReadingPlanMemoryVerseLoading ? (
+                          <p className="mt-2 text-sm text-(--muted)">
+                            Loading memory verse...
+                          </p>
+                        ) : selectedReadingPlanMemoryVerse ? (
+                          <div className="mt-3">
+                            <blockquote className="font-display text-lg italic leading-8 text-(--text)">
+                              {selectedReadingPlanMemoryVerse.verses
+                                .map((verse) => verse.text.trim())
+                                .join(" ")}
+                            </blockquote>
+
+                            <p className="mt-4 text-xs font-semibold text-(--muted-strong)">
+                              <span className="text-(--primary)">
+                                Verse {selectedReadingPlanMemoryVerse.verses[0]?.verse}
+                              </span>
+                              <span className="mx-2 text-(--border-strong)">|</span>
+                              {selectedReadingPlanMemoryVerse.reference}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-sm text-(--muted)">
+                            {selectedReadingPlanDayData.memory_verse_reference}
+                          </p>
+                        )}
                       </div>
                     )}
 
                     <button
                       type="button"
-                      onClick={() => setShowFullPassage((prev) => !prev)}
+                      onClick={() => setShowReadingPlanPassage((prev) => !prev)}
                       disabled={
                         selectedReadingPlanPassages.length === 0 ||
                         isSelectedReadingPlanPassageLoading
                       }
                       className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-(--border) bg-(--surface-strong) px-4 py-3.5 text-sm font-semibold text-(--primary) transition hover:border-(--primary)/30 hover:bg-(--surface) disabled:opacity-50"
                     >
-                      {showFullPassage ? (
+                      {showReadingPlanPassage ? (
                         <ChevronUp size={17} />
                       ) : (
                         <ChevronDown size={17} />
@@ -673,13 +705,13 @@ const { data: selectedReadingPlanPassages = [] } =
 
                       {isSelectedReadingPlanPassageLoading
                         ? "Loading passage..."
-                        : showFullPassage
+                        : showReadingPlanPassage
                           ? "Hide full passage"
                           : "Read full passage"}
                     </button>
 
                     <AnimatePresence initial={false}>
-                      {showFullPassage && (
+                      {showReadingPlanPassage && (
                         <FullPassage
                           fetchedChapters={selectedReadingPlanChapters}
                           isLoading={isSelectedReadingPlanPassageLoading}

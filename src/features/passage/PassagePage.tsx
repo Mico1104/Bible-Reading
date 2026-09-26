@@ -110,14 +110,17 @@ export const PassagePage = () => {
               {translationName}
             </p>
 
-            <h1 className="mt-1 font-display text-2xl font-semibold text-(--text)">
-              {decodedReference}
+            <h1 className="mt-1 font-display text-3xl font-semibold text-(--text)">
+              {chapterReference}
             </h1>
+            <p className="mt-1 text-sm font-medium text-(--primary)">
+              Verse {verseNumber}
+            </p>
           </div>
 
-          <article className="rounded-2xl border border-(--border) bg-(--card-verse) p-5 shadow-sm sm:p-6">
-            <p className="text-[16px] leading-8 text-(--text-soft)">
-              <sup className="mr-1 text-[11px] font-semibold text-(--primary)">
+          <article className="rounded-2xl border border-(--border) bg-(--card-verse) p-6 shadow-sm sm:p-8">
+            <p className="max-w-2xl text-[17px] leading-9 tracking-[0.01em] text-(--text-soft)">
+              <sup className="mr-2 inline-flex min-w-5 translate-y-[-0.1em] items-center justify-center rounded-full bg-(--surface-muted) px-1.5 py-0.5 align-baseline text-[10px] font-bold leading-none text-(--primary)">
                 {bookmarkedVerse.verse}
               </sup>
 
