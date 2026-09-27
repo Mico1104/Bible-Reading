@@ -54,6 +54,10 @@ export const useMarkComplete = () => {
         queryKey: ["reading-points", userId],
       });
 
+      queryClient.invalidateQueries({
+        queryKey: ["points-history", userId],
+      });
+
       if (newStreak && isMilestoneStreak(newStreak)) {
         toast.success(`🔥 ${newStreak}-day streak! Keep going.`);
       } else {

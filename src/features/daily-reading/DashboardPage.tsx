@@ -33,6 +33,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { MemoryVerse } from "./components/MemoryVerse";
 import { FullPassage } from "./components/FullPassage";
 import { AskAboutPassage } from "./components/AskAboutPassage";
+import { PointsHistory } from "../points/PointsHistory";
 
 export const DashboardPage = () => {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
@@ -408,6 +409,7 @@ export const DashboardPage = () => {
         </motion.div>
 
         <ReadingPointsCard />
+        <PointsHistory />
 
         {/* ------------------------------------------------------------
             DAILY WORD PROGRESS
@@ -742,11 +744,11 @@ export const DashboardPage = () => {
                     selectedReadingPlanDayData.day_number ? (
                       <button
                         type="button"
-                       onClick={() =>
-  markPlanDayComplete.mutate(
-    selectedReadingPlanDayData.day_number,
-  )
-}
+                        onClick={() =>
+                          markPlanDayComplete.mutate(
+                            selectedReadingPlanDayData.day_number,
+                          )
+                        }
                         disabled={
                           markPlanDayComplete.isPending ||
                           !readingPlanData?.userPlanId

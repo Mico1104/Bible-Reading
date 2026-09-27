@@ -1,8 +1,9 @@
 import {
-  BookOpen,
   BookMarked,
+  BookOpen,
   Sparkles,
   Star,
+  TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { useReadingPoints } from "./useReadingPoints";
@@ -25,6 +26,8 @@ export const ReadingPointsCard = () => {
   if (isError || !data) {
     return null;
   }
+
+  const hasAdjustments = data.adjustments !== 0;
 
   return (
     <section
@@ -68,7 +71,7 @@ export const ReadingPointsCard = () => {
             </p>
 
             <p className="mt-1 text-xs font-medium text-(--muted)">
-              total points earned
+              current points
             </p>
           </div>
 
@@ -79,7 +82,8 @@ export const ReadingPointsCard = () => {
       </div>
 
       {/* Point breakdown */}
-      <div className="grid grid-cols-2 divide-x divide-(--border)">
+      <div className="grid grid-cols-2 divide-x divide-(--border) sm:grid-cols-3">
+        {/* Daily Word */}
         <div className="p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--surface-strong) text-(--primary)">
@@ -100,6 +104,7 @@ export const ReadingPointsCard = () => {
           </p>
         </div>
 
+        {/* Reading Plans */}
         <div className="p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--surface-strong) text-(--primary)">
@@ -117,6 +122,29 @@ export const ReadingPointsCard = () => {
 
           <p className="mt-0.5 text-[11px] text-(--muted)">
             points earned
+          </p>
+        </div>
+
+        {/* Inactivity Adjustments */}
+        <div className="p-4 sm:p-5">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--surface-strong) text-(--muted)">
+              <TrendingDown size={16} />
+            </div>
+
+            <span className="text-xs font-medium text-(--muted)">
+              Adjustments
+            </span>
+          </div>
+
+          <p className="mt-3 text-lg font-bold text-(--text)">
+            {hasAdjustments
+              ? data.adjustments.toLocaleString()
+              : "0"}
+          </p>
+
+          <p className="mt-0.5 text-[11px] text-(--muted)">
+            inactivity
           </p>
         </div>
       </div>
