@@ -742,13 +742,11 @@ export const DashboardPage = () => {
                     selectedReadingPlanDayData.day_number ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          markPlanDayComplete.mutate({
-                            userPlanId: readingPlanData?.userPlanId as string,
-                            planDayId: selectedReadingPlanDayData.id,
-                            dayNumber: selectedReadingPlanDayData.day_number,
-                          })
-                        }
+                       onClick={() =>
+  markPlanDayComplete.mutate(
+    selectedReadingPlanDayData.day_number,
+  )
+}
                         disabled={
                           markPlanDayComplete.isPending ||
                           !readingPlanData?.userPlanId

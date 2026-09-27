@@ -10,35 +10,65 @@ export const useMarkComplete = () => {
 
   return useMutation({
     mutationFn: async (dayNumber: number) => {
-      const { error } = await supabase.from("reading_progress").insert({
-        user_id: userId,
-        day_number: dayNumber,
+      if (!userId) {
+        throw new Error(
+          "You must be signed in to mark a reading complete.",
+        );
+      }
+
+      const { error } = await supabase.rpc("complete_daily_word", {
+        p_day_number: dayNumber,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      const { data: stats } = await supabase
-        .from("users_stats")
+      const { data: stats, error: statsError } = await supabase
+        .from("user_stats")
         .select("current_streak")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      return stats?.current_streak ?? null;
+      if (statsError) {
+        throw statsError;
+      }
+
+      return stats?.current_streak ?? 0;
     },
 
     onSuccess: (newStreak) => {
-  queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
-  queryClient.invalidateQueries({ queryKey: ["progress"] });
-  queryClient.invalidateQueries({ queryKey: ["streak-data"] });
+      queryClient.invalidateQueries({
+        queryKey: ["todays-reading"],
+      });
 
-  // Refresh the Reading Points card immediately
-  queryClient.invalidateQueries({ queryKey: ["reading-points", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["progress"],
+      });
 
-  if (newStreak && isMilestoneStreak(newStreak)) {
-    toast.success(`🔥 ${newStreak}-day streak! Keep going.`);
-  } else {
-    toast.success("Marked as read - well done!");
-  }
-},
+      queryClient.invalidateQueries({
+        queryKey: ["streak-data"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["reading-points", userId],
+      });
+
+      if (newStreak && isMilestoneStreak(newStreak)) {
+        toast.success(`🔥 ${newStreak}-day streak! Keep going.`);
+      } else {
+        toast.success("Marked as read - well done!");
+      }
+    },
+
+    onError: (error) => {
+      console.error("Daily Word completion error:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to mark today's reading as complete.",
+      );
+    },
   });
 };
