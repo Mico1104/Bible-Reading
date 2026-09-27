@@ -4,11 +4,17 @@ import {
   Check,
   Clock,
   Search,
+  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  readingPlanSuggestions,
+  type ReadingGrowthInterest,
+} from "./readingPlanSuggestions";
+import { useReadingPlanSuggestions } from "./useReadingPlanSuggestions";
 import { useReadingPlans, type ReadingPlan } from "./useReadingPlans";
 import { useStartReadingPlan } from "./useStartReadingPlan";
 
@@ -40,16 +46,21 @@ export const ReadingPlansPage = () => {
   const [selectedType, setSelectedType] = useState<PlanType>("topic");
   const [search, setSearch] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<ReadingPlan | null>(null);
+  const [selectedInterest, setSelectedInterest] =
+    useState<ReadingGrowthInterest | null>(null);
 
-  const { data: plans = [], isLoading, error } =
-    useReadingPlans(selectedType);
+  const { data: plans = [], isLoading, error } = useReadingPlans(selectedType);
+
+  const {
+    data: suggestedPlans = [],
+    isLoading: isSuggestionsLoading,
+    error: suggestionsError,
+  } = useReadingPlanSuggestions(selectedInterest);
 
   const startReadingPlan = useStartReadingPlan();
 
-  const {
-    data: activeReadingPlan,
-    isLoading: isActivePlanLoading,
-  } = useActiveReadingPlan();
+  const { data: activeReadingPlan, isLoading: isActivePlanLoading } =
+    useActiveReadingPlan();
 
   const activePlanId = activeReadingPlan?.plan_id ?? null;
 
@@ -57,13 +68,15 @@ export const ReadingPlansPage = () => {
     plan.title.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const selectedSuggestion = readingPlanSuggestions.find(
+    (suggestion) => suggestion.interest === selectedInterest,
+  );
+
   const isSelectedPlanActive =
     !!selectedPlan && activePlanId === selectedPlan.id;
 
   const isAnotherPlanActive =
-    !!selectedPlan &&
-    !!activePlanId &&
-    activePlanId !== selectedPlan.id;
+    !!selectedPlan && !!activePlanId && activePlanId !== selectedPlan.id;
 
   const handleStartPlan = () => {
     if (!selectedPlan) return;
@@ -74,6 +87,10 @@ export const ReadingPlansPage = () => {
   const handleContinuePlan = () => {
     setSelectedPlan(null);
     navigate("/dashboard");
+  };
+
+  const handleInterestSelect = (interest: ReadingGrowthInterest) => {
+    setSelectedInterest((current) => (current === interest ? null : interest));
   };
 
   return (
@@ -93,6 +110,194 @@ export const ReadingPlansPage = () => {
           Your selected plan will work alongside your Daily Word reading.
         </p>
       </section>
+
+      {/* Intelligent suggestions */}
+      <section className="mb-8">
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles size={19} className="text-(--primary)" />
+
+            <h2 className="text-xl font-bold">
+              What would you like to grow in?
+            </h2>
+          </div>
+
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-(--muted-text)">
+            Choose an area you're interested in, and we'll suggest reading plans
+            that may help you explore it.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {readingPlanSuggestions.map((suggestion) => {
+            const isSelected = selectedInterest === suggestion.interest;
+
+            return (
+              <button
+                key={suggestion.interest}
+                type="button"
+                onClick={() => handleInterestSelect(suggestion.interest)}
+                className={`rounded-2xl border p-4 text-left transition ${
+                  isSelected
+                    ? "border-(--primary) bg-(--primary)/10"
+                    : "border-(--border) bg-(--card) hover:border-(--primary)/50"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                      isSelected
+                        ? "bg-(--primary) text-white"
+                        : "bg-(--background) text-(--muted-text)"
+                    }`}
+                  >
+                    <Sparkles size={18} />
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold">{suggestion.label}</h3>
+
+                    <p className="mt-1 text-sm leading-5 text-(--muted-text)">
+                      {suggestion.description}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Suggested plans */}
+      {selectedInterest && (
+        <section className="mb-8">
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
+                Suggested for you
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold">
+                {selectedSuggestion?.label}
+              </h2>
+
+              {selectedSuggestion && (
+                <p className="mt-1 text-sm text-(--muted-text)">
+                  {selectedSuggestion.description}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedInterest(null)}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-(--muted-text) transition hover:bg-(--background)"
+              aria-label="Clear suggestion"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {isSuggestionsLoading && (
+            <div className="rounded-2xl border border-(--border) bg-(--card) px-6 py-10 text-center">
+              <p className="text-sm text-(--muted-text)">
+                Finding reading plans for you...
+              </p>
+            </div>
+          )}
+
+          {suggestionsError && (
+            <div className="rounded-2xl border border-red-500/30 bg-(--card) px-6 py-10 text-center">
+              <p className="font-medium">Unable to load suggestions.</p>
+
+              <p className="mt-2 text-sm text-(--muted-text)">
+                You can still browse all available reading plans below.
+              </p>
+            </div>
+          )}
+
+          {!isSuggestionsLoading &&
+            !suggestionsError &&
+            suggestedPlans.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-(--border) bg-(--card) px-6 py-10 text-center">
+                <BookOpen
+                  size={30}
+                  className="mx-auto mb-3 text-(--muted-text)"
+                />
+
+                <p className="font-semibold">No suggestions available yet</p>
+
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-(--muted-text)">
+                  We don't have matching reading plans for this interest yet.
+                </p>
+              </div>
+            )}
+
+          {!isSuggestionsLoading &&
+            !suggestionsError &&
+            suggestedPlans.length > 0 && (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {suggestedPlans.map((plan) => {
+                  const isActive = activePlanId === plan.id;
+                  const anotherPlanIsActive =
+                    !!activePlanId && activePlanId !== plan.id;
+
+                  return (
+                    <article
+                      key={plan.id}
+                      className={`rounded-2xl border bg-(--card) p-5 transition ${
+                        isActive
+                          ? "border-(--primary)/50"
+                          : "border-(--border) hover:border-(--primary)/50"
+                      }`}
+                    >
+                      <div className="mb-4 flex items-start justify-between gap-4">
+                        <div>
+                          <span className="text-xs font-medium uppercase tracking-wide text-(--primary)">
+                            {plan.plan_type}
+                          </span>
+
+                          <h3 className="mt-1 text-lg font-bold">
+                            {plan.title}
+                          </h3>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-1.5 rounded-lg bg-(--background) px-2.5 py-1.5 text-xs font-medium">
+                          <Clock size={14} />
+                          {plan.duration_days} days
+                        </div>
+                      </div>
+
+                      <p className="text-sm leading-6 text-(--muted-text)">
+                        {plan.description || "No description available."}
+                      </p>
+
+                      {isActive && (
+                        <div className="mt-4 rounded-xl bg-(--primary)/10 px-3 py-2.5 text-sm font-medium text-(--primary)">
+                          You're currently following this plan.
+                        </div>
+                      )}
+
+                      {anotherPlanIsActive && (
+                        <div className="mt-4 rounded-xl bg-(--background) px-3 py-2.5 text-sm text-(--muted-text)">
+                          You already have an active reading plan.
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPlan(plan)}
+                        className="mt-5 w-full rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                      >
+                        {isActive ? "Continue Plan" : "View Plan"}
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+        </section>
+      )}
 
       {/* Search */}
       <section className="mb-6">
@@ -240,10 +445,7 @@ export const ReadingPlansPage = () => {
 
         {!isLoading && !error && filteredPlans.length === 0 && (
           <div className="rounded-2xl border border-dashed border-(--border) bg-(--card) px-6 py-12 text-center">
-            <BookOpen
-              size={32}
-              className="mx-auto mb-3 text-(--muted-text)"
-            />
+            <BookOpen size={32} className="mx-auto mb-3 text-(--muted-text)" />
 
             <h3 className="font-semibold">
               {search ? "No matching plans" : `No ${selectedType} plans yet`}
@@ -321,7 +523,7 @@ export const ReadingPlansPage = () => {
       {/* Plan Details Modal */}
       {selectedPlan && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-(--overlay) p-0 sm:items-center sm:p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="reading-plan-title"
@@ -333,10 +535,7 @@ export const ReadingPlansPage = () => {
                   {selectedPlan.plan_type} reading plan
                 </span>
 
-                <h2
-                  id="reading-plan-title"
-                  className="mt-1 text-2xl font-bold"
-                >
+                <h2 id="reading-plan-title" className="mt-1 text-2xl font-bold">
                   {selectedPlan.title}
                 </h2>
               </div>
@@ -373,10 +572,7 @@ export const ReadingPlansPage = () => {
 
             <div className="mt-6 space-y-3">
               <div className="flex items-start gap-3">
-                <Check
-                  size={18}
-                  className="mt-0.5 shrink-0 text-(--primary)"
-                />
+                <Check size={18} className="mt-0.5 shrink-0 text-(--primary)" />
 
                 <p className="text-sm text-(--muted-text)">
                   Read the assigned passages each day.
@@ -384,10 +580,7 @@ export const ReadingPlansPage = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <Check
-                  size={18}
-                  className="mt-0.5 shrink-0 text-(--primary)"
-                />
+                <Check size={18} className="mt-0.5 shrink-0 text-(--primary)" />
 
                 <p className="text-sm text-(--muted-text)">
                   Track your progress separately from Daily Word.
@@ -395,10 +588,7 @@ export const ReadingPlansPage = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <Check
-                  size={18}
-                  className="mt-0.5 shrink-0 text-(--primary)"
-                />
+                <Check size={18} className="mt-0.5 shrink-0 text-(--primary)" />
 
                 <p className="text-sm text-(--muted-text)">
                   Use your existing Bible translation settings.
@@ -463,9 +653,7 @@ export const ReadingPlansPage = () => {
                 disabled={startReadingPlan.isPending}
                 className="mt-8 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {startReadingPlan.isPending
-                  ? "Starting plan..."
-                  : "Start Plan"}
+                {startReadingPlan.isPending ? "Starting plan..." : "Start Plan"}
               </button>
             )}
 

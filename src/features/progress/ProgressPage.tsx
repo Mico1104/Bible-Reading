@@ -40,15 +40,15 @@ export const ProgressPage = () => {
   if (isLoading) {
     return (
       <motion.div
-        className="content-width page-shell flex flex-col items-center justify-center gap-4 py-12 text-center text-[#9b8d88]"
+        className="content-width page-shell flex flex-col items-center justify-center gap-4 py-12 text-center text-(--muted-strong)"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#eadbd5]">
-          <LoaderCircle className="animate-spin text-[#75493c]" size={22} />
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--surface-muted)">
+          <LoaderCircle className="animate-spin text-(--primary)" size={22} />
         </div>
         <div>
-          <p className="font-display text-2xl text-[#0f151f]">
+          <p className="font-display text-2xl text-(--text)">
             Gathering your journey
           </p>
           <p className="mt-1 text-sm">Loading your progress...</p>
@@ -66,12 +66,12 @@ export const ProgressPage = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="max-w-xl rounded-2xl border border-[#eadbd5] bg-white p-6 text-[#75493c] shadow-sm sm:p-8">
+        <div className="max-w-xl rounded-2xl border border-(--border) bg-(--surface) p-6 text-(--primary) shadow-sm sm:p-8">
           <AlertCircle size={22} />
-          <h1 className="font-display mt-4 text-3xl text-[#0f151f]">
+          <h1 className="font-display mt-4 text-3xl text-(--text)">
             Your progress is taking a pause
           </h1>
-          <p className="mt-3 leading-7 text-[#7e6862]">
+          <p className="mt-3 leading-7 text-(--muted-strong)">
             We couldn't load your history. Please refresh and try again.
           </p>
         </div>
@@ -99,7 +99,9 @@ export const ProgressPage = () => {
         <div className="rounded-3xl bg-(--primary) p-4 text-white shadow-[0_16px_32px_rgba(117,73,60,0.18)] sm:p-5">
           <Flame size={18} />
           <p className="mt-3 text-3xl font-semibold sm:text-4xl">{streak}</p>
-          <p className="mt-1 text-xs text-white/75 sm:text-sm">Day streak</p>
+          <p className="mt-1 text-xs text-(--on-primary)/75 sm:text-sm">
+            Day streak
+          </p>
         </div>
         <div className="rounded-3xl border border-(--border) bg-(--surface) p-4 shadow-sm sm:p-5">
           <CalendarDays size={18} className="text-(--primary)" />

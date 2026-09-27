@@ -47,12 +47,12 @@ export const NotePage = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="max-w-xl rounded-2xl border border-[#eadbd5] bg-white p-6 text-[#75493c] shadow-sm sm:p-8">
+        <div className="max-w-xl rounded-2xl border border-(--border) bg-(--surface) p-6 text-(--primary) shadow-sm sm:p-8">
           <AlertCircle size={22} />
-          <h1 className="font-display mt-4 text-3xl text-[#0f151f]">
+          <h1 className="font-display mt-4 text-3xl text-(--text)">
             Your notes are unavailable
           </h1>
-          <p className="mt-3 leading-7 text-[#7e6862]">
+          <p className="mt-3 leading-7 text-(--muted-strong)">
             We couldn't load your saved reflections. Please refresh and try
             again.
           </p>

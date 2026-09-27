@@ -220,7 +220,7 @@ export const AskAboutPassage = ({
                         <div className="ml-8 rounded-2xl rounded-tr-md bg-(--primary) px-4 py-3 text-sm text-white">
                           <p
                             className="mb-1 text-xs font
-                        -semibold uppercase tracking-wide text-white/75"
+                        -semibold uppercase tracking-wide text-(--on-primary)/75"
                           >
                             You
                           </p>
