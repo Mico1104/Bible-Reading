@@ -1,6 +1,9 @@
+import { useState } from "react";
 import {
   BookMarked,
   BookOpen,
+  ChevronDown,
+  ChevronUp,
   Clock3,
   TrendingDown,
   TrendingUp,
@@ -9,6 +12,7 @@ import { usePointsHistory } from "./usePointsHistory";
 
 export const PointsHistory = () => {
   const { data, isLoading, isError } = usePointsHistory();
+  const [showAll, setShowAll] = useState(false);
 
   if (isLoading) {
     return (
@@ -30,6 +34,9 @@ export const PointsHistory = () => {
   if (isError || !data) {
     return null;
   }
+
+  const hasMore = data.length > 5;
+  const visibleItems = showAll ? data : data.slice(0, 5);
 
   return (
     <section
@@ -63,72 +70,103 @@ export const PointsHistory = () => {
           </p>
 
           <p className="mt-1 max-w-xs text-xs leading-5 text-(--muted)">
-            Complete your Daily Word or a Reading Plan day to
-            start earning points.
+            Complete your Daily Word or a Reading Plan day to start earning
+            points.
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-(--border)">
-          {data.map((item) => {
-            const isAdjustment = item.type === "adjustment";
-            const isDailyWord =
-              item.activityType === "daily_word";
+        <>
+          {/* History list */}
+          <div
+            className={
+              showAll ? "max-h-80 overflow-y-auto overscroll-contain" : ""
+            }
+          >
+            <div className="divide-y divide-(--border)">
+              {visibleItems.map((item) => {
+                const isAdjustment = item.type === "adjustment";
+                const isDailyWord = item.activityType === "daily_word";
 
-            return (
-              <div
-                key={item.id}
-                className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6"
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--surface-strong) text-(--muted)">
+                        {isAdjustment ? (
+                          <TrendingDown size={17} />
+                        ) : isDailyWord ? (
+                          <BookOpen size={17} />
+                        ) : (
+                          <BookMarked size={17} />
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-(--text)">
+                          {item.reason}
+                        </p>
+
+                        <p className="mt-0.5 text-[11px] text-(--muted)">
+                          {new Date(item.createdAt).toLocaleDateString(
+                            undefined,
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`flex shrink-0 items-center gap-1 text-sm font-bold ${
+                        isAdjustment ? "text-(--muted)" : "text-(--primary)"
+                      }`}
+                    >
+                      {isAdjustment ? (
+                        <TrendingDown size={14} />
+                      ) : (
+                        <TrendingUp size={14} />
+                      )}
+
+                      <span>
+                        {item.points > 0 ? "+" : ""}
+                        {item.points.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* View all / collapse */}
+          {hasMore && (
+            <div className="border-t border-(--border)">
+              <button
+                type="button"
+                onClick={() => setShowAll((current) => !current)}
+                className="flex w-full items-center justify-center gap-2 px-5 py-3.5 text-xs font-semibold text-(--primary) transition-colors hover:bg-(--surface-strong)"
+                aria-expanded={showAll}
               >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--surface-strong) text-(--muted)">
-                    {isAdjustment ? (
-                      <TrendingDown size={17} />
-                    ) : isDailyWord ? (
-                      <BookOpen size={17} />
-                    ) : (
-                      <BookMarked size={17} />
-                    )}
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-(--text)">
-                      {item.reason}
-                    </p>
-
-                    <p className="mt-0.5 text-[11px] text-(--muted)">
-                      {new Date(
-                        item.createdAt,
-                      ).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  className={`flex shrink-0 items-center gap-1 text-sm font-bold ${
-                    isAdjustment
-                      ? "text-(--muted)"
-                      : "text-(--primary)"
-                  }`}
-                >
-                  {isAdjustment ? (
-                    <TrendingDown size={14} />
-                  ) : (
-                    <TrendingUp size={14} />
-                  )}
-
-                  <span>
-                    {item.points > 0 ? "+" : ""}
-                    {item.points.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                {showAll ? (
+                  <>
+                    <ChevronUp size={15} />
+                    Hide history
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={15} />
+                    View all history
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );

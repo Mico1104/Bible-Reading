@@ -1,5 +1,12 @@
 import { useActiveReadingPlan } from "./useActiveReadingPlan";
-import { BookOpen, Check, Clock, Search, UserRound, X } from "lucide-react";
+import {
+  BookOpen,
+  Check,
+  Clock,
+  Search,
+  UserRound,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useReadingPlans, type ReadingPlan } from "./useReadingPlans";
@@ -34,11 +41,15 @@ export const ReadingPlansPage = () => {
   const [search, setSearch] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<ReadingPlan | null>(null);
 
-  const { data: plans = [], isLoading, error } = useReadingPlans(selectedType);
+  const { data: plans = [], isLoading, error } =
+    useReadingPlans(selectedType);
 
   const startReadingPlan = useStartReadingPlan();
 
-  const { data: activeReadingPlan } = useActiveReadingPlan();
+  const {
+    data: activeReadingPlan,
+    isLoading: isActivePlanLoading,
+  } = useActiveReadingPlan();
 
   const activePlanId = activeReadingPlan?.plan_id ?? null;
 
@@ -46,15 +57,23 @@ export const ReadingPlansPage = () => {
     plan.title.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const isSelectedPlanActive =
+    !!selectedPlan && activePlanId === selectedPlan.id;
+
+  const isAnotherPlanActive =
+    !!selectedPlan &&
+    !!activePlanId &&
+    activePlanId !== selectedPlan.id;
+
   const handleStartPlan = () => {
     if (!selectedPlan) return;
 
-    startReadingPlan.mutate(selectedPlan.id, {
-      onSuccess: () => {
-        setSelectedPlan(null);
-        navigate("/dashboard");
-      },
-    });
+    startReadingPlan.mutate(selectedPlan.id);
+  };
+
+  const handleContinuePlan = () => {
+    setSelectedPlan(null);
+    navigate("/dashboard");
   };
 
   return (
@@ -152,6 +171,35 @@ export const ReadingPlansPage = () => {
         </div>
       </section>
 
+      {/* Active plan summary */}
+      {activeReadingPlan?.reading_plan && (
+        <section className="mb-8 rounded-2xl border border-(--primary)/30 bg-(--primary)/10 p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
+                Currently following
+              </p>
+
+              <h2 className="mt-1 text-lg font-bold">
+                {activeReadingPlan.reading_plan.title}
+              </h2>
+
+              <p className="mt-1 text-sm text-(--muted-text)">
+                Continue this plan from your Dashboard.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard")}
+              className="rounded-xl bg-(--primary) px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Continue
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* Results */}
       <section>
         <div className="mb-4">
@@ -192,7 +240,10 @@ export const ReadingPlansPage = () => {
 
         {!isLoading && !error && filteredPlans.length === 0 && (
           <div className="rounded-2xl border border-dashed border-(--border) bg-(--card) px-6 py-12 text-center">
-            <BookOpen size={32} className="mx-auto mb-3 text-(--muted-text)" />
+            <BookOpen
+              size={32}
+              className="mx-auto mb-3 text-(--muted-text)"
+            />
 
             <h3 className="font-semibold">
               {search ? "No matching plans" : `No ${selectedType} plans yet`}
@@ -208,39 +259,61 @@ export const ReadingPlansPage = () => {
 
         {!isLoading && !error && filteredPlans.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2">
-            {filteredPlans.map((plan) => (
-              <article
-                key={plan.id}
-                className="rounded-2xl border border-(--border) bg-(--card) p-5 transition hover:border-(--primary)/50"
-              >
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium uppercase tracking-wide text-(--primary)">
-                      {plan.plan_type}
-                    </span>
+            {filteredPlans.map((plan) => {
+              const isActive = activePlanId === plan.id;
+              const anotherPlanIsActive =
+                !!activePlanId && activePlanId !== plan.id;
 
-                    <h3 className="mt-1 text-lg font-bold">{plan.title}</h3>
-                  </div>
-
-                  <div className="flex shrink-0 items-center gap-1.5 rounded-lg bg-(--background) px-2.5 py-1.5 text-xs font-medium">
-                    <Clock size={14} />
-                    {plan.duration_days} days
-                  </div>
-                </div>
-
-                <p className="text-sm leading-6 text-(--muted-text)">
-                  {plan.description || "No description available."}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedPlan(plan)}
-                  className="mt-5 w-full rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              return (
+                <article
+                  key={plan.id}
+                  className={`rounded-2xl border bg-(--card) p-5 transition ${
+                    isActive
+                      ? "border-(--primary)/50"
+                      : "border-(--border) hover:border-(--primary)/50"
+                  }`}
                 >
-                  View Plan
-                </button>
-              </article>
-            ))}
+                  <div className="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                      <span className="text-xs font-medium uppercase tracking-wide text-(--primary)">
+                        {plan.plan_type}
+                      </span>
+
+                      <h3 className="mt-1 text-lg font-bold">{plan.title}</h3>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-1.5 rounded-lg bg-(--background) px-2.5 py-1.5 text-xs font-medium">
+                      <Clock size={14} />
+                      {plan.duration_days} days
+                    </div>
+                  </div>
+
+                  <p className="text-sm leading-6 text-(--muted-text)">
+                    {plan.description || "No description available."}
+                  </p>
+
+                  {isActive && (
+                    <div className="mt-4 rounded-xl bg-(--primary)/10 px-3 py-2.5 text-sm font-medium text-(--primary)">
+                      You're currently following this plan.
+                    </div>
+                  )}
+
+                  {anotherPlanIsActive && (
+                    <div className="mt-4 rounded-xl bg-(--background) px-3 py-2.5 text-sm text-(--muted-text)">
+                      You already have an active reading plan.
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlan(plan)}
+                    className="mt-5 w-full rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                  >
+                    {isActive ? "Continue Plan" : "View Plan"}
+                  </button>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
@@ -260,7 +333,10 @@ export const ReadingPlansPage = () => {
                   {selectedPlan.plan_type} reading plan
                 </span>
 
-                <h2 id="reading-plan-title" className="mt-1 text-2xl font-bold">
+                <h2
+                  id="reading-plan-title"
+                  className="mt-1 text-2xl font-bold"
+                >
                   {selectedPlan.title}
                 </h2>
               </div>
@@ -297,7 +373,10 @@ export const ReadingPlansPage = () => {
 
             <div className="mt-6 space-y-3">
               <div className="flex items-start gap-3">
-                <Check size={18} className="mt-0.5 shrink-0 text-(--primary)" />
+                <Check
+                  size={18}
+                  className="mt-0.5 shrink-0 text-(--primary)"
+                />
 
                 <p className="text-sm text-(--muted-text)">
                   Read the assigned passages each day.
@@ -305,7 +384,10 @@ export const ReadingPlansPage = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <Check size={18} className="mt-0.5 shrink-0 text-(--primary)" />
+                <Check
+                  size={18}
+                  className="mt-0.5 shrink-0 text-(--primary)"
+                />
 
                 <p className="text-sm text-(--muted-text)">
                   Track your progress separately from Daily Word.
@@ -313,7 +395,10 @@ export const ReadingPlansPage = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <Check size={18} className="mt-0.5 shrink-0 text-(--primary)" />
+                <Check
+                  size={18}
+                  className="mt-0.5 shrink-0 text-(--primary)"
+                />
 
                 <p className="text-sm text-(--muted-text)">
                   Use your existing Bible translation settings.
@@ -321,8 +406,14 @@ export const ReadingPlansPage = () => {
               </div>
             </div>
 
-            {/* Active plan / Start plan */}
-            {activePlanId === selectedPlan.id ? (
+            {/* Enrollment state */}
+            {isActivePlanLoading ? (
+              <div className="mt-6 rounded-2xl bg-(--background) p-4 text-center">
+                <p className="text-sm text-(--muted-text)">
+                  Checking your current reading plan...
+                </p>
+              </div>
+            ) : isSelectedPlanActive ? (
               <>
                 <div className="mt-6 rounded-2xl border border-(--primary)/30 bg-(--primary)/10 p-4">
                   <p className="text-sm font-semibold">
@@ -336,13 +427,33 @@ export const ReadingPlansPage = () => {
 
                 <button
                   type="button"
+                  onClick={handleContinuePlan}
+                  className="mt-6 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90"
+                >
+                  Continue Reading Plan
+                </button>
+              </>
+            ) : isAnotherPlanActive ? (
+              <>
+                <div className="mt-6 rounded-2xl border border-(--border) bg-(--background) p-4">
+                  <p className="text-sm font-semibold">
+                    You're already following another plan.
+                  </p>
+
+                  <p className="mt-1 text-sm leading-5 text-(--muted-text)">
+                    Complete your current plan before starting a new one.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
                   onClick={() => {
                     setSelectedPlan(null);
                     navigate("/dashboard");
                   }}
                   className="mt-6 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90"
                 >
-                  Continue Reading Plan
+                  Continue Current Plan
                 </button>
               </>
             ) : (
@@ -352,7 +463,9 @@ export const ReadingPlansPage = () => {
                 disabled={startReadingPlan.isPending}
                 className="mt-8 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {startReadingPlan.isPending ? "Starting plan..." : "Start Plan"}
+                {startReadingPlan.isPending
+                  ? "Starting plan..."
+                  : "Start Plan"}
               </button>
             )}
 
@@ -360,7 +473,7 @@ export const ReadingPlansPage = () => {
               type="button"
               onClick={() => setSelectedPlan(null)}
               disabled={startReadingPlan.isPending}
-              className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-medium text-(--muted-text) transition hover:bg-(--background)"
+              className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-medium text-(--muted-text) transition hover:bg-(--background) disabled:cursor-not-allowed disabled:opacity-60"
             >
               Maybe Later
             </button>

@@ -38,10 +38,18 @@ export const useActiveReadingPlan = () => {
         throw error;
       }
 
-      return data;
+      if (!data) {
+        return null;
+      }
+
+      return {
+        ...data,
+        reading_plan: Array.isArray(data.reading_plan)
+          ? data.reading_plan[0] ?? null
+          : data.reading_plan,
+      };
     },
 
     enabled: !!userId,
   });
 };
-
