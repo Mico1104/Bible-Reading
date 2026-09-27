@@ -1,3 +1,5 @@
+import { ReadingBadge } from "@/features/points/ReadingBadge";
+import { ReadingPointsCard } from "@/features/points/ReadingPointsCard";
 import { useReadingPlanDays } from "@/features/reading-plans/useReadingPlanDays";
 import { useReadingPlanPassages } from "../reading-plans/useReadingPlanPassage";
 import { useMarkPlanDayComplete } from "@/features/reading-plans/useMarkPlanDayComplete";
@@ -302,6 +304,10 @@ export const DashboardPage = () => {
               {profile?.name ?? profile?.username}
             </h1>
 
+            <div className="mt-3">
+              <ReadingBadge size="sm" />
+            </div>
+
             <p className="mt-2 text-sm text-(--muted-strong)">
               Ready for today's reading?
             </p>
@@ -400,6 +406,8 @@ export const DashboardPage = () => {
             </p>
           )}
         </motion.div>
+
+        <ReadingPointsCard />
 
         {/* ------------------------------------------------------------
             DAILY WORD PROGRESS

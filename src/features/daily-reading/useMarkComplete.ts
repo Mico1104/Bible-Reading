@@ -27,15 +27,18 @@ export const useMarkComplete = () => {
     },
 
     onSuccess: (newStreak) => {
-      queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
-      queryClient.invalidateQueries({ queryKey: ["progress"] });
-      queryClient.invalidateQueries({ queryKey: ["streak-data"] });
+  queryClient.invalidateQueries({ queryKey: ["todays-reading"] });
+  queryClient.invalidateQueries({ queryKey: ["progress"] });
+  queryClient.invalidateQueries({ queryKey: ["streak-data"] });
 
-      if (newStreak && isMilestoneStreak(newStreak)) {
-        toast.success(`🔥 ${newStreak}-day streak! Keep going.`);
-      } else {
-        toast.success("Marked as read - well done!");
-      }
-    },
+  // Refresh the Reading Points card immediately
+  queryClient.invalidateQueries({ queryKey: ["reading-points", userId] });
+
+  if (newStreak && isMilestoneStreak(newStreak)) {
+    toast.success(`🔥 ${newStreak}-day streak! Keep going.`);
+  } else {
+    toast.success("Marked as read - well done!");
+  }
+},
   });
 };

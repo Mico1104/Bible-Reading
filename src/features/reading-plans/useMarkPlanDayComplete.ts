@@ -102,11 +102,13 @@ export const useMarkPlanDayComplete = () => {
       }
 
       // Supabase returns the related reading_plan as an array.
-      const readingPlan = userPlan.reading_plan?.[0];
+      const readingPlan = Array.isArray(userPlan.reading_plan)
+  ? userPlan.reading_plan[0]
+  : userPlan.reading_plan;
 
-      if (!readingPlan) {
-        throw new Error("Reading plan details could not be found.");
-      }
+if (!readingPlan) {
+  throw new Error("Reading plan details could not be found.");
+}
 
       const durationDays = readingPlan.duration_days;
 
@@ -152,26 +154,23 @@ export const useMarkPlanDayComplete = () => {
     },
 
     onSuccess: ({ dayNumber, planCompleted }) => {
-      queryClient.invalidateQueries({
-        queryKey: ["today-reading-plan"],
-      });
+  queryClient.invalidateQueries({ queryKey: ["today-reading-plan"] });
+  queryClient.invalidateQueries({ queryKey: ["progress"] });
+  queryClient.invalidateQueries({ queryKey: ["reading-plans"] });
 
-      queryClient.invalidateQueries({
-        queryKey: ["progress"],
-      });
+  // Refresh reading points
+  queryClient.invalidateQueries({
+    queryKey: ["reading-points", userId],
+  });
 
-      queryClient.invalidateQueries({
-        queryKey: ["reading-plans"],
-      });
-
-      if (planCompleted) {
-        toast.success(
-          "Congratulations! You have completed the entire reading plan.",
-        );
-      } else {
-        toast.success(`Day ${dayNumber} completed! Keep going.`);
-      }
-    },
+  if (planCompleted) {
+    toast.success(
+      "Congratulations! You have completed the entire reading plan.",
+    );
+  } else {
+    toast.success(`Day ${dayNumber} completed! Keep going.`);
+  }
+},
 
     onError: (error) => {
       toast.error(error.message || "Unable to complete this reading plan day.");
