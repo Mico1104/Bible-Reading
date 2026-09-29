@@ -48,7 +48,7 @@ export const Layout = () => {
                   <BookOpen size={18} strokeWidth={2.5} />
                 </span>
                 <span className="font-display text-base sm:text-lg">
-                  Daily Bible Reading
+                  Daily Word
                 </span>
               </Link>
 

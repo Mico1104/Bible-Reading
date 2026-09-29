@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/stores/authStore";
 
 import {
   getReadingPlanSuggestion,
@@ -7,15 +8,36 @@ import {
 } from "./readingPlanSuggestions";
 
 import type { ReadingPlan } from "./useReadingPlans";
+import { useActiveReadingPlan } from "./useActiveReadingPlan";
+import { useCompletedReadingPlans } from "./useCompleteReadingPlans";
 
 export const useReadingPlanSuggestions = (
   interest: ReadingGrowthInterest | null,
 ) => {
+  const userId = useAuthStore((state) => state.user?.id);
+
+  const { data: activeReadingPlan } = useActiveReadingPlan();
+
+  const { data: completedPlans = [] } = useCompletedReadingPlans();
+
+  const completedPlanSlugs = new Set(
+    completedPlans
+      .map((plan) => plan.slug)
+      .filter((slug): slug is string => Boolean(slug)),
+  );
+
+  const activePlanSlug = activeReadingPlan?.reading_plan?.slug ?? null;
+
   return useQuery({
-    queryKey: ["reading-plan-suggestions", interest],
+    queryKey: [
+      "reading-plan-suggestions",
+      interest,
+      activePlanSlug,
+      [...completedPlanSlugs].sort(),
+    ],
 
     queryFn: async (): Promise<ReadingPlan[]> => {
-      if (!interest) {
+      if (!interest || !userId) {
         return [];
       }
 
@@ -43,19 +65,28 @@ export const useReadingPlanSuggestions = (
 
       const plans = (data ?? []) as ReadingPlan[];
 
-      /*
-       * Supabase does not guarantee that the returned rows
-       * follow the same order as planSlugs.
-       *
-       * Reorder them so the suggestions appear in the
-       * intentional order defined in readingPlanSuggestions.ts.
-       */
       return suggestion.planSlugs
         .map((slug) => plans.find((plan) => plan.slug === slug))
-        .filter((plan): plan is ReadingPlan => Boolean(plan));
+        .filter((plan): plan is ReadingPlan => {
+          if (!plan) {
+            return false;
+          }
+
+          // Do not recommend the plan the user is currently following.
+          if (plan.slug === activePlanSlug) {
+            return false;
+          }
+
+          // Do not recommend plans the user has already completed.
+          if (completedPlanSlugs.has(plan.slug)) {
+            return false;
+          }
+
+          return true;
+        });
     },
 
-    enabled: Boolean(interest),
+    enabled: Boolean(interest && userId),
   });
 };
 
