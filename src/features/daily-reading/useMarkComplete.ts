@@ -4,6 +4,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { isMilestoneStreak } from "../progress/insights";
 
+const ALREADY_COMPLETED_MESSAGE =
+  "Today's Daily Word is already marked as complete";
+
 export const useMarkComplete = () => {
   const userId = useAuthStore((state) => state.user?.id);
   const queryClient = useQueryClient();
@@ -21,6 +24,15 @@ export const useMarkComplete = () => {
       });
 
       if (error) {
+        // A duplicate completion is an expected user action,
+        // not a real application failure.
+        if (error.message === ALREADY_COMPLETED_MESSAGE) {
+          return {
+            alreadyCompleted: true,
+            newStreak: 0,
+          };
+        }
+
         throw error;
       }
 
@@ -34,10 +46,18 @@ export const useMarkComplete = () => {
         throw statsError;
       }
 
-      return stats?.current_streak ?? 0;
+      return {
+        alreadyCompleted: false,
+        newStreak: stats?.current_streak ?? 0,
+      };
     },
 
-    onSuccess: (newStreak) => {
+    onSuccess: ({ alreadyCompleted, newStreak }) => {
+      if (alreadyCompleted) {
+        toast.info("Today's Daily Word is already marked as complete.");
+        return;
+      }
+
       queryClient.invalidateQueries({
         queryKey: ["todays-reading"],
       });
@@ -76,3 +96,4 @@ export const useMarkComplete = () => {
     },
   });
 };
+
