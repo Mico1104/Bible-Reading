@@ -64,11 +64,14 @@ export const useStartReadingPlan = () => {
       queryClient.invalidateQueries({
         queryKey: ["today-reading-plan"],
       });
-
+    
       queryClient.invalidateQueries({
         queryKey: ["reading-plans"],
       });
 
+queryClient.invalidateQueries({
+  queryKey: ["active-reading-plan", userId],
+});
       toast.success("Reading plan started!");
     },
 

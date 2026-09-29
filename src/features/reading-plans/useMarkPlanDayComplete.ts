@@ -50,6 +50,14 @@ export const useMarkPlanDayComplete = () => {
         queryKey: ["reading-points", userId],
       });
 
+      queryClient.invalidateQueries({
+  queryKey: ["active-reading-plan", userId],
+});
+
+queryClient.invalidateQueries({
+  queryKey: ["completed-reading-plans", userId],
+});
+
       toast.success("Today's reading plan is complete!");
     },
 
