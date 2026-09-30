@@ -1,3 +1,4 @@
+import { useCompletedReadingPlans } from "./useCompleteReadingPlans";
 import { useActiveReadingPlan } from "./useActiveReadingPlan";
 import {
   BookOpen,
@@ -62,7 +63,34 @@ export const ReadingPlansPage = () => {
   const { data: activeReadingPlan, isLoading: isActivePlanLoading } =
     useActiveReadingPlan();
 
-  const activePlanId = activeReadingPlan?.plan_id ?? null;
+  const { data: enrolledPlans = [], isLoading: isCompletedPlansLoading } =
+    useCompletedReadingPlans();
+
+  /*
+   * A user_plans row can still have status = "active" even after
+   * the user has completed every day of the plan.
+   *
+   * Therefore, we do not use activeReadingPlan.plan_id directly
+   * as the UI's active plan.
+   */
+  const databaseActivePlanId = activeReadingPlan?.plan_id ?? null;
+
+  const completedPlanIds = new Set(
+    enrolledPlans.filter((plan) => plan.isCompleted).map((plan) => plan.planId),
+  );
+
+  /*
+   * This is the active plan from the UI's point of view.
+   *
+   * If the database says a plan is active but our progress query
+   * says it is completed, we treat it as completed instead.
+   */
+  const activePlanId =
+    databaseActivePlanId && !completedPlanIds.has(databaseActivePlanId)
+      ? databaseActivePlanId
+      : null;
+
+  const isPlanStateLoading = isActivePlanLoading || isCompletedPlansLoading;
 
   const filteredPlans = plans.filter((plan) =>
     plan.title.toLowerCase().includes(search.toLowerCase()),
@@ -75,8 +103,14 @@ export const ReadingPlansPage = () => {
   const isSelectedPlanActive =
     !!selectedPlan && activePlanId === selectedPlan.id;
 
+  const isSelectedPlanCompleted =
+    !!selectedPlan && completedPlanIds.has(selectedPlan.id);
+
   const isAnotherPlanActive =
-    !!selectedPlan && !!activePlanId && activePlanId !== selectedPlan.id;
+    !!selectedPlan &&
+    !!activePlanId &&
+    activePlanId !== selectedPlan.id &&
+    !isSelectedPlanCompleted;
 
   const handleStartPlan = () => {
     if (!selectedPlan) return;
@@ -93,6 +127,28 @@ export const ReadingPlansPage = () => {
     setSelectedInterest((current) => (current === interest ? null : interest));
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+
+    const normalizedSearch = value.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      setSelectedInterest(null);
+      return;
+    }
+
+    const matchingInterest = readingPlanSuggestions.find(
+      (suggestion) =>
+        suggestion.label.toLowerCase() === normalizedSearch ||
+        suggestion.interest.toLowerCase() === normalizedSearch,
+    );
+
+    if (matchingInterest) {
+      setSelectedInterest(matchingInterest.interest);
+    } else {
+      setSelectedInterest(null);
+    }
+  };
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       {/* Header */}
@@ -239,6 +295,7 @@ export const ReadingPlansPage = () => {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {suggestedPlans.map((plan) => {
                   const isActive = activePlanId === plan.id;
+
                   const anotherPlanIsActive =
                     !!activePlanId && activePlanId !== plan.id;
 
@@ -315,7 +372,7 @@ export const ReadingPlansPage = () => {
             id="reading-plan-search"
             type="search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Search reading plans..."
             className="w-full rounded-2xl border border-(--border) bg-(--card) py-3.5 pl-11 pr-11 text-sm outline-none transition focus:border-(--primary)"
           />
@@ -377,33 +434,35 @@ export const ReadingPlansPage = () => {
       </section>
 
       {/* Active plan summary */}
-      {activeReadingPlan?.reading_plan && (
-        <section className="mb-8 rounded-2xl border border-(--primary)/30 bg-(--primary)/10 p-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
-                Currently following
-              </p>
+      {!isPlanStateLoading &&
+        activePlanId &&
+        activeReadingPlan?.reading_plan && (
+          <section className="mb-8 rounded-2xl border border-(--primary)/30 bg-(--primary)/10 p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-(--primary)">
+                  Currently following
+                </p>
 
-              <h2 className="mt-1 text-lg font-bold">
-                {activeReadingPlan.reading_plan.title}
-              </h2>
+                <h2 className="mt-1 text-lg font-bold">
+                  {activeReadingPlan.reading_plan.title}
+                </h2>
 
-              <p className="mt-1 text-sm text-(--muted-text)">
-                Continue this plan from your Dashboard.
-              </p>
+                <p className="mt-1 text-sm text-(--muted-text)">
+                  Continue this plan from your Dashboard.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard")}
+                className="rounded-xl bg-(--primary) px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Continue
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/dashboard")}
-              className="rounded-xl bg-(--primary) px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-            >
-              Continue
-            </button>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
       {/* Results */}
       <section>
@@ -463,14 +522,16 @@ export const ReadingPlansPage = () => {
           <div className="grid gap-4 md:grid-cols-2">
             {filteredPlans.map((plan) => {
               const isActive = activePlanId === plan.id;
+              const isCompleted = completedPlanIds.has(plan.id);
+
               const anotherPlanIsActive =
-                !!activePlanId && activePlanId !== plan.id;
+                !!activePlanId && activePlanId !== plan.id && !isCompleted;
 
               return (
                 <article
                   key={plan.id}
                   className={`rounded-2xl border bg-(--card) p-5 transition ${
-                    isActive
+                    isActive && !isCompleted
                       ? "border-(--primary)/50"
                       : "border-(--border) hover:border-(--primary)/50"
                   }`}
@@ -494,7 +555,16 @@ export const ReadingPlansPage = () => {
                     {plan.description || "No description available."}
                   </p>
 
-                  {isActive && (
+                  {isCompleted && (
+                    <div className="mt-4 rounded-xl bg-green-500/10 px-3 py-2.5 text-sm font-medium text-green-600">
+                      <div className="flex items-center gap-2">
+                        <Check size={16} />
+                        You've completed this plan.
+                      </div>
+                    </div>
+                  )}
+
+                  {!isCompleted && isActive && (
                     <div className="mt-4 rounded-xl bg-(--primary)/10 px-3 py-2.5 text-sm font-medium text-(--primary)">
                       You're currently following this plan.
                     </div>
@@ -511,7 +581,11 @@ export const ReadingPlansPage = () => {
                     onClick={() => setSelectedPlan(plan)}
                     className="mt-5 w-full rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
                   >
-                    {isActive ? "Continue Plan" : "View Plan"}
+                    {isCompleted
+                      ? "View Plan"
+                      : isActive
+                        ? "Continue Plan"
+                        : "View Plan"}
                   </button>
                 </article>
               );
@@ -597,61 +671,36 @@ export const ReadingPlansPage = () => {
             </div>
 
             {/* Enrollment state */}
-            {isActivePlanLoading ? (
-              <div className="mt-6 rounded-2xl bg-(--background) p-4 text-center">
-                <p className="text-sm text-(--muted-text)">
-                  Checking your current reading plan...
-                </p>
+            {isPlanStateLoading ? (
+              <div className="mt-6 rounded-xl bg-(--background) px-4 py-3 text-center text-sm text-(--muted-text)">
+                Checking your reading plan...
+              </div>
+            ) : isSelectedPlanCompleted ? (
+              <div className="mt-6 rounded-xl bg-green-500/10 px-4 py-3 text-sm font-medium text-green-600">
+                <div className="flex items-center gap-2">
+                  <Check size={18} />
+                  You've completed this reading plan.
+                </div>
               </div>
             ) : isSelectedPlanActive ? (
-              <>
-                <div className="mt-6 rounded-2xl border border-(--primary)/30 bg-(--primary)/10 p-4">
-                  <p className="text-sm font-semibold">
-                    You're currently following this plan.
-                  </p>
-
-                  <p className="mt-1 text-sm text-(--muted-text)">
-                    Continue from your Dashboard to keep making progress.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleContinuePlan}
-                  className="mt-6 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90"
-                >
-                  Continue Reading Plan
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={handleContinuePlan}
+                className="mt-6 w-full rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Continue Plan
+              </button>
             ) : isAnotherPlanActive ? (
-              <>
-                <div className="mt-6 rounded-2xl border border-(--border) bg-(--background) p-4">
-                  <p className="text-sm font-semibold">
-                    You're already following another plan.
-                  </p>
-
-                  <p className="mt-1 text-sm leading-5 text-(--muted-text)">
-                    Complete your current plan before starting a new one.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedPlan(null);
-                    navigate("/dashboard");
-                  }}
-                  className="mt-6 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90"
-                >
-                  Continue Current Plan
-                </button>
-              </>
+              <div className="mt-6 rounded-xl bg-(--background) px-4 py-3 text-sm text-(--muted-text)">
+                You already have an active reading plan. Complete it before
+                starting another one.
+              </div>
             ) : (
               <button
                 type="button"
                 onClick={handleStartPlan}
                 disabled={startReadingPlan.isPending}
-                className="mt-8 w-full rounded-xl bg-(--primary) px-4 py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-6 w-full rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {startReadingPlan.isPending ? "Starting plan..." : "Start Plan"}
               </button>
