@@ -13,14 +13,9 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useVerses, useVerse } from "./useVerse";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import {
-  BookOpen,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  FileText,
-  Bookmark,
-} from "lucide-react";
+import { BookOpen, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { BookmarkIcon } from "@heroicons/react/24/outline";
+import { IconFlame, IconNotes } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
 import { seededRandomIndex } from "@/lib/random";
 import { OnboardingContent } from "./OnboardingContent";
@@ -198,7 +193,7 @@ export const DashboardPage = () => {
 
   if (data?.notStartedYet) {
     return (
-      <div className="mx-auto max-w-md p-6 text-center">
+      <div className="content-width page-shell flex flex-col items-center justify-center text-center">
         <h1 className="font-display text-2xl">Almost there</h1>
         <p>
           Your reading plan begins on{" "}
@@ -211,11 +206,11 @@ export const DashboardPage = () => {
   if (isLoading) {
     return (
       <motion.div
-        className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
+        className="content-width page-shell flex flex-col items-center justify-center py-8 sm:py-12"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="animate-pulse-soft max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8">
+        <div className="animate-pulse-soft w-full max-w-3xl rounded-2xl border border-(--border) bg-(--surface) p-5 shadow-sm sm:p-8">
           <div className="skeleton-line h-4 w-24" />
           <div className="skeleton-line mt-5 h-10 max-w-md" />
           <div className="skeleton-line mt-8 h-28" />
@@ -231,7 +226,7 @@ export const DashboardPage = () => {
 
   if (error || !data) {
     return (
-      <div className="mx-auto max-w-md p-6 text-center">
+      <div className="content-width page-shell flex flex-col items-center justify-center text-center">
         <h1 className="font-display text-2xl">Something went wrong</h1>
 
         <p className="mt-2 text-sm text-(--muted-strong)">
@@ -295,17 +290,16 @@ export const DashboardPage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45 }}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
               {greeting}
             </p>
 
-            <h1 className="font-display mt-2 text-3xl text-(--text) sm:text-4xl">
-              {profile?.name ?? profile?.username}
-            </h1>
-
-            <div className="mt-3">
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h1 className="font-display min-w-0 text-3xl text-(--text) sm:text-4xl">
+                {profile?.name ?? profile?.username}
+              </h1>
               <ReadingBadge size="sm" />
             </div>
 
@@ -314,14 +308,17 @@ export const DashboardPage = () => {
             </p>
           </div>
 
-          <div className="shrink-0 rounded-2xl border border-(--border) bg-(--surface) px-3 py-2.5 text-right shadow-sm">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
-              🔥 Streak
-            </p>
-
-            <p className="mt-1 text-sm font-semibold text-(--primary)">
-              {streak ?? 0} day{streak === 1 ? "" : "s"}
-            </p>
+          <div className="inline-flex shrink-0 items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3 py-2">
+            <IconFlame
+              size={17}
+              stroke={1.8}
+              className="text-(--primary)"
+              aria-hidden="true"
+            />
+            <span className="text-xs text-(--muted-strong)">Streak</span>
+            <span className="text-sm font-semibold text-(--text)">
+              {streak ?? 0}d
+            </span>
           </div>
         </div>
 
@@ -329,7 +326,7 @@ export const DashboardPage = () => {
             DAILY WORD
         ------------------------------------------------------------- */}
         <motion.div
-          className="mt-8 max-w-3xl rounded-[1.75rem] border border-(--border) bg-(--surface) p-5 shadow-[0_16px_32px_var(--shadow)] sm:p-7"
+          className="mt-7 max-w-3xl rounded-3xl border border-(--border) bg-(--surface) p-5 shadow-[0_16px_32px_var(--shadow)] sm:p-7"
           data-onboarding="todays-reading"
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -408,6 +405,16 @@ export const DashboardPage = () => {
           )}
         </motion.div>
 
+        <div className="flex max-w-3xl justify-end">
+          <AskAboutPassage
+            englishChapters={englishChapters}
+            responseLanguage={responseLanguage}
+            isOpen={isAskOpen}
+            onOpen={() => setIsAskOpen(true)}
+            onClose={() => setIsAskOpen(false)}
+          />
+        </div>
+
         <ReadingPointsCard />
         <PointsHistory />
 
@@ -481,15 +488,15 @@ export const DashboardPage = () => {
         ------------------------------------------------------------- */}
         {readingPlanEnrolled && (
           <motion.div
-            className="mt-8 max-w-3xl rounded-[1.75rem] border border-(--border) bg-(--surface) p-5 shadow-[0_16px_32px_var(--shadow)] sm:p-7"
+            className="mt-8 max-w-3xl border-t border-(--border) pt-6"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18, duration: 0.45 }}
           >
             <div className="flex items-center justify-between gap-3">
-              <p className="inline-flex items-center gap-2 rounded-full bg-(--surface-strong) px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
+              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-(--muted-strong)">
                 <BookOpen size={14} />
-                Reading Plan
+                Optional Reading Plan
               </p>
 
               {readingPlan && (
@@ -519,6 +526,14 @@ export const DashboardPage = () => {
                   You've completed this Reading Plan. Well done for staying
                   faithful to the journey.
                 </p>
+
+                <Link
+                  to="/reading-plans"
+                  className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:bg-(--primary-strong)"
+                >
+                  <BookOpen size={17} />
+                  Explore Another Plan
+                </Link>
               </div>
             ) : readingPlan ? (
               <>
@@ -796,55 +811,48 @@ export const DashboardPage = () => {
             Quick actions
           </p>
 
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <Link
+              to="/reading-plans"
+              className="group flex items-center gap-3 rounded-xl border border-(--border) bg-(--surface) p-3 text-left transition hover:border-(--primary)/30 hover:bg-(--surface-strong)"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--surface-strong) text-(--primary)">
+                <BookOpen size={18} aria-hidden="true" />
+              </div>
+              <span className="text-sm font-semibold text-(--text)">
+                Reading Plans
+              </span>
+            </Link>
             <Link
               to="/bookmarks"
-              className="group rounded-2xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary)/30 hover:shadow-md"
+              className="group flex items-center gap-3 rounded-xl border border-(--border) bg-(--surface) p-3 text-left transition hover:border-(--primary)/30 hover:bg-(--surface-strong)"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--surface-strong) text-(--primary)">
-                <Bookmark size={18} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--primary)/10 text-(--primary)">
+                <BookmarkIcon className="h-4.5 w-4.5" aria-hidden="true" />
               </div>
-
-              <p className="mt-3 text-sm font-semibold text-(--text)">
+              <span className="text-sm font-semibold text-(--text)">
                 Bookmarks
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-(--muted)">
-                View your saved verses
-              </p>
+              </span>
             </Link>
 
             <Link
               to="/notes"
-              className="group rounded-2xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary)/30 hover:shadow-md"
+              className="group flex items-center gap-3 rounded-xl border border-(--border) bg-(--surface) p-3 text-left transition hover:border-(--primary)/30 hover:bg-(--surface-strong)"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--surface-strong) text-(--primary)">
-                <FileText size={18} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--surface-strong) text-(--secondary)">
+                <IconNotes size={19} stroke={1.8} aria-hidden="true" />
               </div>
-
-              <p className="mt-3 text-sm font-semibold text-(--text)">Notes</p>
-
-              <p className="mt-1 text-xs leading-5 text-(--muted)">
-                Write and revisit your thoughts
-              </p>
+              <span className="text-sm font-semibold text-(--text)">Notes</span>
             </Link>
           </div>
         </div>
-
-        <AskAboutPassage
-          englishChapters={englishChapters}
-          responseLanguage={responseLanguage}
-          isOpen={isAskOpen}
-          onOpen={() => setIsAskOpen(true)}
-          onClose={() => setIsAskOpen(false)}
-        />
 
         {/* ------------------------------------------------------------
             REFLECTION
         ------------------------------------------------------------- */}
         <div
           data-onboarding="reflection"
-          className="mt-6 rounded-2xl border border-(--border) bg-(--surface) p-4 shadow-sm"
+          className="mt-8 max-w-3xl border-l-2 border-(--border-strong) pl-4"
         >
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
             Reflect

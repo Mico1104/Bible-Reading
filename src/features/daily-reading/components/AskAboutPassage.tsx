@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAskAboutPassage } from "../useAskAboutPassage";
 import { AiResponse } from "./AiResponse";
-import { Sparkles, X, Send } from "lucide-react";
+import { ArrowUpRight, Sparkles, X, Send } from "lucide-react";
 
 export const AskAboutPassage = ({
   englishChapters,
@@ -107,26 +107,19 @@ export const AskAboutPassage = ({
         data-onboarding="ask-about-passage"
         type="button"
         onClick={onOpen}
-        className="mt-6 flex w-full items-center justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-(--primary) hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--background) sm:p-5"
-        whileTap={{ scale: 0.99 }}
+        className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-(--border) bg-(--surface) px-3.5 py-2 text-left text-sm font-semibold text-(--primary) shadow-sm transition hover:border-(--primary)/40 hover:bg-(--surface-strong) hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--background)"
+        whileHover={{ y: -1 }}
+        whileTap={{ scale: 0.98 }}
         aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-label="Ask about today's passage"
+        title="Ask about today's passage"
       >
-        <span className="flex min-w-0 items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-(--surface-muted) text-(--primary)">
-            <Sparkles size={18} aria-hidden="true" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-semibold text-(--text)">
-              Ask about today's passage
-            </span>
-            <span className="mt-1 block text-sm text-(--muted-strong)">
-              Explore today's reading with questions and reflection.
-            </span>
-          </span>
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-(--surface-muted) text-(--primary)">
+          <Sparkles size={18} aria-hidden="true" />
         </span>
-        <span className="shrink-0 text-sm font-semibold text-(--primary)">
-          Ask
-        </span>
+        <span className="truncate">Ask about this passage</span>
+        <ArrowUpRight size={16} aria-hidden="true" />
       </motion.button>
 
       <AnimatePresence>

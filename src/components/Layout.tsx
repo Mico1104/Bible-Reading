@@ -68,6 +68,21 @@ export const Layout = () => {
               >
                 <NavLink
                   onClick={() => setMenuOpen(false)}
+                  to="/reading-plans"
+                  className={({ isActive }) =>
+                    `${navItemClass} ${
+                      isActive
+                        ? "bg-(--surface-strong) text-(--primary)"
+                        : "text-(--muted-strong) hover:bg-(--surface-strong) hover:text-(--text)"
+                    }`
+                  }
+                >
+                  <BookOpen size={16} />
+                  <span>Reading Plans</span>
+                </NavLink>
+
+                <NavLink
+                  onClick={() => setMenuOpen(false)}
                   to="/progress"
                   className={({ isActive }) =>
                     `${navItemClass} ${
