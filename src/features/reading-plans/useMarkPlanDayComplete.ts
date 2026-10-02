@@ -51,13 +51,16 @@ export const useMarkPlanDayComplete = () => {
       });
 
       queryClient.invalidateQueries({
-  queryKey: ["active-reading-plan", userId],
-});
+        queryKey: ["active-reading-plan", userId],
+      });
 
-queryClient.invalidateQueries({
-  queryKey: ["completed-reading-plans", userId],
-});
+      queryClient.invalidateQueries({
+        queryKey: ["completed-reading-plans", userId],
+      });
 
+      queryClient.invalidateQueries({
+        queryKey: ["weekly-badge", userId],
+      });
       toast.success("Today's reading plan is complete!");
     },
 

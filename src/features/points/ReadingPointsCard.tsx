@@ -1,4 +1,4 @@
-import { BookMarked, BookOpen, Star, TrendingDown } from "lucide-react";
+import { BookMarked, BookOpen, Star } from "lucide-react";
 import { useReadingPoints } from "./useReadingPoints";
 
 export const ReadingPointsCard = () => {
@@ -19,8 +19,6 @@ export const ReadingPointsCard = () => {
   if (isError || !data) {
     return null;
   }
-
-  const hasAdjustments = data.adjustments !== 0;
 
   return (
     <section
@@ -51,7 +49,7 @@ export const ReadingPointsCard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 divide-x divide-(--border) border-t border-(--border) bg-(--surface-strong)/60">
+      <div className="grid grid-cols-2 divide-x divide-(--border) border-t border-(--border) bg-(--surface-strong)/60">
         {/* Daily Word */}
         <div className="min-w-0 p-3 sm:px-4 sm:py-3">
           <div className="flex items-center gap-2">
@@ -77,20 +75,6 @@ export const ReadingPointsCard = () => {
 
           <p className="mt-2 text-base font-semibold text-(--text)">
             {data.readingPlan.toLocaleString()}
-          </p>
-        </div>
-
-        {/* Inactivity Adjustments */}
-        <div className="min-w-0 p-3 sm:px-4 sm:py-3">
-          <div className="flex items-center gap-2">
-            <TrendingDown size={15} className="shrink-0 text-(--muted)" />
-            <span className="truncate text-[11px] font-medium text-(--muted-strong)">
-              Adjustments
-            </span>
-          </div>
-
-          <p className="mt-2 text-base font-semibold text-(--text)">
-            {hasAdjustments ? data.adjustments.toLocaleString() : "0"}
           </p>
         </div>
       </div>

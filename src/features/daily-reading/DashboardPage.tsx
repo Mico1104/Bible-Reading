@@ -1,3 +1,4 @@
+import { WeeklyBadgeCard } from "@/features/points/WeeklyBadgeCard";
 import { ReadingBadge } from "@/features/points/ReadingBadge";
 import { ReadingPointsCard } from "@/features/points/ReadingPointsCard";
 import { useReadingPlanDays } from "@/features/reading-plans/useReadingPlanDays";
@@ -417,6 +418,7 @@ export const DashboardPage = () => {
 
         <ReadingPointsCard />
         <PointsHistory />
+        <WeeklyBadgeCard />
 
         {/* ------------------------------------------------------------
             DAILY WORD PROGRESS

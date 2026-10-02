@@ -5,7 +5,6 @@ import {
   ChevronDown,
   ChevronUp,
   Clock3,
-  TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { usePointsHistory } from "./usePointsHistory";
@@ -55,15 +54,20 @@ export const PointsHistory = () => {
           <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-(--muted)">
             Activity
           </span>
+
           <span className="mt-0.5 block text-sm font-semibold text-(--text)">
             Points history
           </span>
         </span>
+
         {isOpen ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
       </button>
 
       {isOpen && (
-        <div id="points-history-content" className="border-t border-(--border)">
+        <div
+          id="points-history-content"
+          className="border-t border-(--border)"
+        >
           {data.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-5 py-10 text-center">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--surface-strong) text-(--muted)">
@@ -75,22 +79,23 @@ export const PointsHistory = () => {
               </p>
 
               <p className="mt-1 max-w-xs text-xs leading-5 text-(--muted)">
-                Complete your Daily Word or a Reading Plan day to start earning
-                points.
+                Complete your Daily Word or a Reading Plan day to start
+                earning points.
               </p>
             </div>
           ) : (
             <>
-              {/* History list */}
               <div
                 className={
-                  showAll ? "max-h-80 overflow-y-auto overscroll-contain" : ""
+                  showAll
+                    ? "max-h-80 overflow-y-auto overscroll-contain"
+                    : ""
                 }
               >
                 <div className="divide-y divide-(--border)">
                   {visibleItems.map((item) => {
-                    const isAdjustment = item.type === "adjustment";
-                    const isDailyWord = item.activityType === "daily_word";
+                    const isDailyWord =
+                      item.activityType === "daily_word";
 
                     return (
                       <div
@@ -99,9 +104,7 @@ export const PointsHistory = () => {
                       >
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--surface-strong) text-(--muted)">
-                            {isAdjustment ? (
-                              <TrendingDown size={17} />
-                            ) : isDailyWord ? (
+                            {isDailyWord ? (
                               <BookOpen size={17} />
                             ) : (
                               <BookMarked size={17} />
@@ -114,32 +117,22 @@ export const PointsHistory = () => {
                             </p>
 
                             <p className="mt-0.5 text-[11px] text-(--muted)">
-                              {new Date(item.createdAt).toLocaleDateString(
-                                undefined,
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )}
+                              {new Date(
+                                item.createdAt,
+                              ).toLocaleDateString(undefined, {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
                             </p>
                           </div>
                         </div>
 
-                        <div
-                          className={`flex shrink-0 items-center gap-1 text-sm font-bold ${
-                            isAdjustment ? "text-(--muted)" : "text-(--primary)"
-                          }`}
-                        >
-                          {isAdjustment ? (
-                            <TrendingDown size={14} />
-                          ) : (
-                            <TrendingUp size={14} />
-                          )}
+                        <div className="flex shrink-0 items-center gap-1 text-sm font-bold text-(--primary)">
+                          <TrendingUp size={14} />
 
                           <span>
-                            {item.points > 0 ? "+" : ""}
-                            {item.points.toLocaleString()}
+                            +{item.points.toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -148,7 +141,6 @@ export const PointsHistory = () => {
                 </div>
               </div>
 
-              {/* View all / collapse */}
               {hasMore && (
                 <div className="border-t border-(--border)">
                   <button

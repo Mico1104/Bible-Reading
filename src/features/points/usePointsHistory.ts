@@ -5,8 +5,8 @@ import { useAuthStore } from "@/stores/authStore";
 export type PointsHistoryItem = {
   id: string;
   points: number;
-  type: "earned" | "adjustment";
-  activityType: "daily_word" | "reading_plan" | null;
+  type: "earned";
+  activityType: "daily_word" | "reading_plan";
   reason: string;
   createdAt: string;
 };
@@ -23,37 +23,22 @@ export const usePointsHistory = () => {
         throw new Error("You must be signed in.");
       }
 
-      const [
-        { data: pointsData, error: pointsError },
-        { data: adjustmentData, error: adjustmentError },
-      ] = await Promise.all([
-        supabase
-          .from("reading_points")
-          .select("id, activity_type, points, awarded_at")
-          .eq("user_id", userId),
-
-        supabase
-          .from("reading_point_adjustments")
-          .select(
-            "id, adjustment, reason, source, created_at",
-          )
-          .eq("user_id", userId),
-      ]);
+      const { data: pointsData, error: pointsError } = await supabase
+        .from("reading_points")
+        .select("id, activity_type, points, awarded_at")
+        .eq("user_id", userId)
+        .order("awarded_at", {
+          ascending: false,
+        });
 
       if (pointsError) {
         throw pointsError;
       }
 
-      if (adjustmentError) {
-        throw adjustmentError;
-      }
-
-      const earnedPoints: PointsHistoryItem[] = (
-        pointsData ?? []
-      ).map((item) => ({
+      return (pointsData ?? []).map((item) => ({
         id: item.id,
         points: item.points,
-        type: "earned",
+        type: "earned" as const,
         activityType: item.activity_type,
         reason:
           item.activity_type === "daily_word"
@@ -61,26 +46,6 @@ export const usePointsHistory = () => {
             : "Reading Plan completed",
         createdAt: item.awarded_at,
       }));
-
-      const adjustments: PointsHistoryItem[] = (
-        adjustmentData ?? []
-      ).map((item) => ({
-        id: item.id,
-        points: item.adjustment,
-        type: "adjustment",
-        activityType: item.source,
-        reason:
-          item.source === "daily_word"
-            ? "Daily Word inactivity"
-            : "Reading Plan inactivity",
-        createdAt: item.created_at,
-      }));
-
-      return [...earnedPoints, ...adjustments].sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime(),
-      );
     },
   });
 };
