@@ -30,6 +30,7 @@ import { MemoryVerse } from "./components/MemoryVerse";
 import { FullPassage } from "./components/FullPassage";
 import { AskAboutPassage } from "./components/AskAboutPassage";
 import { PointsHistory } from "../points/PointsHistory";
+import { ReadingPlanBadgeCard } from "../points/ReadingBadgeCard";
 
 export const DashboardPage = () => {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
@@ -419,7 +420,7 @@ export const DashboardPage = () => {
         <ReadingPointsCard />
         <PointsHistory />
         <WeeklyBadgeCard />
-
+        <ReadingPlanBadgeCard />
         {/* ------------------------------------------------------------
             DAILY WORD PROGRESS
         ------------------------------------------------------------- */}
