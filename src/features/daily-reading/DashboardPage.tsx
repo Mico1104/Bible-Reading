@@ -154,7 +154,7 @@ export const DashboardPage = () => {
     data: selectedReadingPlanMemoryVerse,
     isLoading: isSelectedReadingPlanMemoryVerseLoading,
   } = useVerse(
-    selectedReadingPlanDayData?.memory_verse_reference,
+    selectedReadingPlanDayData?.memory_verse_reference ?? undefined,
     translation,
     translationProvider,
   );

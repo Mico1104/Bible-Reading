@@ -71,7 +71,7 @@ export const OnboardingContent = () => {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="space-y-6"
+      className="max-h-[85vh] space-y-6 overflow-auto sm:max-h-none sm:overflow-visible"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface-strong) px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--primary)">
@@ -97,9 +97,7 @@ export const OnboardingContent = () => {
           <div className="mb-4 flex items-center gap-2">
             <UserRound size={18} className="text-(--primary)" />
 
-            <h2 className="font-semibold text-(--text)">
-              Your profile
-            </h2>
+            <h2 className="font-semibold text-(--text)">Your profile</h2>
           </div>
 
           <div className="space-y-4">
@@ -194,9 +192,7 @@ export const OnboardingContent = () => {
             className="block text-sm font-medium text-(--muted-strong)"
           >
             Daily reminder time
-            <span className="ml-1 font-normal text-(--muted)">
-              (optional)
-            </span>
+            <span className="ml-1 font-normal text-(--muted)">(optional)</span>
           </label>
 
           <input
