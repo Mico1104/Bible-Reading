@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { onboardingSteps, type OnboardingStep } from "./onboardSteps";
 
@@ -46,8 +46,13 @@ export const OnboardingTour = ({ userId, onClose }: OnboardingTourProps) => {
   const reduceMotion = useReducedMotion();
   const steps: OnboardingStep[] = onboardingSteps;
   const [stepIndex, setStepIndex] = useState(0);
-  const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
-  const [isTargetUnavailable, setIsTargetUnavailable] = useState(false);
+  const [targetPosition, setTargetPosition] = useState<{
+    target: string;
+    rect: TargetRect;
+  } | null>(null);
+  const [unavailableTarget, setUnavailableTarget] = useState<string | null>(
+    null,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -58,7 +63,7 @@ export const OnboardingTour = ({ userId, onClose }: OnboardingTourProps) => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
-  const finish = async () => {
+  const finish = useCallback(async () => {
     if (isSaving) return;
 
     setIsSaving(true);
@@ -79,40 +84,34 @@ export const OnboardingTour = ({ userId, onClose }: OnboardingTourProps) => {
       setSaveError("We couldn't save your choice. Please try again.");
       setIsSaving(false);
     }
-  };
+  }, [isSaving, queryClient, userId]);
 
-  const goNext = () => {
+  const goNext = useCallback(() => {
     if (stepIndex === steps.length - 1) {
       void finish();
       return;
     }
     setStepIndex((currentIndex) => currentIndex + 1);
-  };
+  }, [finish, stepIndex, steps.length]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     setStepIndex((currentIndex) => Math.max(currentIndex - 1, 0));
-  };
+  }, []);
 
   useEffect(() => {
-    if (!step) {
-      void finish();
-      return;
-    }
+    if (!step) return;
 
     let timeout: number | undefined;
     let target = getTarget(step.target);
     let hasScrolledToTarget = false;
-    setTargetRect(null);
-    setIsTargetUnavailable(false);
 
     const updateRect = () => {
       target = getTarget(step.target);
       if (target) {
-        setTargetRect(getRect(target));
-        setIsTargetUnavailable(false);
+        setTargetPosition({ target: step.target, rect: getRect(target) });
+        setUnavailableTarget(null);
       } else {
-        setTargetRect(null);
-        setIsTargetUnavailable(true);
+        setUnavailableTarget(step.target);
       }
     };
 
@@ -144,11 +143,10 @@ export const OnboardingTour = ({ userId, onClose }: OnboardingTourProps) => {
         block: "center",
         inline: "nearest",
       });
-      setTargetRect(getRect(target));
     } else {
       timeout = window.setTimeout(() => {
         observer.disconnect();
-        if (!getTarget(step.target)) setIsTargetUnavailable(true);
+        if (!getTarget(step.target)) setUnavailableTarget(step.target);
       }, 1000);
     }
 
@@ -163,7 +161,7 @@ export const OnboardingTour = ({ userId, onClose }: OnboardingTourProps) => {
       window.removeEventListener("resize", updateRect);
       window.removeEventListener("scroll", updateRect, true);
     };
-  }, [reduceMotion, step, stepIndex]);
+  }, [reduceMotion, step]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -218,10 +216,13 @@ export const OnboardingTour = ({ userId, onClose }: OnboardingTourProps) => {
       document.body.style.overflow = previousOverflow;
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
     };
-  }, [isSaving]);
+  }, [finish, goBack, goNext, isSaving]);
 
   if (!step) return null;
 
+  const targetRect =
+    targetPosition?.target === step.target ? targetPosition.rect : null;
+  const isTargetUnavailable = unavailableTarget === step.target;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const isSmallScreen = viewportWidth < 640;
