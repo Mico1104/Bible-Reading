@@ -32,6 +32,8 @@ import { AskAboutPassage } from "./components/AskAboutPassage";
 import { PointsHistory } from "../points/PointsHistory";
 import { ReadingPlanBadgeCard } from "../points/ReadingBadgeCard";
 import {StreakAchievementCard} from "../points/streakAchievementCard";
+import {PointMilestoneCard} from "../points/PointMilestoneCard";
+import { ReadingPlanHistoryCard } from "../reading-plans/ReadingPlanHistoryCard";
 
 export const DashboardPage = () => {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
@@ -419,10 +421,12 @@ export const DashboardPage = () => {
         </div>
 
         <ReadingPointsCard />
+        <PointMilestoneCard />
         <PointsHistory />
         <WeeklyBadgeCard />
         <StreakAchievementCard currentStreak={streak ?? 0}/>
         <ReadingPlanBadgeCard />
+        <ReadingPlanHistoryCard/>
         {/* ------------------------------------------------------------
             DAILY WORD PROGRESS
         ------------------------------------------------------------- */}
