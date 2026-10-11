@@ -34,7 +34,7 @@ export const VerseBlock = ({
         </h3>
       </div>
 
-      <div className="relative mt-5 max-w-2xl space-y-4 text-3xl leading-8 tracking-[0.01em] text-(--text-soft) sm:text-xl sm:leading-9">
+      <div className="relative mt-5 max-w-2xl space-y-4 text-xl leading-8 tracking-[0.01em] text-(--text-soft) sm:text-xl sm:leading-9">
         {verses?.map((v) => {
           const reference = `${canonicalReference}:${v.verse}`;
           const bookmarked = isBookmarked(reference, translation);

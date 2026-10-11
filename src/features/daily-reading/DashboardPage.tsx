@@ -31,9 +31,10 @@ import { FullPassage } from "./components/FullPassage";
 import { AskAboutPassage } from "./components/AskAboutPassage";
 import { PointsHistory } from "../points/PointsHistory";
 import { ReadingPlanBadgeCard } from "../points/ReadingBadgeCard";
-import {StreakAchievementCard} from "../points/streakAchievementCard";
-import {PointMilestoneCard} from "../points/PointMilestoneCard";
+import { StreakAchievementCard } from "../points/streakAchievementCard";
+import { PointMilestoneCard } from "../points/PointMilestoneCard";
 import { ReadingPlanHistoryCard } from "../reading-plans/ReadingPlanHistoryCard";
+import { useCompletedReadingPlans } from "@/features/reading-plans/useCompleteReadingPlans";
 
 export const DashboardPage = () => {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
@@ -78,6 +79,15 @@ export const DashboardPage = () => {
   // ------------------------------------------------------------
   const { data: readingPlanData, isLoading: isReadingPlanLoading } =
     useTodayReadingPlan();
+
+  const {
+    data: completedReadingPlans = [],
+    isLoading: isCompletedReadingPlansLoading,
+  } = useCompletedReadingPlans();
+
+  const hasCompletedReadingPlan = completedReadingPlans.some(
+    (plan) => plan.isCompleted,
+  );
 
   const markPlanDayComplete = useMarkPlanDayComplete();
   const readingPlan = readingPlanData?.plan;
@@ -424,9 +434,9 @@ export const DashboardPage = () => {
         <PointMilestoneCard />
         <PointsHistory />
         <WeeklyBadgeCard />
-        <StreakAchievementCard currentStreak={streak ?? 0}/>
+        <StreakAchievementCard currentStreak={streak ?? 0} />
         <ReadingPlanBadgeCard />
-        <ReadingPlanHistoryCard/>
+        <ReadingPlanHistoryCard />
         {/* ------------------------------------------------------------
             DAILY WORD PROGRESS
         ------------------------------------------------------------- */}
@@ -495,7 +505,7 @@ export const DashboardPage = () => {
             READING PLAN
             Completely separate from Daily Word
         ------------------------------------------------------------- */}
-        {readingPlanEnrolled && (
+        {
           <motion.div
             className="mt-8 max-w-3xl border-t border-(--border) pt-6"
             initial={{ opacity: 0, y: 18 }}
@@ -515,11 +525,39 @@ export const DashboardPage = () => {
               )}
             </div>
 
-            {isReadingPlanLoading || isReadingPlanDaysLoading ? (
+            {isReadingPlanLoading ||
+            isReadingPlanDaysLoading ||
+            isCompletedReadingPlansLoading ? (
               <div className="mt-5 space-y-3">
                 <div className="skeleton-line h-8 max-w-md" />
                 <div className="skeleton-line h-4 max-w-sm" />
                 <div className="skeleton-line h-24" />
+              </div>
+            ) : !readingPlanEnrolled ? (
+              <div className="mt-5 rounded-2xl bg-(--surface-strong) p-5 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-(--surface) text-(--primary)">
+                  <BookOpen size={24} />
+                </div>
+
+                <h2 className="font-display mt-4 text-2xl text-(--text)">
+                  {hasCompletedReadingPlan
+                    ? "Ready for your next journey?"
+                    : "Explore Reading Plans"}
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-(--muted-strong)">
+                  {hasCompletedReadingPlan
+                    ? "You've completed a Reading Plan. Keep growing in God's Word by choosing another journey."
+                    : "Choose an optional Bible reading plan that fits your interests and grow alongside your Daily Word reading."}
+                </p>
+
+                <Link
+                  to="/reading-plans"
+                  className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-(--primary) px-4 py-3 text-sm font-semibold text-white transition hover:bg-(--primary-strong)"
+                >
+                  <BookOpen size={17} />
+                  Explore Reading Plans
+                </Link>
               </div>
             ) : readingPlanCompleted ? (
               <div className="mt-5 rounded-2xl bg-(--surface-strong) p-5 text-center">
@@ -810,7 +848,7 @@ export const DashboardPage = () => {
               </div>
             )}
           </motion.div>
-        )}
+        }
 
         {/* ------------------------------------------------------------
             QUICK ACTIONS
