@@ -300,12 +300,14 @@ export const DashboardPage = () => {
     <>
       <motion.div
         className="content-width page-shell flex flex-col justify-center py-8 sm:py-12"
-        data-onboarding="dashboard-header"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45 }}
       >
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div
+          className="flex flex-wrap items-center justify-between gap-4"
+          data-onboarding="dashboard-header"
+        >
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--muted)">
               {greeting}
@@ -912,7 +914,8 @@ export const DashboardPage = () => {
       </motion.div>
 
       {userId &&
-        profile?.onboarding_completed === false &&
+        profile?.onboarding_completed === true &&
+        profile.guided_tour_completed === false &&
         !isTourDismissed && (
           <OnboardingTour
             userId={userId}

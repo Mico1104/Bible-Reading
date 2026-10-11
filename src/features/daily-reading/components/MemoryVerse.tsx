@@ -21,7 +21,10 @@ export const MemoryVerse = ({
 
   if (isLoading || !chapter) {
     return (
-      <div className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5">
+      <div
+        data-onboarding="memory-verse"
+        className="mt-6 rounded-xl border border-(--border) bg-(--card-verse) p-5"
+      >
         <p className="text-sm text-(--muted)">Loading…</p>
       </div>
     );

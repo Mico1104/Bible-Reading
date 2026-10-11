@@ -16,7 +16,7 @@ export const useProfile = () => {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "name, username, chapters_per_day, testament_preference, bible_translation, reminder_time, translation_provider, onboarding_completed, push_notifications_enabled",
+          "name, username, chapters_per_day, testament_preference, bible_translation, reminder_time, translation_provider, onboarding_completed, guided_tour_completed, push_notifications_enabled",
         )
         .eq("id", userId)
         .single();

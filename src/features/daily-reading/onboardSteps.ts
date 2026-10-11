@@ -10,7 +10,7 @@ export const onboardingSteps: OnboardingStep[] = [
     id: "welcome",
     title: "Welcome to Daily Word",
     description:
-      "This is your daily reading space. Start with the greeting, today's plan, and the reading itself.",
+      "Your daily reading starts here. Let's take a quick look around before you begin.",
     target: "dashboard-header",
   },
   {
@@ -28,45 +28,38 @@ export const onboardingSteps: OnboardingStep[] = [
     target: "memory-verse",
   },
   {
-    id: "full-passage",
-    title: "Full passage",
-    description:
-      "Open the full assignment when you want to read more carefully or revisit a passage in context.",
-    target: "full-passage",
-  },
-  {
     id: "mark-as-read",
     title: "Mark as read",
     description:
-      "When you finish today's reading, mark it complete to keep your reading streak moving forward.",
+      "When you've finished today's reading, mark it complete to record your progress.",
     target: "mark-as-read",
   },
   {
     id: "progress",
     title: "Your progress",
     description:
-      "This section shows how far you've come through the current reading pass and how consistent you've been.",
+      "See how far you've read through your current Bible-reading pass.",
     target: "progress",
   },
   {
     id: "quick-actions",
-    title: "Quick actions",
+    title: "Bookmarks and notes",
     description:
-      "Jump to your saved verses or notes whenever you want to revisit what stood out to you.",
+      "Open your saved bookmarks and notes to revisit what stood out to you.",
     target: "quick-actions",
   },
   {
     id: "ask-about-passage",
     title: "Ask about today's passage",
     description:
-      "Have a question about what you just read? Ask the AI for a brief explanation or reflection.",
+      "Open a conversation to ask questions about today's Bible reading.",
     target: "ask-about-passage",
   },
   {
     id: "reflection",
-    title: "Daily reflection",
+    title: "Reflection",
     description:
-      "Take a moment to reflect on what this passage means for your day and your life.",
+      "Use today's prompt to think about how the passage connects with your day.",
     target: "reflection",
   },
 ];
